@@ -1,0 +1,71 @@
+CREATE OR REPLACE PROCEDURE STDGW.hr_sp_sel_org_tree (
+     p_tco_company_pk varchar2
+     ,p_user_pk   varchar2
+    , p_rtn_value out sys_refcursor
+)
+is
+/******************************************************************************
+   NAME:
+   PURPOSE:
+
+   REVISIONS:
+   Ver        Date        Author           Description
+   ---------  ----------  ---------------  ------------------------------------
+   1.0        9/25/2007   Nguyen Van Thai co sai dung chui      1. Created this function.
+
+******************************************************************************/
+l_flag_exist boolean:=FALSE;
+   l_cur_rec number;
+   l_cur sys_refcursor;
+   
+   l_rtn_cur   sys_refcursor;
+begin
+    
+    open l_cur for
+                SELECT 1
+                FROM THR_ROLE A
+                WHERE A.DEL_IF=0 AND A.USER_PK=p_user_pk;
+            
+            
+                FETCH l_cur INTO l_cur_rec;
+                  l_flag_exist := l_cur%FOUND;
+                CLOSE l_cur;
+                
+               
+                
+           if l_flag_exist=true then
+                open l_rtn_cur for
+                     select     level - 2, trim (a.org_id) || ' ' || a.org_nm, a.pk, level + 1,
+                        decode (level - 2, -1, 1, 1, 1, 2, 1, 0)
+                    from tco_org a
+                   where a.del_if = 0 
+                   and decode(p_tco_company_pk,'ALL','ALL',a.tco_company_pk) =p_tco_company_pk 
+                   AND (A.END_DATE IS NULL OR NVL(A.END_DATE,TO_CHAR(SYSDATE+1,'YYYYMMDD')) >  TO_CHAR(SYSDATE,'YYYYMMDD')) 
+                connect by prior a.pk = a.p_pk
+                start with a.pk in (select r.tco_dept_pk from thr_role r where r.del_if=0 and r.USER_pk=p_user_pk)
+                order siblings by a.org_id;
+           else
+           
+                open l_rtn_cur for
+                  select     level - 2, trim (a.org_id) || ' ' || a.org_nm, a.pk, level + 1,
+                             decode (level - 2, -1, 1, 1, 1, 2, 1, 0)
+                        from tco_org a
+                       where a.del_if = 0 and decode(p_tco_company_pk,'ALL','ALL',a.tco_company_pk) =p_tco_company_pk
+                       AND (A.END_DATE IS NULL OR NVL(A.END_DATE,TO_CHAR(SYSDATE+1,'YYYYMMDD')) >  TO_CHAR(SYSDATE,'YYYYMMDD'))
+                  connect by prior a.pk = a.p_pk
+                  start with nvl(a.p_pk,0)=0
+                  order siblings by a.org_id;
+                
+                  
+           end if; 
+
+
+   
+
+   p_rtn_value := l_rtn_cur;
+exception
+   when others
+   then
+      raise;
+end;
+/

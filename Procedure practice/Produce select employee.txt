@@ -1,0 +1,42 @@
+CREATE OR REPLACE PROCEDURE STDGW.HR_SEL_CHAE00782_EMPLOYEE (
+   p_org_code        VARCHAR2, --TCO_ORG_PK
+   p_gr_code        VARCHAR2, --THR_WG_PK
+   p_nation          VARCHAR2, -- NATION 
+   p_rtn_value   OUT SYS_REFCURSOR)
+IS
+   l_rtn_cur   SYS_REFCURSOR;
+BEGIN
+   OPEN l_rtn_cur FOR
+      SELECT A.EMP_ID,           
+             A.FULL_NAME,            
+             A.SEX,
+             A.NATION,
+             A.TEL,
+             A.PK,
+             A.JOIN_DT,
+             A.BIRTH_DT
+        FROM TES_EMPLOYEE A
+       WHERE A.DEL_IF = 0 
+       --and decode( p_org_code, 'ALL', 'ALL', A.TCO_ORG_PK ) = p_org_code
+       and (    a.tco_org_pk in (select     g.pk
+                                from       tes_tco_org g
+                                where      g.del_if = 0
+                                start with g.pk = decode( p_org_code, 'ALL', 0, p_org_code )
+                                connect by prior g.pk = g.p_pk
+                                --connect by prior g.p_pk = g.pk  
+                                )
+            or p_org_code = 'ALL' )
+       and decode( p_gr_code, 'ALL', 'ALL', A.THR_WG_PK ) = p_gr_code
+       and decode( p_nation, 'ALL', 'ALL', A.NATION ) = p_nation;
+       
+   p_rtn_value := l_rtn_cur;
+EXCEPTION
+   WHEN NO_DATA_FOUND
+   THEN
+      NULL;
+   WHEN OTHERS
+   THEN
+      -- Consider logging the error and then re-raise
+      RAISE;
+END HR_SEL_CHAE00782_EMPLOYEE;
+/

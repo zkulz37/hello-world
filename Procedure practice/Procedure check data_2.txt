@@ -1,0 +1,52 @@
+/* Formatted on 4/24/2018 11:10:14 AM (QP5 v5.256.13226.35538) */
+CREATE OR REPLACE PROCEDURE TES_SELECT2_EMP (p_empid        NUMBER,
+                                            v_fullname   OUT VARCHAR)
+IS
+   -- call cursor
+   v_result number;
+   p_temp   SYS_REFCURSOR;
+   
+   
+BEGIN
+  DBMS_OUTPUT.PUT_LINE ('Begin');
+  
+  open p_temp for
+   select 1
+   from THR_EMPLOYEE A
+   where upper(A.EMP_ID) = upper(p_empid) and A.PK = 0;
+   
+   fetch p_temp into v_result;
+   
+   if p_temp%found
+   then 
+        v_result := 1;
+        
+        select A.FULL_NAME into v_fullname 
+        from THR_EMPLOYEE A 
+        where A.EMP_ID = p_empid;
+        
+        DBMS_OUTPUT.PUT_LINE('IN VALUE === ' || p_empid);
+        DBMS_OUTPUT.PUT_LINE('RESULT CODE === ' || v_result);
+        DBMS_OUTPUT.PUT_LINE('FULL NAME === ' || v_fullname);
+   else 
+        v_result :=0;
+        v_fullname := 'NULL';
+        DBMS_OUTPUT.PUT_LINE('IN VALUE === ' || p_empid);
+        DBMS_OUTPUT.PUT_LINE('RESULT CODE === ' || v_result);
+        DBMS_OUTPUT.PUT_LINE('FULL NAME === ' || v_fullname);
+        DBMS_OUTPUT.PUT_LINE('NO RECORD');
+       
+   end if;
+   
+   
+   
+EXCEPTION
+   WHEN NO_DATA_FOUND
+   THEN
+      NULL;
+   WHEN OTHERS
+   THEN
+      -- Consider logging the error and then re-raise
+      RAISE;
+END TES_SELECT2_EMP;
+/

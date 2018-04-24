@@ -1,0 +1,36 @@
+/* Formatted on 4/24/2018 11:10:14 AM (QP5 v5.256.13226.35538) */
+CREATE OR REPLACE PROCEDURE TES_SELECT_EMP (p_empid        NUMBER,
+                                            v_result   OUT VARCHAR)
+IS
+   -- call cursor
+   p_temp   SYS_REFCURSOR;
+BEGIN
+  
+    open p_temp for
+    select 1 
+    from THR_EMPLOYEE a 
+    where upper(A.EMP_ID) = upper(p_empid) and a.del_if = 0;
+    
+    fetch p_temp into v_result;   
+    if p_temp%found       -- if p_temp = true 
+    then 
+    DBMS_OUTPUT.PUT_LINE ('HAVE DATA');
+    v_result := 1;
+    else 
+    DBMS_OUTPUT.PUT_LINE ('HAVE NOT DATA');
+    v_result:=0;
+    end if; 
+    
+   
+   DBMS_OUTPUT.PUT_LINE ('in value == ' || p_empid);
+   DBMS_OUTPUT.PUT_LINE ('out value == ' || v_result);
+EXCEPTION
+   WHEN NO_DATA_FOUND
+   THEN
+      NULL;
+   WHEN OTHERS
+   THEN
+      -- Consider logging the error and then re-raise
+      RAISE;
+END TES_SELECT_EMP;
+/
