@@ -1,0 +1,328 @@
+﻿<%@ Page Language="C#"%>
+<%@ Import Namespace = "System.Data"%>
+<%  ESysLib.SetUser("acnt");
+	Response.ContentType = "application/vnd.ms-excel";
+    Response.Charset = "utf-8"; 
+	Response.Buffer = false;
+%>
+<%
+    string SQL = "";
+    string v_param = "";
+    v_param = "";
+    string v_comp_pk = ""; // company
+    string v_std_ym = "";
+    string v_warehouse_pk = "";
+    string v_acpk = "";
+    string v_item_pk = "";
+    string v_abplcenter_pk = "";
+    string v_comp_name = "", v_comp_addr = "";
+    v_comp_pk = Request["comp_pk"]; 
+    v_std_ym = Request["std_ym"];
+    v_warehouse_pk = Request["warehouse_pk"];
+    v_acpk = Request["acpk"];
+    v_item_pk = Request["item_pk"];
+    v_abplcenter_pk = Request["abplcenter_pk"];
+    v_param = "'" + v_comp_pk + "', '" + v_std_ym + "', '" + v_warehouse_pk + "', '" + v_acpk + "', '" + v_item_pk + "', '";
+    v_param += v_abplcenter_pk + "' ";
+    DataTable dt = ESysLib.TableReadOpenCursor("sp_sel_fmgf00400", v_param);
+    if (dt.Rows.Count == 0)
+    {
+        Response.Write("There is no data to display");            
+    }
+    SQL = "select partner_lname, addr1 from comm.tco_company where pk like '" + v_comp_pk + "' ";
+    DataTable dtComp = new DataTable();
+    dtComp = ESysLib.TableReadOpen(SQL);
+    if (dtComp.Rows.Count > 0)
+    {
+        v_comp_name = dtComp.Rows[0][0].ToString();
+        v_comp_addr = dtComp.Rows[0][1].ToString();
+    }
+    int i;
+    
+%>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 11">
+<link rel=File-List href="Inventory%20FG_files/filelist.xml">
+<style id="Book2_22969_Styles">
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+.xl1522969
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl2222969
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:16.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl2322969
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:bottom;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl2422969
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:"\#\,\#\#0";
+	text-align:general;
+	vertical-align:bottom;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl2522969
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:bottom;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl2622969
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"\#\,\#\#0";
+	text-align:general;
+	vertical-align:bottom;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl2722969
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"\#\,\#\#0";
+	text-align:general;
+	vertical-align:bottom;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+-->
+</style>
+</head>
+
+<body>
+<!--[if !excel]>&nbsp;&nbsp;<![endif]-->
+<!--The following information was generated by Microsoft Office Excel's Publish
+as Web Page wizard.-->
+<!--If the same item is republished from Excel, all information between the DIV
+tags will be replaced.-->
+<!----------------------------->
+<!--START OF OUTPUT FROM EXCEL PUBLISH AS WEB PAGE WIZARD -->
+<!----------------------------->
+
+<div id="Book2_22969" align=center x:publishsource="Excel">
+
+<table x:str border=0 cellpadding=0 cellspacing=0 width=785 style='border-collapse:
+ collapse;table-layout:fixed;width:590pt'>
+ <col width=64 span=2 style='width:48pt'>
+ <col width=121 style='mso-width-source:userset;mso-width-alt:4425;width:91pt'>
+ <col width=112 style='mso-width-source:userset;mso-width-alt:4096;width:84pt'>
+ <col width=106 style='mso-width-source:userset;mso-width-alt:3876;width:80pt'>
+ <col width=129 style='mso-width-source:userset;mso-width-alt:4717;width:97pt'>
+ <col width=125 style='mso-width-source:userset;mso-width-alt:4571;width:94pt'>
+ <col width=64 style='width:48pt'>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl1522969 align=left width=64 style='height:12.75pt;
+  width:48pt'><%=v_comp_name %></td>
+  <td class=xl1522969 width=64 style='width:48pt'></td>
+  <td class=xl1522969 width=121 style='width:91pt'></td>
+  <td class=xl1522969 width=112 style='width:84pt'></td>
+  <td class=xl1522969 width=106 style='width:80pt'></td>
+  <td class=xl1522969 width=129 style='width:97pt'></td>
+  <td class=xl1522969 width=125 style='width:94pt'></td>
+  <td class=xl1522969 width=64 style='width:48pt'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl1522969 align=left style='height:12.75pt'><%=v_comp_addr %></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+ </tr>
+ <tr height=27 style='height:20.25pt'>
+  <td height=27 class=xl1522969 style='height:20.25pt'></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+  <td class=xl2222969 colspan=3 align=left>Inventory Finished Goods</td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl1522969 style='height:12.75pt'></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl2322969 style='height:12.75pt'>No</td>
+  <td class=xl2322969>Item Code</td>
+  <td class=xl2322969>Beginning Q'ty</td>
+  <td class=xl2322969>Produced Q'ty</td>
+  <td class=xl2322969>Output Q'ty</td>
+  <td class=xl2322969 x:str="Ending Q'ty ">Ending Q'ty<span
+  style='mso-spacerun:yes'> </span></td>
+  <td class=xl2322969>Note</td>
+  <td class=xl1522969></td>
+ </tr>
+ <% 
+    decimal v_begin_qty = 0, v_produced_qty = 0, v_sale_qty = 0, v_end_qty = 0;
+    for (i = 0; i < dt.Rows.Count; i++)
+    {
+        if (dt.Rows[i][4].ToString() != "") // begin qty
+        {
+            v_begin_qty += decimal.Parse(dt.Rows[i][4].ToString());
+        }
+        if (dt.Rows[i][5].ToString() != "") // produced qty
+        {
+            v_produced_qty += decimal.Parse(dt.Rows[i][5].ToString());
+        }
+        if (dt.Rows[i][6].ToString() != "") // sale qty
+        {
+            v_sale_qty += decimal.Parse(dt.Rows[i][6].ToString());
+        }
+        if (dt.Rows[i][7].ToString() != "") // end qty
+        {
+            v_end_qty += decimal.Parse(dt.Rows[i][7].ToString());
+        }
+        
+ %>
+
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl2322969 style='height:12.75pt' x:str><%=dt.Rows[i][0]%></td>
+  <td class=xl1522969 align=left><%=dt.Rows[i][3]%></td>
+  <td class=xl2422969 align=right x:num><%=dt.Rows[i][4]%></td>
+  <td class=xl2422969 align=right x:num><%=dt.Rows[i][5]%></td>
+  <td class=xl2422969 align=right x:num><%=dt.Rows[i][6]%></td>
+  <td class=xl2722969 align=right x:num><%=dt.Rows[i][7]%></td>
+  <td class=xl1522969 align=left><%=dt.Rows[i][8]%></td>
+  <td class=xl1522969></td>
+ </tr>
+ <% 
+     }
+ %>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl2522969 style='height:12.75pt'>total</td>
+  <td class=xl1522969></td>
+  <td class=xl2622969 align=right x:num ><%=v_begin_qty %></td>
+  <td class=xl2622969 align=right x:num ><%=v_produced_qty %></td>
+  <td class=xl2622969 align=right x:num ><%=v_sale_qty %></td>
+  <td class=xl2622969 align=right x:num><%=v_end_qty %></td>
+  <td class=xl1522969></td>
+  <td class=xl1522969></td>
+ </tr>
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=121 style='width:91pt'></td>
+  <td width=112 style='width:84pt'></td>
+  <td width=106 style='width:80pt'></td>
+  <td width=129 style='width:97pt'></td>
+  <td width=125 style='width:94pt'></td>
+  <td width=64 style='width:48pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</div>
+
+
+<!----------------------------->
+<!--END OF OUTPUT FROM EXCEL PUBLISH AS WEB PAGE WIZARD-->
+<!----------------------------->
+</body>
+
+</html>

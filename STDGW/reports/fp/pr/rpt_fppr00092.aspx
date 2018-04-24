@@ -1,0 +1,719 @@
+<%@ Page Language="C#" %>
+
+<%@ Import Namespace="System.Data" %>
+<%  ESysLib.SetUser("prod");
+    Response.ContentType = "application/vnd.ms-excel";
+    Response.Buffer = false;
+%>
+
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<%    
+    string p_from_date = Request.QueryString["plan_date"];
+	
+	string fr_date = p_from_date.Substring(6, 2) + "/" + p_from_date.Substring(4, 2) + "/" + p_from_date.Substring(0, 4);
+	
+    string factory_pk = Request.QueryString["factory_pk"];
+    string factory_name = Request.QueryString["factory_name"];
+    string p_spec_chk = Request.QueryString["p_spec_chk"];
+	string p_page = Request.QueryString["p_page"];
+
+    string para = "'" + factory_pk + "','" + p_from_date + "','" + p_spec_chk + "','" + p_page + "'";
+	
+    DataTable dt;
+    dt = ESysLib.TableReadOpenCursor("PROD.sp_rpt_fppr00092_1", para); 
+	
+	para = "'" + p_page + "'";
+	
+    DataTable dt_header;
+    dt_header = ESysLib.TableReadOpenCursor("PROD.sp_rpt_fppr00092", para); 			
+%>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 11">
+<link rel=File-List href="rpt_fppr00092_files/filelist.xml">
+<link rel=Edit-Time-Data href="rpt_fppr00092_files/editdata.mso">
+<link rel=OLE-Object-Data href="rpt_fppr00092_files/oledata.mso">
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>VINAGENUWIN</o:Author>
+  <o:LastAuthor>VINAGENUWIN</o:LastAuthor>
+  <o:LastPrinted>2011-05-12T08:46:34Z</o:LastPrinted>
+  <o:Created>2011-01-18T02:41:07Z</o:Created>
+  <o:LastSaved>2011-05-12T09:09:34Z</o:LastSaved>
+  <o:Version>11.6360</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{mso-footer-data:"Page &P of &N";
+	margin:.18in .17in .17in .17in;
+	mso-header-margin:.17in;
+	mso-footer-margin:.16in;
+	mso-page-orientation:landscape;}
+.font6
+	{color:#993300;
+	font-size:15.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;}
+.font7
+	{color:windowtext;
+	font-size:15.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl24
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;}
+.xl25
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:1.0pt solid windowtext;
+	border-bottom:none;
+	border-left:1.0pt solid windowtext;
+	background:#CCFFFF;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl26
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:1.0pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	background:#CCFFFF;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl27
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:1.0pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	background:#CCFFFF;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl28
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:2.0pt double windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:2.0pt double windowtext;
+	white-space:normal;}
+.xl29
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:2.0pt double windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl30
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:2.0pt double windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl31
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"\#\,\#\#0";
+	text-align:center;
+	vertical-align:middle;
+	border-top:2.0pt double windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl32
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0_\)\;_\(* \\\(\#\,\#\#0\\\)\;_\(* \0022-\0022_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:2.0pt double windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl33
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0_\)\;_\(* \\\(\#\,\#\#0\\\)\;_\(* \0022-\0022_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:2.0pt double windowtext;
+	border-right:2.0pt double windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl34
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"\#\,\#\#0";
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:2.0pt double windowtext;
+	border-left:none;
+	background:#FFFF99;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl35
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"\#\,\#\#0";
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:2.0pt double windowtext;
+	border-left:none;
+	background:#FFFF99;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl36
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0_\)\;_\(* \\\(\#\,\#\#0\\\)\;_\(* \0022-\0022_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:2.0pt double windowtext;
+	border-left:none;
+	background:#FFFF99;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl37
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0_\)\;_\(* \\\(\#\,\#\#0\\\)\;_\(* \0022-\0022_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:2.0pt double windowtext;
+	border-bottom:2.0pt double windowtext;
+	border-left:none;
+	background:#FFFF99;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl38
+	{mso-style-parent:style0;
+	color:#993300;
+	font-size:15.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:1.0pt solid windowtext;
+	border-left:none;}
+.xl39
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:2.0pt double windowtext;
+	border-left:2.0pt double windowtext;
+	background:#FFFF99;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl40
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:2.0pt double windowtext;
+	border-left:none;
+	background:#FFFF99;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl41
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid black;
+	border-bottom:2.0pt double windowtext;
+	border-left:none;
+	background:#FFFF99;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl42
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0_\)\;_\(* \\\(\#\,\#\#0\\\)\;_\(* \0022-\0022_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:2.0pt double windowtext;
+	border-left:none;
+	white-space:normal;}	
+	
+.xl43
+	{mso-style-parent:style0;
+	font-size:7.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0_\)\;_\(* \\\(\#\,\#\#0\\\)\;_\(* \0022-\0022_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:5pt hairline windowtext;
+	border-right:2.0pt double windowtext;
+	border-bottom:.2.0pt double windowtext;
+	border-left:none;
+	white-space:normal;}	
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet1</x:Name>
+    <x:WorksheetOptions>
+     <x:DefaultRowHeight>180</x:DefaultRowHeight>
+     <x:FitToPage/>
+     <x:FitToPage/>
+     <x:Print>
+      <x:ValidPrinterInfo/>
+      <x:Scale>72</x:Scale>
+      <x:HorizontalResolution>600</x:HorizontalResolution>
+      <x:VerticalResolution>0</x:VerticalResolution>
+     </x:Print>
+     <x:Selected/>
+     <x:LeftColumnVisible>4</x:LeftColumnVisible>
+     <x:Panes>
+      <x:Pane>
+       <x:Number>3</x:Number>
+       <x:ActiveRow>8</x:ActiveRow>
+       <x:ActiveCol>21</x:ActiveCol>
+      </x:Pane>
+     </x:Panes>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet2</x:Name>
+    <x:WorksheetOptions>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet3</x:Name>
+    <x:WorksheetOptions>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:WindowHeight>8700</x:WindowHeight>
+  <x:WindowWidth>16155</x:WindowWidth>
+  <x:WindowTopX>480</x:WindowTopX>
+  <x:WindowTopY>120</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+ <x:ExcelName>
+  <x:Name>Print_Titles</x:Name>
+  <x:SheetIndex>1</x:SheetIndex>
+  <x:Formula>=Sheet1!$1:$2</x:Formula>
+ </x:ExcelName>
+</xml><![endif]-->
+</head>
+
+<body link=blue vlink=purple class=xl24>
+
+<table x:str border=0 cellpadding=0 cellspacing=0 width=1340 style='border-collapse:
+ collapse;table-layout:fixed;width:1005pt'>
+ <col class=xl24 width=40 style='mso-width-source:userset;mso-width-alt:1462;
+ width:30pt'>
+ <col class=xl24 width=60 span=3 style='mso-width-source:userset;mso-width-alt:
+ 2194;width:45pt'>
+ <col class=xl24 width=40 span=28 style='mso-width-source:userset;mso-width-alt:
+ 1462;width:30pt'>
+ <tr height=31 style='mso-height-source:userset;height:23.25pt'>
+  <td colspan=32 height=31 class=xl38 width=1340 style='height:23.25pt;
+  width:1005pt'><%=factory_name%><font class="font7"> P/O COMPONENT SHORTAGE <%=p_page%> </font><font
+  class="font6"><%= System.DateTime.Now.ToString("dd/MM/yy HH:mm")%></font></td>
+ </tr>
+ <tr height=46 style='mso-height-source:userset;height:34.5pt'>
+  <td height=46 class=xl25 width=40 style='height:34.5pt;width:30pt'>R/G</td>
+  <td class=xl26 width=60 style='width:45pt'>P/O</td>
+  <td class=xl26 width=60 style='width:45pt'>Style</td>
+  <td class=xl26 width=60 style='width:45pt'>Color</td>
+  <td class=xl26 width=40 style='width:30pt'>Plan</td>
+  <td class=xl26 width=40 style='width:30pt'>Sew Prod</td>
+  <td class=xl26 width=40 style='width:30pt'>Sew Target</td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp01"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp02"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp03"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp04"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp05"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp06"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp07"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp08"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp09"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp10"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp11"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp12"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp13"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp14"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp15"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp16"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp17"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp18"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp19"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp20"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp21"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp22"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp23"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp24"]%></td>
+  <td class=xl27 width=40 style='width:30pt'><%=dt_header.Rows[0]["comp25"]%></td>
+ </tr>
+ 
+  <%
+ 	 int s_plan_qty = 0;
+	 int s_total_target = 0;
+	 int s_today_target = 0;
+	 int s_comp01_qty = 0;
+	 int s_comp02_qty = 0;
+	 int s_comp03_qty = 0;
+	 int s_comp04_qty = 0;
+	 int s_comp05_qty = 0;
+	 int s_comp06_qty = 0;
+	 int s_comp07_qty = 0;
+	 int s_comp08_qty = 0;
+	 int s_comp09_qty = 0;
+	 int s_comp10_qty = 0;
+	 int s_comp11_qty = 0;
+	 int s_comp12_qty = 0;
+	 int s_comp13_qty = 0;
+	 int s_comp14_qty = 0;
+	 int s_comp15_qty = 0;
+	 int s_comp16_qty = 0;
+	 int s_comp17_qty = 0;
+	 int s_comp18_qty = 0;
+	 int s_comp19_qty = 0;
+	 int s_comp20_qty = 0;
+	 int s_comp21_qty = 0;
+	 int s_comp22_qty = 0;
+	 int s_comp23_qty = 0;
+	 int s_comp24_qty = 0;
+	 int s_comp25_qty = 0;
+	 	    
+		 
+ 	 for (int i = 0; i < dt.Rows.Count; i++)
+     {	 	 			 
+		
+		s_plan_qty = s_plan_qty + Convert.ToInt32(dt.Rows[i]["plan_qty"].ToString()) ;
+		s_total_target = s_total_target + Convert.ToInt32(dt.Rows[i]["total_target"].ToString()) ;
+		s_today_target = s_today_target + Convert.ToInt32(dt.Rows[i]["today_target"].ToString()) ;	
+			 
+		s_comp01_qty = s_comp01_qty + Convert.ToInt32(dt.Rows[i]["comp01_qty"].ToString()) ;
+		s_comp02_qty = s_comp02_qty + Convert.ToInt32(dt.Rows[i]["comp02_qty"].ToString()) ;
+		s_comp03_qty = s_comp03_qty + Convert.ToInt32(dt.Rows[i]["comp03_qty"].ToString()) ;
+		s_comp04_qty = s_comp04_qty + Convert.ToInt32(dt.Rows[i]["comp04_qty"].ToString()) ;		
+		s_comp05_qty = s_comp05_qty + Convert.ToInt32(dt.Rows[i]["comp05_qty"].ToString()) ;
+		s_comp06_qty = s_comp06_qty + Convert.ToInt32(dt.Rows[i]["comp06_qty"].ToString()) ;		
+		s_comp07_qty = s_comp07_qty + Convert.ToInt32(dt.Rows[i]["comp07_qty"].ToString()) ;
+		s_comp08_qty = s_comp08_qty + Convert.ToInt32(dt.Rows[i]["comp08_qty"].ToString()) ;
+		s_comp09_qty = s_comp09_qty + Convert.ToInt32(dt.Rows[i]["comp09_qty"].ToString()) ;
+		s_comp10_qty = s_comp10_qty + Convert.ToInt32(dt.Rows[i]["comp10_qty"].ToString()) ;
+		s_comp11_qty = s_comp11_qty + Convert.ToInt32(dt.Rows[i]["comp11_qty"].ToString()) ;
+		s_comp12_qty = s_comp12_qty + Convert.ToInt32(dt.Rows[i]["comp12_qty"].ToString()) ;
+		s_comp13_qty = s_comp13_qty + Convert.ToInt32(dt.Rows[i]["comp13_qty"].ToString()) ;
+		s_comp14_qty = s_comp14_qty + Convert.ToInt32(dt.Rows[i]["comp14_qty"].ToString()) ;
+		s_comp15_qty = s_comp15_qty + Convert.ToInt32(dt.Rows[i]["comp15_qty"].ToString()) ;
+		s_comp16_qty = s_comp16_qty + Convert.ToInt32(dt.Rows[i]["comp16_qty"].ToString()) ;
+		s_comp17_qty = s_comp17_qty + Convert.ToInt32(dt.Rows[i]["comp17_qty"].ToString()) ;
+		s_comp18_qty = s_comp18_qty + Convert.ToInt32(dt.Rows[i]["comp18_qty"].ToString()) ;
+		s_comp19_qty = s_comp19_qty + Convert.ToInt32(dt.Rows[i]["comp19_qty"].ToString()) ;
+		s_comp20_qty = s_comp20_qty + Convert.ToInt32(dt.Rows[i]["comp20_qty"].ToString()) ;
+		s_comp21_qty = s_comp21_qty + Convert.ToInt32(dt.Rows[i]["comp21_qty"].ToString()) ;
+		s_comp22_qty = s_comp22_qty + Convert.ToInt32(dt.Rows[i]["comp22_qty"].ToString()) ;
+		s_comp23_qty = s_comp23_qty + Convert.ToInt32(dt.Rows[i]["comp23_qty"].ToString()) ;
+		s_comp24_qty = s_comp24_qty + Convert.ToInt32(dt.Rows[i]["comp24_qty"].ToString()) ;
+		s_comp25_qty = s_comp25_qty + Convert.ToInt32(dt.Rows[i]["comp25_qty"].ToString()) ;
+ %> 
+ 
+ <tr height=25 style='mso-height-source:userset;height:18.75pt'>
+  <td height=25 class=xl28 width=40 style='height:18.75pt;width:30pt' rowspan="2"><%=dt.Rows[i]["routing_group"]%></td>
+  <td class=xl29 width=60 style='width:45pt' rowspan="2"><%=dt.Rows[i]["ref_po_no"]%></td>
+  <td class=xl29 width=60 style='width:45pt' rowspan="2"><%=dt.Rows[i]["style_id"]%></td>
+  <td class=xl30 width=60 style='width:45pt' rowspan="2"><%=dt.Rows[i]["spec"]%></td>
+  <td class=xl31 width=40 style='width:30pt' x:num rowspan="2"><%=dt.Rows[i]["plan_qty"]%></td>
+  <td class=xl31 width=40 style='width:30pt' x:num rowspan="2"><%=dt.Rows[i]["total_target"]%></td>
+  <td class=xl31 width=40 style='width:30pt' x:num rowspan="2"><%=dt.Rows[i]["today_target"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp01_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp02_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp03_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp04_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp05_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp06_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp07_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp08_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp09_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp10_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp11_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp12_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp13_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp14_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp15_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp16_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp17_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp18_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp19_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp20_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp21_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp22_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp23_qty"]%></td>
+  <td class=xl32 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp24_qty"]%></td>
+  <td class=xl33 width=40 style='width:30pt' x:num><%=dt.Rows[i]["comp25_qty"]%></td>
+ </tr>
+ 
+ <tr height=25 style='mso-height-source:userset;height:18.75pt'>  
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today01_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today02_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today03_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today04_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today05_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today06_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today07_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today08_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today09_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today10_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today11_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today12_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today13_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today14_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today15_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today16_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today17_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today18_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today19_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today20_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today21_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today22_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today23_qty"]%></td>
+  <td class=xl42 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today24_qty"]%></td>
+  <td class=xl43 width=40 style='width:30pt' x:num><%=dt.Rows[i]["today25_qty"]%></td>
+ </tr>
+ 
+ 
+  <%
+ 	}
+ %>
+ <tr height=25 style='mso-height-source:userset;height:18.75pt'>
+  <td colspan=4 height=25 class=xl39 width=220 style='border-right:.5pt solid black;
+  height:18.75pt;width:165pt'>Total</td>
+  <td class=xl34 align=right width=40 style='width:30pt' x:num><%=s_plan_qty%></td>
+  <td class=xl35 width=40 style='width:30pt' x:num><%=s_total_target%></td>
+  <td class=xl35 width=40 style='width:30pt' x:num><%=s_today_target%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp01_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp02_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp03_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp04_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp05_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp06_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp07_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp08_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp09_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp10_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp11_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp12_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp13_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp14_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp15_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp16_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp17_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp18_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp19_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp20_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp21_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp22_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp23_qty%></td>
+  <td class=xl36 width=40 style='width:30pt' x:num><%=s_comp24_qty%></td>
+  <td class=xl37 width=40 style='width:30pt' x:num><%=s_comp25_qty%></td>
+ </tr>
+ <tr height=13 style='height:9.75pt'>
+  <td height=13 colspan=32 class=xl24 style='height:9.75pt;mso-ignore:colspan'></td>
+ </tr>
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=40 style='width:30pt'></td>
+  <td width=60 style='width:45pt'></td>
+  <td width=60 style='width:45pt'></td>
+  <td width=60 style='width:45pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</body>
+
+</html>

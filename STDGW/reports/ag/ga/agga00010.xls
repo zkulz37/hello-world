@@ -1,0 +1,373 @@
+<% 	
+	Response.ContentType = "application/x-excel"
+	Response.Charset = "utf-8"
+	Response.Buffer = False
+ %>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<!-- #include file="../db1.inc"  -->
+<%ConnectDBApp%>
+
+<%
+
+	dim p_lstPeriod
+
+	p_lstPeriod = Request("lstPeriod")
+	p_Date_Fr   = Request("dtDate_Fr")
+	p_Date_To   = Request("dtDate_To")
+
+
+SQL = " SELECT DECODE('"& p_lstPeriod &"','1',TO_CHAR(TO_DATE(T.STD_YMD,'YYYYMMDD'),'DD/MM/YYYY'),TO_CHAR(TO_DATE(T.STD_YM,'YYYYMM'),'MM/YYYY')) AS DATE_0 "
+SQL = SQL & "    , C.CODE_NM  AS CURRENCY_1 "
+SQL = SQL & "    ,NVL(T.TTB_RATE,0) AS TTB_2 "
+SQL = SQL & "    ,NVL(T.TTS_RATE,0) AS TTS_3 "
+SQL = SQL & "    ,NVL(T.TTM_RATE,0) AS TTM_4 "
+SQL = SQL & "    ,NVL(T.TTMP_RATE,0) AS TTMP_5 "
+SQL = SQL & "    ,NVL(T.TTM_RATE,0)- NVL(T.TTMP_RATE,0) AS TTMP_6 "
+SQL = SQL & "    ,DECODE(NVL(T.TTMP_RATE,0),0,0, DECODE(NVL(T.TTM_RATE,0)- NVL(T.TTMP_RATE,0),0,0, ROUND((NVL(T.TTM_RATE,0)- NVL(T.TTMP_RATE,0))*100/T.TTMP_RATE,2)  )   )   AS TTMP_7 "
+SQL = SQL & "FROM TAC_ABEXRATES T "
+SQL = SQL & "    ,(SELECT CODE as CODE, CODE_NM as CODE_NM "
+SQL = SQL & "      FROM TCO_ABCODE "
+SQL = SQL & "      WHERE TCO_ABCODEGRP_PK = 184 AND USE_IF = 1 "
+SQL = SQL & "     ) C "
+SQL = SQL & "WHERE T.DEL_IF = 0 "
+SQL = SQL & "AND T.CCY = C.CODE "
+SQL = SQL & "AND DECODE('"& p_lstPeriod &"','1',T.STD_YMD,T.STD_YM ) BETWEEN '"& p_Date_Fr &"' AND '"& p_Date_To &"' "
+SQL = SQL & "ORDER BY T.STD_YM, T.STD_YMD,T.CCY "
+
+	'response.write SQL
+	'response.end
+	
+	TableReadOpen rec, SQL
+	if not rec.eof then		
+		emp = rec.GetRows()
+		ttemp = Ubound(emp, 2) + 1
+	Else
+		ttemp = 0
+		response.write "There is no data"
+		response.end
+	end if
+
+	
+SQLD = " SELECT  DECODE('"& p_lstPeriod &"','1',TO_CHAR(TO_DATE('"& p_Date_Fr &"','YYYYMMDD'),'DD/MM/YYYY'),TO_CHAR(TO_DATE('"& p_Date_Fr &"','YYYYMM'),'MM/YYYY') ) AS DATE_0 "
+SQLD = SQLD & ", DECODE('"& p_lstPeriod &"','1',TO_CHAR(TO_DATE('"& p_Date_To &"','YYYYMMDD'),'DD/MM/YYYY'),TO_CHAR(TO_DATE('"& p_Date_To &"','YYYYMM'),'MM/YYYY') ) AS DATE_1 "
+SQLD = SQLD & "FROM DUAL"
+
+	'response.write SQLD
+	'response.end
+	
+TableReadOpen rsd,SQLD
+
+Dim sDate,ddPrint,mmPrint,yyPrint
+sDate = "SELECT TO_CHAR(SYSDATE,'DDMMYYYY') FROM DUAL"
+TableReadOpen rs,sDate
+ddPrint=Left(rs(0),2)
+mmPrint=Mid(rs(0),3,2)
+yyPrint=Right(rs(0),4)
+
+%>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 11">
+<link rel=File-List href="rpt_agga00010_files/filelist.xml">
+<link rel=Edit-Time-Data href="rpt_agga00010_files/editdata.mso">
+<link rel=OLE-Object-Data href="rpt_agga00010_files/oledata.mso">
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>tyml</o:Author>
+  <o:LastAuthor>tyml</o:LastAuthor>
+  <o:Created>2008-03-26T02:10:02Z</o:Created>
+  <o:LastSaved>2008-03-26T06:02:00Z</o:LastSaved>
+  <o:Company>tyml</o:Company>
+  <o:Version>11.5606</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:0in 0in 0in 0in;
+	mso-header-margin:0in;
+	mso-footer-margin:0in;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl24
+	{mso-style-parent:style0;
+	font-size:13.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	vertical-align:middle;}
+.xl25
+	{mso-style-parent:style0;
+	font-size:14.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	vertical-align:middle;}
+.xl26
+	{mso-style-parent:style0;
+	font-size:13.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	white-space:normal;}
+.xl27
+	{mso-style-parent:style0;
+	font-size:13.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl28
+	{mso-style-parent:style0;
+	font-size:13.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0_\)\;_\(* \\\(\#\,\#\#0\\\)\;_\(* \0022-\0022_\)\;_\(\@_\)";
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl29
+	{mso-style-parent:style0;
+	font-size:13.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;_\(* \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl30
+	{mso-style-parent:style0;
+	font-size:19.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;}
+.xl31
+	{mso-style-parent:style0;
+	font-size:13.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;}
+.xl32
+	{mso-style-parent:style0;
+	font-size:13.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:none;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet1</x:Name>
+    <x:WorksheetOptions>
+     <x:DefaultRowHeight>402</x:DefaultRowHeight>
+     <x:Unsynced/>
+     <x:FitToPage/>
+     <x:FitToPage/>
+     <x:Print>
+      <x:FitHeight>0</x:FitHeight>
+      <x:ValidPrinterInfo/>
+      <x:PaperSizeIndex>9</x:PaperSizeIndex>
+      <x:Scale>73</x:Scale>
+      <x:HorizontalResolution>300</x:HorizontalResolution>
+      <x:VerticalResolution>300</x:VerticalResolution>
+     </x:Print>
+     <x:Selected/>
+     <x:Panes>
+      <x:Pane>
+       <x:Number>3</x:Number>
+       <x:ActiveRow>10</x:ActiveRow>
+       <x:ActiveCol>6</x:ActiveCol>
+      </x:Pane>
+     </x:Panes>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet2</x:Name>
+    <x:WorksheetOptions>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet3</x:Name>
+    <x:WorksheetOptions>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:WindowHeight>9345</x:WindowHeight>
+  <x:WindowWidth>15180</x:WindowWidth>
+  <x:WindowTopX>480</x:WindowTopX>
+  <x:WindowTopY>90</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+ <x:ExcelName>
+  <x:Name>Print_Titles</x:Name>
+  <x:SheetIndex>1</x:SheetIndex>
+  <x:Formula>=Sheet1!$1:$4</x:Formula>
+ </x:ExcelName>
+</xml><![endif]-->
+</head>
+
+<body link=blue vlink=purple class=xl24>
+
+<table x:str border=0 cellpadding=0 cellspacing=0 width=938 style='border-collapse:
+ collapse;table-layout:fixed;width:704pt'>
+ <col class=xl24 width=63 style='mso-width-source:userset;mso-width-alt:2304;  width:47pt'>	<%'no%>
+ <col class=xl24 width=107 style='mso-width-source:userset;mso-width-alt:3913; width:80pt'>	<%'date/month%>
+ <col class=xl24 width=177 style='mso-width-source:userset;mso-width-alt:6473; width:133pt'>	<%'curreny%>
+ <col class=xl24 width=72 style='mso-width-source:userset;mso-width-alt:2633;  width:54pt'>	<%'buying%>
+ <col class=xl24 width=79 style='mso-width-source:userset;mso-width-alt:2889;  width:59pt'>	<%'selling%>
+ <col class=xl24 width=81 style='mso-width-source:userset;mso-width-alt:2962;  width:61pt'>	<%'middle %>
+ <col class=xl24 width=129 style='mso-width-source:userset;mso-width-alt:4717; width:97pt'>	<%'middle change%>
+ <col class=xl24 width=114 style='mso-width-source:userset;mso-width-alt:4169; width:86pt'>
+ <col class=xl24 width=116 style='mso-width-source:userset;mso-width-alt:4242; width:87pt'>
+ <tr height=26 style='mso-height-source:userset;height:20.1pt'>
+  <td height=26 class=xl25 colspan=3 width=347 style='height:20.1pt;mso-ignore:
+  colspan;width:260pt'>VINA GENUWIN CO.,LTD</td>
+  <td class=xl24 width=72 style='width:54pt'></td>
+  <td class=xl24 width=79 style='width:59pt'></td>
+  <td class=xl24 width=81 style='width:61pt'></td>
+  <td class=xl24 width=129 style='width:97pt'></td>
+  <td class=xl24 width=114 style='width:86pt'></td>
+  <td class=xl24 width=116 style='width:87pt'></td>
+ </tr>
+ <tr height=34 style='mso-height-source:userset;height:25.5pt'>
+  <td colspan=9 height=34 class=xl30 style='height:25.5pt'>LIST OF RATE IN THIS
+  PERIOD</td>
+ </tr>
+ <tr height=37 style='mso-height-source:userset;height:27.75pt'>
+  <td colspan=9 height=37 class=xl31 style='height:27.75pt'>From: <%=rsd(0)%> To
+  <%=rsd(1)%></td>
+ </tr>
+ <tr height=72 style='mso-height-source:userset;height:54.0pt'>
+  <td height=72 class=xl26 width=63 style='height:54.0pt;width:47pt'>No</td>
+  <td class=xl26 width=107 style='border-left:none;width:80pt'>Date/Month</td>
+  <td class=xl26 width=177 style='border-left:none;width:133pt'>Currency</td>
+  <td class=xl26 width=72 style='border-left:none;width:54pt'>Buying Rate</td>
+  <td class=xl26 width=79 style='border-left:none;width:59pt'>Selling Rate</td>
+  <td class=xl26 width=81 style='border-left:none;width:61pt'>Middle Rate</td>
+  <td class=xl26 width=129 style='border-left:none;width:97pt'>Middle Rate
+  (Previous)</td>
+  <td class=xl26 width=114 style='border-left:none;width:86pt'>Middle Rate
+  Change On Perious</td>
+  <td class=xl26 width=116 style='border-left:none;width:87pt'>Middle Rate
+  Change As %</td>
+ </tr>
+ <%dim i%>
+ 
+ <% for i=0 to ttemp - 1 %>
+ <tr height=26 style='mso-height-source:userset;height:20.1pt'>
+  <td height=26 class=xl27 align=right style='height:20.1pt;border-top:none' x:num><%=i+1%></td>
+  <td class=xl27 style='border-top:none;border-left:none' x:str><%=emp(0,i)%></td>
+  <td class=xl27 style='border-top:none;border-left:none'><%=emp(1,i)%></td>
+  <td class=xl28 style='border-top:none;border-left:none' x:num><%=emp(2,i)%></td>
+  <td class=xl28 style='border-top:none;border-left:none' x:num><%=emp(3,i)%></td>
+  <td class=xl28 style='border-top:none;border-left:none' x:num><%=emp(4,i)%></td>
+  <td class=xl28 style='border-top:none;border-left:none' x:num><%=emp(5,i)%></td>
+  <td class=xl28 style='border-top:none;border-left:none' x:num><%=emp(6,i)%></td>
+  <td class=xl29 style='border-top:none;border-left:none' x:str><%=emp(7,i)%> %</td>
+ </tr>
+ <%next%>
+ <tr height=26 style='mso-height-source:userset;height:20.1pt'>
+  <td height=26 colspan=6 class=xl24 style='height:20.1pt;mso-ignore:colspan'></td>
+  <td colspan=3 class=xl32>Date <%=ddPrint%>, month <%=mmPrint%>, year <%=yyPrint%></td>
+ </tr>
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=63 style='width:47pt'></td>
+  <td width=107 style='width:80pt'></td>
+  <td width=177 style='width:133pt'></td>
+  <td width=72 style='width:54pt'></td>
+  <td width=79 style='width:59pt'></td>
+  <td width=81 style='width:61pt'></td>
+  <td width=129 style='width:97pt'></td>
+  <td width=114 style='width:86pt'></td>
+  <td width=116 style='width:87pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</body>
+
+</html>

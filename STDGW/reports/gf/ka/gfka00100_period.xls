@@ -1,0 +1,863 @@
+<% 	
+	Response.ContentType = "application/x-excel"
+	Response.Buffer = False
+%>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+<!-- #include file="../db1.inc"  -->
+<%
+	ConnectDBApp
+%>
+<%
+	ESysLib.SetUser("acnt");
+	p_compk 	= Request("Company")
+	p_status 	= Request("status")
+	p_lang 		= Request("Lang")
+	p_date_fr 	= Request("dtfr")
+	p_date_to 	= Request("dtto")
+	p_current 	= Request("current")
+	p_rate 		= Request("rate")
+	p_level 	= Request("level")
+	p_possum 	= Request("possum")
+	p_accd 		= Request("accd")
+	
+	SQL1 = " SELECT PARTNER_NAME, ADDR1, ADDR2, TAX_CODE FROM TCO_COMPANY WHERE PK = '" & p_compk & "' "
+	
+	TableReadOpen rs1, SQL1
+	If Not rs1.EOF Then
+		l_cmp_name 		= rs1(0)
+		l_cmp_add 		= rs1(1)
+		l_cmp_taxcode 	= rs1(3)
+	End If
+	
+	  SQL = "           SELECT AC_CD, AC_NM, "
+SQL = SQL & "                 TRIM(TO_CHAR(DECODE('" & p_current & "','VND',DR_OP*'" & p_rate & "',DR_OP/'" & p_rate & "'),DECODE('" & p_current & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) DR_OP, "
+SQL = SQL & "                 TRIM(TO_CHAR(DECODE('" & p_current & "','VND',CR_OP*'" & p_rate & "',CR_OP/'" & p_rate & "'),DECODE('" & p_current & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) CR_OP, "
+SQL = SQL & "                 TRIM(TO_CHAR(DECODE('" & p_current & "','VND',DR_PS*'" & p_rate & "',DR_PS/'" & p_rate & "'),DECODE('" & p_current & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) DR_PS, "
+SQL = SQL & "                 TRIM(TO_CHAR(DECODE('" & p_current & "','VND',CR_PS*'" & p_rate & "',CR_PS/'" & p_rate & "'),DECODE('" & p_current & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) CR_PS, "
+SQL = SQL & "                 TRIM(TO_CHAR(DECODE('" & p_current & "','VND',DR_ACC*'" & p_rate & "',DR_ACC/'" & p_rate & "'),DECODE('" & p_current & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) DR_ACC, "
+SQL = SQL & "                 TRIM(TO_CHAR(DECODE('" & p_current & "','VND',CR_ACC*'" & p_rate & "',CR_ACC/'" & p_rate & "'),DECODE('" & p_current & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) CR_ACC, "
+SQL = SQL & "                 TRIM(TO_CHAR(DECODE('" & p_current & "','VND',DR_BL*'" & p_rate & "',DR_BL/'" & p_rate & "'),DECODE('" & p_current & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) DR_BL, "
+SQL = SQL & "                 TRIM(TO_CHAR(DECODE('" & p_current & "','VND',CR_BL*'" & p_rate & "',CR_BL/'" & p_rate & "'),DECODE('" & p_current & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) CR_BL, "
+SQL = SQL & "                 BOLD_YN, COLOR "
+SQL = SQL & "            FROM (SELECT E.AC_CD AC_CD, DECODE('" &p_lang & "','ENG',PRN_ACNM,'VIE',PRN_LACNM,'KOR',PRN_KACNM) AC_NM,  "
+SQL = SQL & "                         DECODE(DC, 1, (DC*(NVL(LAST_AMT, 0) + NVL(YMAMT, 0))), 0) DR_OP, "
+SQL = SQL & "                         DECODE(DC,-1, (DC*(NVL(LAST_AMT, 0) + NVL(YMAMT, 0))), 0) CR_OP, "
+SQL = SQL & "                         NVL(DR_PS, 0) DR_PS, "
+SQL = SQL & "                         NVL(CR_PS, 0) CR_PS, "
+SQL = SQL & "                         NVL(DR_LK, 0) DR_ACC, "
+SQL = SQL & "                         NVL(CR_LK, 0) CR_ACC, "
+SQL = SQL & "                         DECODE(DC, 1,(DC*(NVL(LAST_AMT,0)+NVL(YMAMT,0))+DC*(NVL(DR_LK,0)-NVL(CR_LK,0))),0) DR_BL, "
+SQL = SQL & "                         DECODE(DC,-1,(DC*(NVL(LAST_AMT,0)+NVL(YMAMT,0))+DC*(NVL(DR_LK,0)-NVL(CR_LK,0))),0) CR_BL, "
+SQL = SQL & "                         E.BOLD_YN BOLD_YN, COLOR, E.PK PK "
+SQL = SQL & "                    FROM (SELECT MAX(TAC_ABACCTCODE_PK) TAC_ABACCTCODE_PK, "
+SQL = SQL & "                                 NVL(SUM(THIS_DRBAL),0) - NVL(SUM(THIS_CRBAL),0) LAST_AMT "
+SQL = SQL & "                            FROM TAC_HGMMBAL "
+SQL = SQL & "                           WHERE STD_YM=SUBSTR(Sf_Get_Lastclosemm(TO_CHAR('" & p_date_fr & "'),2),1,6) "
+SQL = SQL & "                             AND TCO_COMPANY_PK = '" & p_compk & "' "
+SQL = SQL & "                             AND DEL_IF = 0 "
+SQL = SQL & "                             AND TR_STATUS = '" & p_status & "' "
+SQL = SQL & "                           GROUP BY TAC_ABACCTCODE_PK) A, "
+SQL = SQL & "                         (SELECT MAX(TAC_ABACCTCODE_PK) TAC_ABACCTCODE_PK,  "
+SQL = SQL & "                                  NVL(SUM(YMD_DRBOOKS),0) - NVL(SUM(YMD_CRBOOKS),0) YMAMT "
+SQL = SQL & "                            FROM TAC_HGDDBAL "
+SQL = SQL & "                           WHERE STD_YMD BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(Sf_Get_Lastclosemm(TO_CHAR('" & p_date_fr & "')||'01',2),'YYYYMMDD'),+1),'YYYYMMDD') "
+SQL = SQL & "                                 AND TO_CHAR(LAST_DAY(ADD_MONTHS(TO_DATE(TO_CHAR('" & p_date_fr & "')||'01','YYYYMMDD'),-1)),'YYYYMMDD') "
+SQL = SQL & "                             AND TCO_COMPANY_PK = '" & p_compk & "' "
+SQL = SQL & "                             AND DEL_IF=0 "
+SQL = SQL & "                             AND TR_STATUS = '" & p_status & "' "
+SQL = SQL & "                           GROUP BY TAC_ABACCTCODE_PK) B, "
+SQL = SQL & "                         (SELECT MAX(TAC_ABACCTCODE_PK) TAC_ABACCTCODE_PK,  "
+SQL = SQL & "                                 NVL(SUM(YMD_DRBOOKS),0) DR_LK, "
+SQL = SQL & "                                 NVL(SUM(YMD_CRBOOKS),0) CR_LK "
+SQL = SQL & "                            FROM TAC_HGDDBAL "
+SQL = SQL & "                           WHERE STD_YMD BETWEEN TO_CHAR('" & p_date_fr & "')||'01' AND TO_CHAR(LAST_DAY(TO_DATE(TO_CHAR('" & p_date_to & "')||'01','YYYYMMDD')),'YYYYMMDD') "
+SQL = SQL & "                             AND TCO_COMPANY_PK = '" & p_compk & "' "
+SQL = SQL & "                             AND DEL_IF = 0 "
+SQL = SQL & "                             AND TR_STATUS = '" & p_status & "' "
+SQL = SQL & "                           GROUP BY TAC_ABACCTCODE_PK) C, "
+SQL = SQL & "                         (SELECT MAX(TAC_ABACCTCODE_PK) TAC_ABACCTCODE_PK,  "
+SQL = SQL & "                                 NVL(SUM(YMD_DRBOOKS),0) DR_PS, "
+SQL = SQL & "                                 NVL(SUM(YMD_CRBOOKS),0) CR_PS "
+SQL = SQL & "                            FROM TAC_HGDDBAL "
+SQL = SQL & "                           WHERE STD_YMD BETWEEN TO_CHAR('" & p_date_to & "')||'01' AND TO_CHAR(LAST_DAY(TO_DATE(TO_CHAR('" & p_date_to & "')||'01','YYYYMMDD')),'YYYYMMDD') "
+SQL = SQL & "                             AND TCO_COMPANY_PK = '" & p_compk & "' "
+SQL = SQL & "                             AND DEL_IF = 0 "
+SQL = SQL & "                             AND TR_STATUS = '" & p_status & "' "
+SQL = SQL & "                           GROUP BY TAC_ABACCTCODE_PK) D, "
+SQL = SQL & "                         (SELECT A.PK,AC_CD,DECODE(DRCR_TYPE,'D',1,-1) DC,AC_LEVEL KD,PRN_LR LR,PRN_SEQ,PRN_ACNM,PRN_KACNM,PRN_LACNM, FONT_STYPE BOLD_YN, CODE, "
+SQL = SQL & "                                 '#' || SUBSTR(B.PRN_COLOR_EXCEL,3, LENGTH(B.PRN_COLOR_EXCEL)) COLOR "
+SQL = SQL & "                            FROM TAC_ABACCTCODE A,TAC_KAFINANCEFORM B "
+SQL = SQL & "                           WHERE A.PK       = B.TAC_ABACCTCODE_PK "
+SQL = SQL & "                             AND B.FORM_TYPE = 10 "
+SQL = SQL & "                             AND B.PRN_CHK   = 'Y' "
+SQL = SQL & "                             AND A.DEL_IF    = 0 "
+SQL = SQL & "                             AND B.DEL_IF    = 0 "
+SQL = SQL & "                             AND A.AC_CD LIKE '" & p_accd & "' || '%' "
+SQL = SQL & "                             AND A.AC_LEVEL LIKE decode('" & p_level & "', '', '%', '" & p_level & "') "
+SQL = SQL & "                             AND A.LEAF_YN  LIKE decode('" & p_possum & "', '', '%', '" & p_possum & "')) E "
+SQL = SQL & "                    WHERE E.PK = D.TAC_ABACCTCODE_PK(+) "
+SQL = SQL & "                      AND E.PK = C.TAC_ABACCTCODE_PK(+) "
+SQL = SQL & "                      AND E.PK = B.TAC_ABACCTCODE_PK(+) "
+SQL = SQL & "                      AND E.PK = A.TAC_ABACCTCODE_PK(+)  "
+SQL = SQL & "                    ORDER BY E.AC_CD)"
+	
+	TableReadOpen rs, SQL
+	
+	If Not rs.EOF Then
+		result 	= rs.GetRows()
+		total 	= Ubound(result, 2) + 1
+	Else
+		total 	= 0
+	End If	
+	
+	   SQL2 = " SELECT          TRIM(TO_CHAR(DECODE('" & p_current  & "','VND',SUM(DR_OP)*'" & p_rate & "',SUM(DR_OP)/'" & p_rate & "'),DECODE('" & p_current  & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) DR_OP, "
+SQL2 = SQL2 & "                 TRIM(TO_CHAR(DECODE('" & p_current  & "','VND',SUM(CR_OP)*'" & p_rate & "',SUM(CR_OP)/'" & p_rate & "'),DECODE('" & p_current  & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) CR_OP, "
+SQL2 = SQL2 & "                 TRIM(TO_CHAR(DECODE('" & p_current  & "','VND',SUM(DR_PS)*'" & p_rate & "',SUM(DR_PS)/'" & p_rate & "'),DECODE('" & p_current  & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) DR_PS, "
+SQL2 = SQL2 & "                 TRIM(TO_CHAR(DECODE('" & p_current  & "','VND',SUM(CR_PS)*'" & p_rate & "',SUM(CR_PS)/'" & p_rate & "'),DECODE('" & p_current  & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) CR_PS, "
+SQL2 = SQL2 & "                 TRIM(TO_CHAR(DECODE('" & p_current  & "','VND',SUM(DR_ACC)*'" & p_rate & "',SUM(DR_ACC)/'" & p_rate & "'),DECODE('" & p_current  & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) DR_ACC, "
+SQL2 = SQL2 & "                 TRIM(TO_CHAR(DECODE('" & p_current  & "','VND',SUM(CR_ACC)*'" & p_rate & "',SUM(CR_ACC)/'" & p_rate & "'),DECODE('" & p_current  & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) CR_ACC, "
+SQL2 = SQL2 & "                 TRIM(TO_CHAR(DECODE('" & p_current  & "','VND',SUM(DR_BL)*'" & p_rate & "',SUM(DR_BL)/'" & p_rate & "'),DECODE('" & p_current  & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) DR_BL, "
+SQL2 = SQL2 & "                 TRIM(TO_CHAR(DECODE('" & p_current  & "','VND',SUM(CR_BL)*'" & p_rate & "',SUM(CR_BL)/'" & p_rate & "'),DECODE('" & p_current  & "','VND',Sf_Get_Format('ACBG0040'),'9,999,999,999,990.99'))) CR_BL "
+SQL2 = SQL2 & "            FROM (SELECT DECODE(DC, 1, (DC*(NVL(LAST_AMT, 0) + NVL(YMAMT, 0))), 0) DR_OP, "
+SQL2 = SQL2 & "                         DECODE(DC,-1, (DC*(NVL(LAST_AMT, 0) + NVL(YMAMT, 0))), 0) CR_OP, "
+SQL2 = SQL2 & "                         NVL(DR_PS, 0) DR_PS, "
+SQL2 = SQL2 & "                         NVL(CR_PS, 0) CR_PS, "
+SQL2 = SQL2 & "                         NVL(DR_LK, 0) DR_ACC, "
+SQL2 = SQL2 & "                         NVL(CR_LK, 0) CR_ACC, "
+SQL2 = SQL2 & "                         DECODE(DC, 1,(DC*(NVL(LAST_AMT,0)+NVL(YMAMT,0))+DC*(NVL(DR_LK,0)-NVL(CR_LK,0))),0) DR_BL, "
+SQL2 = SQL2 & "                         DECODE(DC,-1,(DC*(NVL(LAST_AMT,0)+NVL(YMAMT,0))+DC*(NVL(DR_LK,0)-NVL(CR_LK,0))),0) CR_BL "
+SQL2 = SQL2 & "                    FROM (SELECT MAX(TAC_ABACCTCODE_PK) TAC_ABACCTCODE_PK, "
+SQL2 = SQL2 & "                                 NVL(SUM(THIS_DRBAL),0) - NVL(SUM(THIS_CRBAL),0) LAST_AMT "
+SQL2 = SQL2 & "                            FROM TAC_HGMMBAL "
+SQL2 = SQL2 & "                           WHERE STD_YM=SUBSTR(Sf_Get_Lastclosemm(TO_CHAR('" & p_date_fr & "'),2),1,6) "
+SQL2 = SQL2 & "                             AND TCO_COMPANY_PK = '" & p_compk & "' "
+SQL2 = SQL2 & "                             AND DEL_IF = 0 "
+SQL2 = SQL2 & "                             AND TR_STATUS = '" & p_status & "' "
+SQL2 = SQL2 & "                           GROUP BY TAC_ABACCTCODE_PK) A, "
+SQL2 = SQL2 & "                         (SELECT MAX(TAC_ABACCTCODE_PK) TAC_ABACCTCODE_PK,  "
+SQL2 = SQL2 & "                                  NVL(SUM(YMD_DRBOOKS),0) - NVL(SUM(YMD_CRBOOKS),0) YMAMT "
+SQL2 = SQL2 & "                            FROM TAC_HGDDBAL "
+SQL2 = SQL2 & "                           WHERE STD_YMD BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(Sf_Get_Lastclosemm(TO_CHAR('" & p_date_fr & "')||'01',2),'YYYYMMDD'),+1),'YYYYMMDD') "
+SQL2 = SQL2 & "                                 AND TO_CHAR(LAST_DAY(ADD_MONTHS(TO_DATE(TO_CHAR('" & p_date_fr & "')||'01','YYYYMMDD'),-1)),'YYYYMMDD') "
+SQL2 = SQL2 & "                             AND TCO_COMPANY_PK = '" & p_compk & "' "
+SQL2 = SQL2 & "                             AND DEL_IF=0 "
+SQL2 = SQL2 & "                             AND TR_STATUS = '" & p_status & "' "
+SQL2 = SQL2 & "                           GROUP BY TAC_ABACCTCODE_PK) B, "
+SQL2 = SQL2 & "                         (SELECT MAX(TAC_ABACCTCODE_PK) TAC_ABACCTCODE_PK,  "
+SQL2 = SQL2 & "                                 NVL(SUM(YMD_DRBOOKS),0) DR_LK, "
+SQL2 = SQL2 & "                                 NVL(SUM(YMD_CRBOOKS),0) CR_LK "
+SQL2 = SQL2 & "                            FROM TAC_HGDDBAL "
+SQL2 = SQL2 & "                           WHERE STD_YMD BETWEEN TO_CHAR('" & p_date_fr & "')||'01' AND TO_CHAR(LAST_DAY(TO_DATE(TO_CHAR('" & p_date_to & "')||'01','YYYYMMDD')),'YYYYMMDD') "
+SQL2 = SQL2 & "                             AND TCO_COMPANY_PK = '" & p_compk & "' "
+SQL2 = SQL2 & "                             AND DEL_IF = 0 "
+SQL2 = SQL2 & "                             AND TR_STATUS = '" & p_status & "' "
+SQL2 = SQL2 & "                           GROUP BY TAC_ABACCTCODE_PK) C, "
+SQL2 = SQL2 & "                         (SELECT MAX(TAC_ABACCTCODE_PK) TAC_ABACCTCODE_PK,  "
+SQL2 = SQL2 & "                                 NVL(SUM(YMD_DRBOOKS),0) DR_PS, "
+SQL2 = SQL2 & "                                 NVL(SUM(YMD_CRBOOKS),0) CR_PS "
+SQL2 = SQL2 & "                            FROM TAC_HGDDBAL "
+SQL2 = SQL2 & "                           WHERE STD_YMD BETWEEN TO_CHAR('" & p_date_to & "')||'01' AND TO_CHAR(LAST_DAY(TO_DATE(TO_CHAR('" & p_date_to & "')||'01','YYYYMMDD')),'YYYYMMDD') "
+SQL2 = SQL2 & "                             AND TCO_COMPANY_PK = '" & p_compk & "' "
+SQL2 = SQL2 & "                             AND DEL_IF = 0 "
+SQL2 = SQL2 & "                             AND TR_STATUS = '" & p_status & "' "
+SQL2 = SQL2 & "                           GROUP BY TAC_ABACCTCODE_PK) D, "
+SQL2 = SQL2 & "                         (SELECT A.PK, DECODE(DRCR_TYPE,'D',1,-1) DC "
+SQL2 = SQL2 & "                            FROM TAC_ABACCTCODE A,TAC_KAFINANCEFORM B "
+SQL2 = SQL2 & "                           WHERE A.PK        = B.TAC_ABACCTCODE_PK "
+SQL2 = SQL2 & "                             AND B.FORM_TYPE = 10 "
+SQL2 = SQL2 & "                             AND B.PRN_CHK   = 'Y' "
+SQL2 = SQL2 & "                             AND A.DEL_IF    = 0 "
+SQL2 = SQL2 & "                             AND B.DEL_IF    = 0 "
+SQL2 = SQL2 & "                             AND A.LEAF_YN   = 'Y') E "
+SQL2 = SQL2 & "                    WHERE E.PK = D.TAC_ABACCTCODE_PK(+) "
+SQL2 = SQL2 & "                      AND E.PK = C.TAC_ABACCTCODE_PK(+) "
+SQL2 = SQL2 & "                      AND E.PK = B.TAC_ABACCTCODE_PK(+) "
+SQL2 = SQL2 & "                      AND E.PK = A.TAC_ABACCTCODE_PK(+))"
+	
+	
+	TableReadOpen rs2, SQL2
+	
+	If Not rs2.EOF Then
+		result2	= rs2.GetRows()
+		total2 	= Ubound(result2, 2) + 1
+	Else
+		total2 	= 0
+	End If	
+	
+%>
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 11">
+<link rel=File-List href="111_files/filelist.xml">
+<link rel=Edit-Time-Data href="111_files/editdata.mso">
+<link rel=OLE-Object-Data href="111_files/oledata.mso">
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>server</o:Author>
+  <o:LastAuthor>Acc</o:LastAuthor>
+  <o:LastPrinted>2008-05-28T07:41:53Z</o:LastPrinted>
+  <o:Created>2004-12-29T06:31:57Z</o:Created>
+  <o:LastSaved>2008-05-28T07:50:45Z</o:LastSaved>
+  <o:Company>chungnam</o:Company>
+  <o:Version>11.5606</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{mso-footer-data:"Page &P of &N";
+	margin:.2in .2in .2in .5in;
+	mso-header-margin:.2in;
+	mso-footer-margin:.2in;
+	mso-page-orientation:landscape;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:129;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:129;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl24
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	vertical-align:middle;}
+.xl25
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	text-align:center;
+	vertical-align:middle;}
+.xl26
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;}
+.xl27
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	text-align:center;
+	vertical-align:middle;}
+.xl28
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	vertical-align:middle;}
+.xl29
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;}
+.xl30
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;}
+.xl31
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	vertical-align:middle;}
+.xl32
+	{mso-style-parent:style0;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;}
+.xl33
+	{mso-style-parent:style0;
+	font-size:16.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;}
+.xl34
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;}
+.xl35
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;}
+.xl36
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:right;
+	vertical-align:middle;}
+.xl37
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:2.0pt double windowtext;
+	border-right:.5pt hairline windowtext;
+	border-bottom:none;
+	border-left:2.0pt double windowtext;
+	background:#99CCFF;
+	mso-pattern:auto none;}
+.xl38
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:2.0pt double windowtext;
+	border-right:.5pt hairline windowtext;
+	border-bottom:none;
+	border-left:.5pt hairline windowtext;
+	background:#99CCFF;
+	mso-pattern:auto none;}
+.xl39
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:2.0pt double windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt hairline windowtext;
+	background:#99CCFF;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl40
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:2.0pt double windowtext;
+	border-right:.5pt hairline black;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	background:#99CCFF;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl41
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:2.0pt double windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt hairline black;
+	background:#99CCFF;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl42
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:2.0pt double windowtext;
+	border-right:2.0pt double black;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	background:#99CCFF;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl43
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:.5pt hairline black;
+	border-left:2.0pt double windowtext;
+	background:#99CCFF;
+	mso-pattern:auto none;}
+.xl44
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:.5pt hairline black;
+	border-left:.5pt hairline windowtext;
+	background:#99CCFF;
+	mso-pattern:auto none;}
+.xl45
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	background:#99CCFF;
+	mso-pattern:auto none;}
+.xl46
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:2.0pt double windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	background:#99CCFF;
+	mso-pattern:auto none;}
+.xl47
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:2.0pt double windowtext;
+	mso-pattern:auto none;}
+.xl48
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:2.0pt double windowtext;
+	border-left:2.0pt double windowtext;}
+.xl49
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:2.0pt double windowtext;
+	border-left:none;}
+.xl50
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	background:#99CCFF;
+	mso-pattern:auto none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl51
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	mso-pattern:auto none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl52
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	vertical-align:middle;
+	border-top:none;
+	border-right:2.0pt double windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	background:#99CCFF;
+	mso-pattern:auto none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl53
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:2.0pt double windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl54
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	vertical-align:middle;
+	border-top:none;
+	border-right:2.0pt double windowtext;
+	border-bottom:2.0pt double windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl55
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:2.0pt double windowtext;
+	background:#CCFFCC;
+	mso-pattern:auto none;}
+.xl56
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	background:#CCFFCC;
+	mso-pattern:auto none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl57
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	background:#CCFFCC;
+	mso-pattern:auto none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl58
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	vertical-align:middle;
+	border-top:none;
+	border-right:2.0pt double windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	background:#CCFFCC;
+	mso-pattern:auto none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>The balance of originate</x:Name>
+    <x:WorksheetOptions>
+     <x:DefaultRowHeight>240</x:DefaultRowHeight>
+     <x:Print>
+      <x:ValidPrinterInfo/>
+      <x:PaperSizeIndex>9</x:PaperSizeIndex>
+      <x:Scale>85</x:Scale>
+      <x:HorizontalResolution>600</x:HorizontalResolution>
+      <x:VerticalResolution>600</x:VerticalResolution>
+     </x:Print>
+     <x:Zoom>90</x:Zoom>
+     <x:Selected/>
+     <x:FreezePanes/>
+     <x:FrozenNoSplit/>
+     <x:SplitHorizontal>8</x:SplitHorizontal>
+     <x:TopRowBottomPane>8</x:TopRowBottomPane>
+     <x:SplitVertical>2</x:SplitVertical>
+     <x:LeftColumnRightPane>2</x:LeftColumnRightPane>
+     <x:ActivePane>0</x:ActivePane>
+     <x:Panes>
+      <x:Pane>
+       <x:Number>3</x:Number>
+      </x:Pane>
+      <x:Pane>
+       <x:Number>1</x:Number>
+      </x:Pane>
+      <x:Pane>
+       <x:Number>2</x:Number>
+       <x:ActiveRow>6</x:ActiveRow>
+      </x:Pane>
+      <x:Pane>
+       <x:Number>0</x:Number>
+       <x:ActiveRow>25</x:ActiveRow>
+       <x:ActiveCol>4</x:ActiveCol>
+      </x:Pane>
+     </x:Panes>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:WindowHeight>9150</x:WindowHeight>
+  <x:WindowWidth>15360</x:WindowWidth>
+  <x:WindowTopX>0</x:WindowTopX>
+  <x:WindowTopY>1365</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+ <x:ExcelName>
+  <x:Name>Print_Titles</x:Name>
+  <x:SheetIndex>1</x:SheetIndex>
+  <x:Formula>='The balance of originate'!$7:$8</x:Formula>
+ </x:ExcelName>
+</xml><![endif]-->
+</head>
+
+<body link=blue vlink=purple class=xl24>
+
+<table x:str border=0 cellpadding=0 cellspacing=0 width=1161 style='border-collapse:
+ collapse;table-layout:fixed;width:875pt'>
+ <col class=xl25 width=52 style='mso-width-source:userset;mso-width-alt:1901;
+ width:39pt'>
+ <col class=xl24 width=229 style='mso-width-source:userset;mso-width-alt:8374;
+ width:172pt'>
+ <col class=xl24 width=110 span=8 style='mso-width-source:userset;mso-width-alt:
+ 4022;width:83pt'>
+ <tr height=24 style='mso-height-source:userset;height:18.0pt'>
+  <td height=24 class=xl30 colspan=2 width=281 style='height:18.0pt;mso-ignore:
+  colspan;width:211pt'><%=l_cmp_name%></td>
+  <td class=xl31 width=110 style='width:83pt'></td>
+  <td class=xl31 width=110 style='width:83pt'></td>
+  <td class=xl31 width=110 style='width:83pt'></td>
+  <td class=xl31 width=110 style='width:83pt'></td>
+  <td class=xl31 width=110 style='width:83pt'></td>
+  <td class=xl31 width=110 style='width:83pt'></td>
+  <td class=xl31 width=110 style='width:83pt'></td>
+  <td class=xl31 width=110 style='width:83pt'></td>
+ </tr>
+ <tr height=24 style='mso-height-source:userset;height:18.0pt'>
+  <td height=24 class=xl32 colspan=5 style='height:18.0pt;mso-ignore:colspan'>Address:
+  <%=l_cmp_add%></td>
+  <td colspan=5 class=xl31 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=24 style='mso-height-source:userset;height:18.0pt'>
+  <td height=24 class=xl32 colspan=2 style='height:18.0pt;mso-ignore:colspan'>Tax
+  code: <%=l_cmp_taxcode%></td>
+  <td colspan=8 class=xl31 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=26 style='mso-height-source:userset;height:20.1pt'>
+  <td colspan=10 height=26 class=xl33 style='height:20.1pt'>TRIAL BALANCE SHEET</td>
+ </tr>
+ <tr class=xl26 height=20 style='mso-height-source:userset;height:15.0pt'>
+  <td colspan=10 height=20 class=xl34 style='height:15.0pt'>From <%=left(p_date_fr,4)%>-<%=right(p_date_fr,2)%> To <%=left(p_date_to,4)%>-<%=right(p_date_to,2)%></td>
+ </tr>
+ <tr class=xl26 height=16 style='mso-height-source:userset;height:12.0pt'>
+  <td height=16 colspan=9 class=xl35 style='height:12.0pt;mso-ignore:colspan'></td>
+  <td class=xl36>Unit: <%=p_current%></td>
+ </tr>
+ <tr class=xl27 height=26 style='mso-height-source:userset;height:20.1pt'>
+  <td rowspan=2 height=52 class=xl37 style='border-bottom:.5pt hairline black;
+  height:40.2pt'>CODE</td>
+  <td rowspan=2 class=xl38 style='border-bottom:.5pt hairline black'>ACCOUNT
+  NAME</td>
+  <td colspan=2 class=xl39 width=220 style='border-right:.5pt hairline black;
+  border-left:none;width:166pt'>OPENNING BALANCE</td>
+  <td colspan=2 class=xl41 width=220 style='border-right:.5pt hairline black;
+  border-left:none;width:166pt'>ORIGINATE</td>
+  <td colspan=2 class=xl41 width=220 style='border-right:.5pt hairline black;
+  border-left:none;width:166pt'>CUMULAVITE</td>
+  <td colspan=2 class=xl41 width=220 style='border-right:2.0pt double black;
+  border-left:none;width:166pt'>ENDDING BALANCE</td>
+ </tr>
+ <tr class=xl28 height=26 style='mso-height-source:userset;height:20.1pt'>
+  <td height=26 class=xl45 style='height:20.1pt'>DEBIT</td>
+  <td class=xl45>CREDIT</td>
+  <td class=xl45>DEBIT</td>
+  <td class=xl45>CREDIT</td>
+  <td class=xl45>DEBIT</td>
+  <td class=xl45>CREDIT</td>
+  <td class=xl45>DEBIT</td>
+  <td class=xl46>CREDIT</td>
+ </tr>
+ <%
+	If total > 0  Then
+ 		For i = 1 to total
+ %>
+ <tr height=29 style='mso-height-source:userset;height:21.95pt'>
+  <td height=29 class=xl47 style='height:21.95pt;background:<%=result(11, i-1)%>;'><<%=result(10, i-1)%>><%=result(0, i-1)%></<%=result(10, i-1)%>></td>
+  <td class=xl50 style='height:21.95pt;background:<%=result(11, i-1)%>;'><<%=result(10, i-1)%>><%=result(1, i-1)%></<%=result(10, i-1)%>></td>
+  <td class=xl51 style='height:21.95pt;background:<%=result(11, i-1)%>;' x:num><<%=result(10, i-1)%>><%=result(2, i-1)%></<%=result(10, i-1)%>></td>
+  <td class=xl51 style='height:21.95pt;background:<%=result(11, i-1)%>;' x:num><<%=result(10, i-1)%>><%=result(3, i-1)%></<%=result(10, i-1)%>></td>
+  <td class=xl51 style='height:21.95pt;background:<%=result(11, i-1)%>;' x:num><<%=result(10, i-1)%>><%=result(4, i-1)%></<%=result(10, i-1)%>></td>
+  <td class=xl51 style='height:21.95pt;background:<%=result(11, i-1)%>;' x:num><<%=result(10, i-1)%>><%=result(5, i-1)%></<%=result(10, i-1)%>></td>
+  <td class=xl51 style='height:21.95pt;background:<%=result(11, i-1)%>;' x:num><<%=result(10, i-1)%>><%=result(6, i-1)%></<%=result(10, i-1)%>></td>
+  <td class=xl51 style='height:21.95pt;background:<%=result(11, i-1)%>;' x:num><<%=result(10, i-1)%>><%=result(7, i-1)%></<%=result(10, i-1)%>></td>
+  <td class=xl51 style='height:21.95pt;background:<%=result(11, i-1)%>;' x:num><<%=result(10, i-1)%>><%=result(8, i-1)%></<%=result(10, i-1)%>></td>
+  <td class=xl52 style='height:21.95pt;background:<%=result(11, i-1)%>;' x:num><<%=result(10, i-1)%>><%=result(9, i-1)%></<%=result(10, i-1)%>></td>
+ </tr>
+  <%
+ 		Next
+	End if
+ %>
+ <tr height=29 style='mso-height-source:userset;height:21.95pt'>
+  <td height=29 class=xl48 style='height:21.95pt'>&nbsp;</td>
+  <td class=xl49>TOTAL</td>
+  <td class=xl53 x:num><%=result2(0, 0)%></td>
+  <td class=xl53 x:num><%=result2(1, 0)%></td>
+  <td class=xl53 x:num><%=result2(2, 0)%></td>
+  <td class=xl53 x:num><%=result2(3, 0)%></td>
+  <td class=xl53 x:num><%=result2(4, 0)%></td>
+  <td class=xl53 x:num><%=result2(5, 0)%></td>
+  <td class=xl53 x:num><%=result2(6, 0)%></td>
+  <td class=xl54 x:num><%=result2(7, 0)%></td>
+ </tr>
+ <tr height=26 style='mso-height-source:userset;height:20.1pt'>
+  <td height=26 class=xl25 style='height:20.1pt'></td>
+  <td colspan=9 class=xl24 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=26 style='mso-height-source:userset;height:20.1pt'>
+  <td height=26 class=xl25 style='height:20.1pt'></td>
+  <td colspan=6 class=xl24 style='mso-ignore:colspan'></td>
+  <td class=xl25></td>
+  <td class=xl25>Day 31 month <%=right(p_date_to,2)%> year <%=left(p_date_to,4)%></td>
+  <td class=xl25></td>
+ </tr>
+ <tr height=20 style='mso-height-source:userset;height:15.0pt'>
+  <td height=20 class=xl25 style='height:15.0pt'></td>
+  <td class=xl29>Chief Account</td>
+  <td class=xl24></td>
+  <td colspan=5 class=xl25 style='mso-ignore:colspan'></td>
+  <td class=xl29>General Director</td>
+  <td class=xl25></td>
+ </tr>
+ <tr height=66 style='mso-height-source:userset;height:50.1pt'>
+  <td height=66 class=xl25 style='height:50.1pt'></td>
+  <td colspan=9 class=xl24 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=20 style='mso-height-source:userset;height:15.0pt'>
+  <td height=20 colspan=2 class=xl25 style='height:15.0pt;mso-ignore:colspan'></td>
+  <td class=xl24></td>
+  <td colspan=7 class=xl25 style='mso-ignore:colspan'></td>
+ </tr>
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=52 style='width:39pt'></td>
+  <td width=229 style='width:172pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=110 style='width:83pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</body>
+
+</html>

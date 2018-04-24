@@ -1,0 +1,971 @@
+﻿<%@ Page Language="C#" %>
+
+<%@ Import Namespace="System.Data" %>
+<% ESysLib.SetUser("sale");%>
+<% 	
+    Response.ContentType = "application/vnd.ms-excel";
+%>
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+<%
+    string po_pk;
+    po_pk = Request.QueryString["master_pk"];
+    DataTable dt, dt1;
+    dt = ESysLib.TableReadOpenCursor("LG_RPT_EPBP00010_SW_1", "'" + po_pk + "'");
+    dt1 = ESysLib.TableReadOpenCursor("LG_RPT_EPBP00010_SW_2", "'" + po_pk + "'");
+    string str_sql = @"SELECT partner_name, addr1, phone_no, fax_no, tax_code, tco_bpphoto_pk
+                       FROM  tco_company
+                       WHERE del_if = 0 AND pk = (SELECT MAX (pk)
+                                                  FROM  tco_company
+                                                  WHERE del_if = 0 AND active_yn = 'Y')";
+    DataTable dt2 = ESysLib.TableReadOpen(str_sql);	
+%>
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 11">
+<link rel=File-List href="rpt_epbp00010_SONGWOL_files/filelist.xml">
+<link rel=Edit-Time-Data href="rpt_epbp00010_SONGWOL_files/editdata.mso">
+<link rel=OLE-Object-Data href="rpt_epbp00010_SONGWOL_files/oledata.mso">
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+x\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style>
+<![endif]--><!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>VNG</o:Author>
+  <o:LastAuthor>Mr Khanh</o:LastAuthor>
+  <o:LastPrinted>2012-04-04T01:26:19Z</o:LastPrinted>
+  <o:Created>2012-03-26T05:48:10Z</o:Created>
+  <o:LastSaved>2012-04-04T01:53:43Z</o:LastSaved>
+  <o:Company>Vinagenuwin</o:Company>
+  <o:Version>11.5606</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.5in .25in .5in .25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-page-orientation:landscape;}
+.font6
+	{color:windowtext;
+	font-size:10.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;}
+.font7
+	{color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:italic;
+	text-decoration:none;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;}
+.font9
+	{color:windowtext;
+	font-size:14.0pt;
+	font-weight:400;
+	font-style:italic;
+	text-decoration:none;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;}
+.font11
+	{color:windowtext;
+	font-size:8.0pt;
+	font-weight:400;
+	font-style:italic;
+	text-decoration:none;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;}
+.font14
+	{color:black;
+	font-size:8.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;}
+.font15
+	{color:black;
+	font-size:8.0pt;
+	font-weight:400;
+	font-style:italic;
+	text-decoration:none;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+.style21
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:windowtext;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:\B3CB\C6C0, monospace;
+	mso-font-charset:129;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal_Sheet1;}
+td
+	{mso-style-parent:style0;
+	padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl25
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	white-space:normal;}
+.xl26
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"\[ENG\]\[$-409\]d\\-mmm\\-yyyy\;\@";
+	vertical-align:middle;
+	white-space:normal;}
+.xl27
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	white-space:normal;}
+.xl28
+	{mso-style-parent:style0;
+	font-size:18.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	white-space:normal;}
+.xl29
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;}
+.xl30
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;}
+.xl31
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:right;
+	vertical-align:middle;}
+.xl32
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl33
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl34
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-style:italic;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:right;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl35
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;}
+.xl36
+	{mso-style-parent:style21;
+	color:black;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:1.0pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:1.0pt solid windowtext;
+	background:#CCFFFF;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl37
+	{mso-style-parent:style21;
+	color:black;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:1.0pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	background:#CCFFFF;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl38
+	{mso-style-parent:style21;
+	color:black;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"\[ENG\]\[$-409\]d\\-mmm\\-yyyy\;\@";
+	text-align:center;
+	vertical-align:middle;
+	border-top:1.0pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	background:#CCFFFF;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl39
+	{mso-style-parent:style21;
+	color:black;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:1.0pt solid windowtext;
+	border-right:1.0pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	background:#CCFFFF;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl40
+	{mso-style-parent:style21;
+	color:black;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:1.0pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl41
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:1.0pt solid windowtext;
+	white-space:normal;}
+.xl42
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl43
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;_\(* \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:right;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl44
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"\[ENG\]\[$-409\]d\\-mmm\\-yyyy\;\@";
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl45
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;_\(* \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:right;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl46
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:Standard;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:1.0pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl47
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:Standard;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl48
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:1.0pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl49
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;_\(* \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	vertical-align:middle;
+	border-top:1.0pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl50
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"\[ENG\]\[$-409\]d\\-mmm\\-yyyy\;\@";
+	vertical-align:middle;
+	border-top:1.0pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl51
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:.5pt hairline windowtext;
+	white-space:normal;}
+.xl52
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt hairline windowtext;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl53
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt hairline windowtext;
+	white-space:normal;}
+.xl54
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl55
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt hairline windowtext;
+	border-bottom:none;
+	border-left:.5pt hairline windowtext;
+	white-space:normal;}
+.xl56
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt hairline windowtext;
+	border-bottom:.5pt hairline black;
+	border-left:.5pt hairline windowtext;
+	white-space:normal;}
+.xl57
+	{mso-style-parent:style0;
+	font-size:18.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;}
+.xl58
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline black;
+	border-right:.5pt hairline windowtext;
+	border-bottom:none;
+	border-left:.5pt hairline windowtext;
+	white-space:normal;}
+.xl59
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl60
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	white-space:normal;}
+.xl61
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	white-space:normal;}
+.xl62
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;}
+.xl63
+	{mso-style-parent:style21;
+	color:black;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:1.0pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	background:#CCFFFF;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl64
+	{mso-style-parent:style21;
+	color:black;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:1.0pt solid windowtext;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	background:#CCFFFF;
+	mso-pattern:auto none;
+	white-space:normal;}
+.xl65
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl66
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid black;
+	border-bottom:1.0pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl67
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:1.0pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Req</x:Name>
+    <x:WorksheetOptions>
+     <x:Print>
+      <x:ValidPrinterInfo/>
+      <x:Scale>75</x:Scale>
+      <x:HorizontalResolution>600</x:HorizontalResolution>
+      <x:VerticalResolution>0</x:VerticalResolution>
+     </x:Print>
+     <x:Selected/>
+     <x:LeftColumnVisible>2</x:LeftColumnVisible>
+     <x:Panes>
+      <x:Pane>
+       <x:Number>3</x:Number>
+       <x:ActiveRow>14</x:ActiveRow>
+       <x:ActiveCol>11</x:ActiveCol>
+      </x:Pane>
+     </x:Panes>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:WindowHeight>8700</x:WindowHeight>
+  <x:WindowWidth>15195</x:WindowWidth>
+  <x:WindowTopX>240</x:WindowTopX>
+  <x:WindowTopY>120</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="3075"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="3"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body link=blue vlink=purple class=xl25>
+
+<table x:str border=0 cellpadding=0 cellspacing=0 width=1246 style='border-collapse:
+ collapse;table-layout:fixed;width:936pt'>
+ <col class=xl25 width=34 style='mso-width-source:userset;mso-width-alt:1243;
+ width:26pt'>
+ <col class=xl25 width=127 span=2 style='mso-width-source:userset;mso-width-alt:
+ 4644;width:95pt'>
+ <col class=xl25 width=42 style='mso-width-source:userset;mso-width-alt:1536;
+ width:32pt'>
+ <col class=xl25 width=71 style='mso-width-source:userset;mso-width-alt:2596;
+ width:53pt'>
+ <col class=xl26 width=98 style='mso-width-source:userset;mso-width-alt:3584;
+ width:74pt'>
+ <col class=xl25 width=98 style='mso-width-source:userset;mso-width-alt:3584;
+ width:74pt'>
+ <col class=xl25 width=82 style='mso-width-source:userset;mso-width-alt:2998;
+ width:62pt'>
+ <col class=xl25 width=95 style='mso-width-source:userset;mso-width-alt:3474;
+ width:71pt'>
+ <col class=xl25 width=11 style='mso-width-source:userset;mso-width-alt:402;
+ width:8pt'>
+ <col class=xl25 width=76 style='mso-width-source:userset;mso-width-alt:2779;
+ width:57pt'>
+ <col class=xl25 width=106 style='mso-width-source:userset;mso-width-alt:3876;
+ width:80pt'>
+ <col class=xl25 width=71 style='mso-width-source:userset;mso-width-alt:2596;
+ width:53pt'>
+ <col class=xl25 width=109 style='mso-width-source:userset;mso-width-alt:3986;
+ width:82pt'>
+ <col class=xl25 width=99 style='mso-width-source:userset;mso-width-alt:3620;
+ width:74pt'>
+ <tr height=15 style='mso-height-source:userset;height:11.25pt'>
+  <td colspan=2 rowspan=2 height=30 class=xl51 width=161 style='border-right:
+  .5pt hairline black;border-bottom:.5pt hairline black;height:22.5pt;
+  width:121pt'>P/R No <font class="font7">S&#7889; Phi&#7871;u:</font></td>
+  <td rowspan=2 class=xl55 width=127 style='border-bottom:.5pt hairline black;
+  width:95pt'><%= dt.Rows[0]["pr_no"] %></td>
+  <td class=xl27 width=42 style='width:32pt'></td>
+  <td class=xl28 width=71 style='width:53pt'></td>
+  <td colspan=3 rowspan=4 class=xl57 width=278 style='width:210pt'>YÊU
+  C&#7846;U MUA HÀNG<br>
+    <font class="font9">PURCHASING REQUEST</font></td>
+  <td class=xl25 width=95 style='width:71pt'></td>
+  <td class=xl25 width=11 style='width:8pt'></td>
+  <td class=xl29 colspan=2 width=182 style='mso-ignore:colspan;width:137pt'><%= dt2.Rows[0]["partner_name"]%></td>
+  <td class=xl30 width=71 style='width:53pt'></td>
+  <td class=xl30 width=109 style='width:82pt'></td>
+  <td class=xl31 width=99 style='width:74pt'>Tel: <%= dt2.Rows[0]["phone_no"]%></td>
+ </tr>
+ <tr height=15 style='mso-height-source:userset;height:11.25pt'>
+  <td height=15 class=xl27 style='height:11.25pt'></td>
+  <td class=xl28></td>
+  <td colspan=2 class=xl25 style='mso-ignore:colspan'></td>
+  <td class=xl29 colspan=4 style='mso-ignore:colspan'><%= dt2.Rows[0]["addr1"]%></td>
+  <td class=xl31>Fax: <%= dt2.Rows[0]["fax_no"]%></td>
+ </tr>
+ <tr height=15 style='mso-height-source:userset;height:11.25pt'>
+  <td colspan=2 rowspan=2 height=32 class=xl51 width=161 style='border-right:
+  .5pt hairline black;border-bottom:.5pt hairline black;height:24.0pt;
+  width:121pt'>Date <font class="font7">Ngày:</font><font class="font6"><span
+  style='mso-spacerun:yes'> </span></font></td>
+  <td rowspan=2 class=xl58 width=127 style='border-bottom:.5pt hairline black;
+  border-top:none;width:95pt'><%= DateTime.Now.ToString("dd/MM/yyyy") %></td>
+  <td class=xl27></td>
+  <td class=xl28></td>
+  <td colspan=2 class=xl25 style='mso-ignore:colspan'></td>
+  <td class=xl32 colspan=2 style='mso-ignore:colspan'>Tax Code : <%= dt2.Rows[0]["tax_code"]%></td>
+  <td class=xl33>&nbsp;</td>
+  <td class=xl33>&nbsp;</td>
+  <td class=xl34>Print Date: <%= DateTime.Now.ToString("yyyy-MM-dd") %></td>
+ </tr>
+ <tr height=17 style='mso-height-source:userset;height:12.75pt'>
+  <td height=17 class=xl27 style='height:12.75pt'></td>
+  <td class=xl28></td>
+  <td colspan=2 class=xl25 style='mso-ignore:colspan'></td>
+  <td class=xl35>Receipt Date:</td>
+  <td class=xl29></td>
+  <td class=xl29></td>
+  <td class=xl35>Purchaser:</td>
+  <td class=xl30></td>
+ </tr>
+ <tr height=27 style='mso-height-source:userset;height:20.25pt'>
+  <td colspan=2 height=27 class=xl59 width=161 style='height:20.25pt;
+  width:121pt'>B&#7897; ph&#7853;n <font class="font11">Dept</font></td>
+  <td colspan=3 height=27 width=240 style='height:20.25pt;width:180pt'
+  align=left valign=top><!--[if gte vml 1]><v:shapetype id="_x0000_t75"
+   coordsize="21600,21600" o:spt="75" o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe"
+   filled="f" stroked="f">
+   <v:stroke joinstyle="miter"/>
+   <v:formulas>
+    <v:f eqn="if lineDrawn pixelLineWidth 0"/>
+    <v:f eqn="sum @0 1 0"/>
+    <v:f eqn="sum 0 0 @1"/>
+    <v:f eqn="prod @2 1 2"/>
+    <v:f eqn="prod @3 21600 pixelWidth"/>
+    <v:f eqn="prod @3 21600 pixelHeight"/>
+    <v:f eqn="sum @0 0 1"/>
+    <v:f eqn="prod @6 1 2"/>
+    <v:f eqn="prod @7 21600 pixelWidth"/>
+    <v:f eqn="sum @8 21600 0"/>
+    <v:f eqn="prod @7 21600 pixelHeight"/>
+    <v:f eqn="sum @10 21600 0"/>
+   </v:formulas>
+   <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
+   <o:lock v:ext="edit" aspectratio="t"/>
+  </v:shapetype><v:shape id="_x0000_s3074" type="#_x0000_t75" style='position:absolute;
+   margin-left:174.75pt;margin-top:.75pt;width:287.25pt;height:63pt;z-index:2'
+   fillcolor="windowText [64]" strokecolor="window [65]" strokeweight="3e-5mm"
+   o:insetmode="auto">
+   <v:fill color2="window [65]"/>
+   <v:imagedata src="rpt_epbp00010_SONGWOL_files/image001.png" o:title=""/>
+   <x:ClientData ObjectType="Pict">
+    <x:SizeWithCells/>
+    <x:AutoFill>False</x:AutoFill>
+    <x:AutoLine>False</x:AutoLine>
+    <x:CF>Bitmap</x:CF>
+    <x:AutoPict/>
+   </x:ClientData>
+  </v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;
+  position:absolute;z-index:2;margin-left:233px;margin-top:1px;width:383px;
+  height:84px'><img width=383 height=84
+  src="rpt_epbp00010_SONGWOL_files/image002.jpg" v:shapes="_x0000_s3074"></span><![endif]><span
+  style='mso-ignore:vglayout2'>
+  <table cellpadding=0 cellspacing=0>
+   <tr>
+    <td colspan=3 height=27 class=xl60 width=240 style='height:20.25pt;
+    width:180pt'><%= dt.Rows[0]["dept_name"]%></td>
+   </tr>
+  </table>
+  </span></td>
+  <td class=xl26></td>
+  <td colspan=3 class=xl25 style='mso-ignore:colspan'></td>
+  <td colspan=6 rowspan=4 height=99 class=xl25 width=472 style='mso-ignore:
+  colspan-rowspan;height:74.25pt;width:354pt'><!--[if gte vml 1]><v:shape id="_x0000_s3073"
+   type="#_x0000_t75" style='position:absolute;margin-left:3.75pt;margin-top:1.5pt;
+   width:349.5pt;height:62.25pt;z-index:1' fillcolor="windowText [64]"
+   strokecolor="window [65]" strokeweight="3e-5mm" o:insetmode="auto">
+   <v:fill color2="window [65]"/>
+   <v:imagedata src="rpt_epbp00010_SONGWOL_files/image003.png" o:title=""/>
+   <x:ClientData ObjectType="Pict">
+    <x:SizeWithCells/>
+    <x:AutoFill>False</x:AutoFill>
+    <x:AutoLine>False</x:AutoLine>
+    <x:CF>Bitmap</x:CF>
+   </x:ClientData>
+  </v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout'>
+  <table cellpadding=0 cellspacing=0>
+   <tr>
+    <td width=5 height=2></td>
+   </tr>
+   <tr>
+    <td></td>
+    <td><img width=466 height=83 src="rpt_epbp00010_SONGWOL_files/image004.jpg"
+    v:shapes="_x0000_s3073"></td>
+    <td width=1></td>
+   </tr>
+   <tr>
+    <td height=14></td>
+   </tr>
+  </table>
+  </span><![endif]><!--[if !mso & vml]><span style='width:354.0pt;height:74.25pt'></span><![endif]--></td>
+ </tr>
+ <tr height=27 style='mso-height-source:userset;height:20.25pt'>
+  <td colspan=2 height=27 class=xl61 width=161 style='height:20.25pt;
+  width:121pt'>Ng&#432;&#7901;i yêu c&#7847;u <font class="font11">Proposer</font></td>
+  <td colspan=3 class=xl60 width=240 style='width:180pt'><%= dt.Rows[0]["req_emp"]%></td>
+  <td class=xl26></td>
+  <td colspan=3 class=xl25 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=27 style='mso-height-source:userset;height:20.25pt'>
+  <td colspan=2 height=27 class=xl61 width=161 style='height:20.25pt;
+  width:121pt'>Ngày Y/C <font class="font11">Date</font></td>
+  <td colspan=3 class=xl62 width=240 style='width:180pt'><%= dt.Rows[0]["req_date"]%></td>
+  <td class=xl26></td>
+  <td colspan=3 class=xl25 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=18 style='height:13.5pt'>
+  <td height=18 colspan=5 class=xl25 style='height:13.5pt;mso-ignore:colspan'></td>
+  <td class=xl26></td>
+  <td colspan=3 class=xl25 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=37 style='mso-height-source:userset;height:27.75pt'>
+  <td height=37 class=xl36 width=34 style='height:27.75pt;width:26pt'>STT<font
+  class="font14"><br>
+    </font><font class="font15">No</font></td>
+  <td colspan=2 class=xl63 width=254 style='border-right:.5pt solid black;
+  border-left:none;width:190pt'>M&#7863;t hàng<font class="font14"><br>
+    </font><font class="font15">Item</font></td>
+  <td class=xl37 width=42 style='width:32pt'>&#272;VT<font class="font14"><br>
+    </font><font class="font15">UOM</font></td>
+  <td class=xl37 width=71 style='width:53pt'>S&#7889; l&#432;&#7907;ng<font
+  class="font14"><br>
+    </font><font class="font15">Qty</font></td>
+  <td class=xl38 width=98 style='width:74pt'>Ngày Y/C Giao<font class="font14"><br>
+    </font><font class="font15">Req Deli Date</font></td>
+  <td class=xl37 width=98 style='width:74pt'>TG Sd&#7909;ng<font class="font14"><br>
+    </font><font class="font15">Term of Use</font></td>
+  <td class=xl37 width=82 style='width:62pt'>T&#7891;n kho<font class="font14"><br>
+    </font><font class="font15">Stock</font></td>
+  <td class=xl39 width=95 style='width:71pt'>S&#7889; t&#7891;n d&#7921;
+  ki&#7871;n<font class="font14"><br>
+    </font><font class="font15">Estimate Stock</font></td>
+  <td class=xl40 width=11 style='width:8pt'>&nbsp;</td>
+  <td class=xl37 width=76 style='width:57pt'>&#272;&#417;n giá<br>
+    <font class="font15">Unit Price</font></td>
+  <td class=xl37 width=106 style='width:80pt'>Thành ti&#7873;n<br>
+    <font class="font15">Amount</font></td>
+  <td class=xl37 width=71 style='width:53pt'>B&#7897; ph&#7853;n<br>
+    <font class="font15">Section</font></td>
+  <td class=xl37 width=109 style='width:82pt'>Nhà cung c&#7845;p<br>
+    <font class="font15">Supplier</font></td>
+  <td class=xl39 width=99 style='width:74pt'>Ghi chú<font class="font14"><br>
+    </font><font class="font15">Remark</font></td>
+ </tr>
+ <%
+     for (int i = 0; i < dt1.Rows.Count; i++)
+     {
+      %>
+ <tr height=30 style='mso-height-source:userset;height:22.5pt'>
+  <td height=30 class=xl41 width=34 style='height:22.5pt;width:26pt;border-bottom:.5pt hairline windowtext'><%= dt1.Rows[i]["seq"]%></td>
+  <td colspan=2 class=xl65 width=254 style='border-right:.5pt solid black;
+  border-left:none;border-bottom:.5pt hairline windowtext;width:190pt'><%= dt1.Rows[i]["item_name"]%></td>
+  <td class=xl42 width=42 style='width:32pt;border-bottom:.5pt hairline windowtext'><%= dt1.Rows[i]["req_uom_01"]%></td>
+  <td class=xl43 width=71 style='width:53pt;border-bottom:.5pt hairline windowtext' x:num><span
+  style='mso-spacerun:yes'></span><%= dt1.Rows[i]["req_qty_01"]%></td>
+  <td class=xl44 width=98 style='width:74pt;border-bottom:.5pt hairline windowtext' x:num><%= dt1.Rows[i]["etd_from"]%></td>
+  <td class=xl45 width=98 style='width:74pt;border-bottom:.5pt hairline windowtext'><%= dt1.Rows[i]["description"]%></td>
+  <td class=xl45 width=82 style='width:62pt;border-bottom:.5pt hairline windowtext' x:num><span
+  style='mso-spacerun:yes'></span><%= dt1.Rows[i]["pr_stock_qty"]%></td>
+  <td class=xl46 width=95 style='width:71pt;border-bottom:.5pt hairline windowtext' x:num><%= dt1.Rows[i]["pr_expect_qty"]%></td>
+  <td class=xl46 width=11 style='width:8pt;border-bottom:.5pt hairline windowtext'>&nbsp;</td>
+  <td class=xl47 width=76 style='width:57pt;border-bottom:.5pt hairline windowtext'>&nbsp;</td>
+  <td class=xl45 width=106 style='width:80pt;border-bottom:.5pt hairline windowtext'>&nbsp;</td>
+  <td class=xl47 width=71 style='width:53pt;border-bottom:.5pt hairline windowtext'>&nbsp;</td>
+  <td class=xl45 width=109 style='width:82pt;border-bottom:.5pt hairline windowtext'>&nbsp;</td>
+  <td class=xl46 width=99 style='width:74pt;border-bottom:.5pt hairline windowtext'>&nbsp;</td>
+ </tr>
+ <%} %>
+ <tr height=30 style='mso-height-source:userset;height:22.5pt'>
+  <td height=30 class=xl48 width=34 style='height:22.5pt;width:26pt'>&nbsp;</td>
+  <td colspan=2 class=xl67 width=254 style='width:190pt'>C&#7897;ng Total</td>
+  <td class=xl48 width=42 style='width:32pt'>&nbsp;</td>
+  <td class=xl49 width=71 style='width:53pt' x:num x:fmla="=<%if(dt1.Rows.Count==0){ %>SUM(E11:E11)<%}else{ %>SUM(E10:E<%= dt1.Rows.Count+9 %>)<%} %>"><span
+  style='mso-spacerun:yes'></span></td>
+  <td class=xl50 width=98 style='width:74pt'>&nbsp;</td>
+  <td class=xl48 width=98 style='width:74pt'>&nbsp;</td>
+  <td class=xl48 width=82 style='width:62pt'>&nbsp;</td>
+  <td class=xl48 width=95 style='width:71pt'>&nbsp;</td>
+  <td class=xl25></td>
+  <td class=xl48 width=76 style='width:57pt'>&nbsp;</td>
+  <td class=xl48 width=106 style='width:80pt'>&nbsp;</td>
+  <td class=xl48 width=71 style='width:53pt'>&nbsp;</td>
+  <td class=xl48 width=109 style='width:82pt'>&nbsp;</td>
+  <td class=xl48 width=99 style='width:74pt'>&nbsp;</td>
+ </tr>
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=34 style='width:26pt'></td>
+  <td width=127 style='width:95pt'></td>
+  <td width=127 style='width:95pt'></td>
+  <td width=42 style='width:32pt'></td>
+  <td width=71 style='width:53pt'></td>
+  <td width=98 style='width:74pt'></td>
+  <td width=98 style='width:74pt'></td>
+  <td width=82 style='width:62pt'></td>
+  <td width=95 style='width:71pt'></td>
+  <td width=11 style='width:8pt'></td>
+  <td width=76 style='width:57pt'></td>
+  <td width=106 style='width:80pt'></td>
+  <td width=71 style='width:53pt'></td>
+  <td width=109 style='width:82pt'></td>
+  <td width=99 style='width:74pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</body>
+
+</html>

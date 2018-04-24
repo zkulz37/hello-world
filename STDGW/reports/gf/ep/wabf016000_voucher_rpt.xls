@@ -1,0 +1,2187 @@
+﻿<%
+	Response.ContentType = "application/x-excel" 
+	Response.Charset = "utf-8"
+%>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+<!-- #include file="../../../system/lib/form.inc"  -->
+<!-- #include file="../db.inc"  -->
+<%ConnectDBApp%>
+<%
+	dim compk
+	
+	compk = Request.QueryString("compk")
+	custpk = Request.QueryString("custpk")
+	bankpk  = Request.QueryString("bankpk")
+	sdt = Request.QueryString("sdt")
+	edt = Request.QueryString("edt")
+	
+	bank_nm = ""
+	bank_cd = ""
+	
+	tr_date = ""
+	crt_by =  ""
+	book_amt = ""
+	exrate = ""
+	total = "0"
+		
+	SQL = " SELECT B.CUSTCOM_NM, C.BANK_ID"
+	SQL = SQL &  "   FROM TAC_BFDEPOMT C, COMM.TCO_DCCUSTCOM B"
+	SQL = SQL &  "  WHERE C.DEL_IF = 0 "
+	SQL = SQL &  "    AND B.DEL_IF = 0 "
+	SQL = SQL &  "    AND C.TCO_DCCUSTCOM_PK = B.PK "
+	SQL = SQL &  "    AND C.PK = 	'" & bankpk & "' "
+	TableReadOpen rs, SQL
+	
+	if not rs.EOF then
+		result 	= rs.GetRows()
+		total 	= Ubound(result, 2) + 1
+		bank_nm = result(0, 0)
+		bank_cd = result(1, 0)
+		
+	end if
+		
+		
+	SQL1 = " SELECT  to_char(H.TR_DATE,'dd/mm/yyyy')"
+	SQL1 = SQL1 &  " 	, max(h.crt_by) crt_by"
+	SQL1 = SQL1 &  " 	, SUM(D.TR_BOOKAMT), Sf_Get_Rate('" & sdt & "', 'VND')"
+	SQL1 = SQL1 &  "     FROM (SELECT DISTINCT( A.TR_SEQ) TR_SEQ,A.TCO_DCCUSTM_PK TCO_DCCUSTM_PK FROM TFN_BAPAYTR A WHERE A.DEL_IF = 0"
+	SQL1 = SQL1 &  "      AND A.TCO_EOCOMPANY_PK = 1 "
+	SQL1 = SQL1 &  "      AND A.PAY_DATE  BETWEEN '" & sdt & "' AND '" & sdt & "' "
+	SQL1 = SQL1 &  "      AND  DECODE('" & bankpk & "',0,1,TAC_BFDEPOMT_PK) = DECODE ('" & bankpk & "',0,1,'" & bankpk & "')"
+	SQL1 = SQL1 &  "      AND (A.PAY_TYPE ='22' OR  A.PAY_TYPE ='21') ) B, COMM.TCO_DCCUST C, TAC_BGTRH H, TAC_BGTRD D, TAC_BGTRD_REF R"
+	SQL1 = SQL1 &  "    WHERE B.TCO_DCCUSTM_PK = C.PK "
+	SQL1 = SQL1 &  "      AND H.DEL_IF = 0"
+	SQL1 = SQL1 &  "      AND D.DEL_IF = 0"
+	SQL1 = SQL1 &  "      AND H.PK = D.TAC_BGTRH_PK "
+	SQL1 = SQL1 &  "      AND C.PK = D.TCO_DCCUSTM_PK"
+	SQL1 = SQL1 &  "  	 AND H.TR_TABLE_PK = B.TR_SEQ "
+	SQL1 = SQL1 &  "  	 AND H.TR_TABLENM = 'TFN_BAPAYTR' "
+	SQL1 = SQL1 &  "  	 AND D.PK  = R.TAC_BGTRD_PK"
+	SQL1 = SQL1 &  "  	 AND R.DEL_IF = 0"
+	SQL1 = SQL1 &  "  	 AND D.DRCR_TYPE = 'D'"
+	SQL1 = SQL1 &  " GROUP BY H.TR_DATE"
+	SQL1 = SQL1 &  " 		 "
+	TableReadOpen rs1, SQL1
+	
+	if not rs1.EOF then
+		result1 	= rs1.GetRows()
+		total 	= Ubound(result1, 2) + 1
+		tr_date = result1(0, 0)
+		crt_by =  result1(1, 0)
+		book_amt = result1(2, 0)
+		exrate = result1(3, 0)
+	end if
+
+
+SQL = " SELECT DECODE(PK, 0, '', PK)		"
+SQL = SQL &  " 	   , VOUCHER_NO"
+SQL = SQL &  " 	   , VOUCHER_TYPE"
+SQL = SQL &  " 	   , DECODE(TR_DATE_SEQ,0,'',TR_DATE_SEQ) "
+SQL = SQL &  " 	   , CUST_ID"
+SQL = SQL &  " 	   , CUST_NM"
+SQL = SQL &  " 	   , REMARK"
+SQL = SQL &  " 	   , REMARK2"
+SQL = SQL &  " 	   , PL_CD"
+SQL = SQL &  " 	   , ACCD_DR"
+SQL = SQL &  " 	   , ACCD_CR"
+SQL = SQL &  " 	   , TR_AMT"
+SQL = SQL &  " 	   , TR_BOOKAMT"
+SQL = SQL &  " 	   , ORD "
+SQL = SQL &  " FROM (	   "
+SQL = SQL &  "  SELECT H.PK "
+SQL = SQL &  "  		, H.VOUCHERNO VOUCHER_NO"
+SQL = SQL &  "      	, VOUCHER_TYPE"
+SQL = SQL &  "      	, TR_DATE_SEQ TR_DATE_SEQ"
+SQL = SQL &  "      	, C.CUST_ID CUST_ID"
+SQL = SQL &  "     	, C.CUST_NM CUST_NM"
+SQL = SQL &  "      	, D.REMARK REMARK"
+SQL = SQL &  "      	, D.REMARK2  REMARK2 "
+SQL = SQL &  "      	, trim(SF_A_GET_REF_PLCD(D.PK)) PL_CD"
+SQL = SQL &  "  		, DECODE(D.DRCR_TYPE, 'D', Sf_A_Get_Accd(D.TAC_ABACCTCODE_PK ),'') ACCD_DR"
+SQL = SQL &  "  		, DECODE(R.DRCR_TYPE, 'C', Sf_A_Get_Accd(R.TAC_ABACCTCODE_PK ),'') ACCD_CR"
+SQL = SQL &  "      	, D.TR_AMT"
+SQL = SQL &  "  		, D.TR_BOOKAMT"
+SQL = SQL &  " 		, 'A' ORD"
+SQL = SQL &  "     FROM (SELECT DISTINCT( A.TR_SEQ) TR_SEQ,A.TCO_DCCUSTM_PK TCO_DCCUSTM_PK FROM TFN_BAPAYTR A WHERE A.DEL_IF = 0"
+SQL = SQL &  "      AND A.TCO_EOCOMPANY_PK = 1 "
+SQL = SQL &  "      AND A.PAY_DATE  BETWEEN '" & sdt & "' AND '" & sdt & "' "
+SQL = SQL &  "      AND  DECODE('" & bankpk & "',0,1,TAC_BFDEPOMT_PK) = DECODE ('" & bankpk & "',0,1,'" & bankpk & "')"
+SQL = SQL &  "      AND (A.PAY_TYPE ='22' OR  A.PAY_TYPE ='21') ) B, COMM.TCO_DCCUST C, TAC_BGTRH H, TAC_BGTRD D, TAC_BGTRD_REF R"
+SQL = SQL &  "    WHERE B.TCO_DCCUSTM_PK = C.PK "
+SQL = SQL &  "      AND H.DEL_IF = 0"
+SQL = SQL &  "      AND D.DEL_IF = 0"
+SQL = SQL &  "      AND H.PK = D.TAC_BGTRH_PK "
+SQL = SQL &  "      AND C.PK = D.TCO_DCCUSTM_PK"
+SQL = SQL &  "  	 AND H.TR_TABLE_PK = B.TR_SEQ "
+SQL = SQL &  "  	 AND H.TR_TABLENM = 'TFN_BAPAYTR' "
+SQL = SQL &  "  	 AND D.PK  = R.TAC_BGTRD_PK"
+SQL = SQL &  "  	 AND R.DEL_IF = 0"
+SQL = SQL &  "  	 AND D.DRCR_TYPE = 'D'"
+
+SQL = SQL &  "    UNION ALL	"
+SQL = SQL &  "   SELECT 0 PK "
+SQL = SQL &  "  		, '' VOUCHER_NO"
+SQL = SQL &  "      	, '' VOUCHER_TYPE"
+SQL = SQL &  "      	, 0 TR_DATE_SEQ"
+SQL = SQL &  "      	, C.CUST_ID CUST_ID"
+SQL = SQL &  "     	, C.CUST_NM CUST_NM"
+SQL = SQL &  "      	, '' REMARK"
+SQL = SQL &  "      	, ''  REMARK2 "
+SQL = SQL &  "      	, '' PL_CD"
+SQL = SQL &  "  		, '' ACCD_DR"
+SQL = SQL &  "  		, '' ACCD_CR"
+SQL = SQL &  "      	, SUM(D.TR_AMT) TR_AMT"
+SQL = SQL &  "  		, SUM(D.TR_BOOKAMT) TR_BOOKAMT"
+SQL = SQL &  " 		, 'B' ORD"
+SQL = SQL &  "     FROM (SELECT DISTINCT( A.TR_SEQ) TR_SEQ,A.TCO_DCCUSTM_PK TCO_DCCUSTM_PK FROM TFN_BAPAYTR A WHERE A.DEL_IF = 0"
+SQL = SQL &  "      AND A.TCO_EOCOMPANY_PK = 1 "
+SQL = SQL &  "      AND A.PAY_DATE  BETWEEN '" & sdt & "' AND '" & sdt & "' "
+SQL = SQL &  "      AND  DECODE('" & bankpk & "',0,1,TAC_BFDEPOMT_PK) = DECODE ('" & bankpk & "',0,1,'" & bankpk & "')"
+SQL = SQL &  "      AND (A.PAY_TYPE ='22' OR  A.PAY_TYPE ='21') ) B, COMM.TCO_DCCUST C, TAC_BGTRH H, TAC_BGTRD D, TAC_BGTRD_REF R"
+SQL = SQL &  "    WHERE B.TCO_DCCUSTM_PK = C.PK "
+SQL = SQL &  "      AND H.DEL_IF = 0"
+SQL = SQL &  "      AND D.DEL_IF = 0"
+SQL = SQL &  "      AND H.PK = D.TAC_BGTRH_PK "
+SQL = SQL &  "      AND C.PK = D.TCO_DCCUSTM_PK"
+SQL = SQL &  "  	 AND H.TR_TABLE_PK = B.TR_SEQ "
+SQL = SQL &  "  	 AND H.TR_TABLENM = 'TFN_BAPAYTR' "
+SQL = SQL &  "  	 AND D.PK  = R.TAC_BGTRD_PK"
+SQL = SQL &  "  	 AND R.DEL_IF = 0"
+SQL = SQL &  "  	 AND D.DRCR_TYPE = 'D'"
+SQL = SQL &  "    GROUP BY C.CUST_ID,C.CUST_NM ) ORDER BY CUST_ID, ORD"
+	TableReadOpen rs, SQL
+	
+	if not rs.EOF then
+		result 	= rs.GetRows()
+		total 	= Ubound(result, 2) + 1
+	end if
+	%>
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 11">
+<link rel=File-List href="wabf016000_voucher_files/filelist.xml">
+<link rel=Edit-Time-Data href="wabf016000_voucher_files/editdata.mso">
+<link rel=OLE-Object-Data href="wabf016000_voucher_files/oledata.mso">
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>PCPro</o:Author>
+  <o:LastAuthor>AA</o:LastAuthor>
+  <o:LastPrinted>2008-05-24T02:41:18Z</o:LastPrinted>
+  <o:Created>2008-04-24T03:54:58Z</o:Created>
+  <o:LastSaved>2008-05-24T06:09:39Z</o:LastSaved>
+  <o:Company>PCPro., LTD..</o:Company>
+  <o:Version>11.6360</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{
+	mso-footer-data:"Page &P of &N";
+	margin:.25in 0in 0in .25in;
+	mso-header-margin:.25in;
+	mso-footer-margin:.25in;
+	mso-page-orientation:landscape;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style16
+	{mso-number-format:"_\(* \#\,\#\#0\.00_\)\;_\(* \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	mso-style-name:Comma;
+	mso-style-id:3;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl24
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;}
+.xl25
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:1.0pt solid windowtext;
+	border-left:none;}
+.xl26
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:1.0pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:1.0pt solid windowtext;}
+.xl27
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:1.0pt solid windowtext;
+	border-right:1.0pt solid windowtext;
+	border-bottom:none;
+	border-left:none;}
+.xl28
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	border-top:none;
+	border-right:none;
+	border-bottom:none;
+	border-left:1.0pt solid windowtext;}
+.xl29
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	border-top:none;
+	border-right:1.0pt solid windowtext;
+	border-bottom:none;
+	border-left:none;}
+.xl30
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;}
+.xl31
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:none;
+	border-left:1.0pt solid windowtext;}
+.xl32
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:none;
+	border-right:1.0pt solid windowtext;
+	border-bottom:none;
+	border-left:none;}
+.xl33
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:none;
+	border-left:1.0pt solid windowtext;}
+.xl34
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	border-top:none;
+	border-right:none;
+	border-bottom:1.0pt solid windowtext;
+	border-left:1.0pt solid windowtext;}
+.xl35
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	border-top:none;
+	border-right:none;
+	border-bottom:1.0pt solid windowtext;
+	border-left:none;}
+.xl36
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	border-top:none;
+	border-right:1.0pt solid windowtext;
+	border-bottom:1.0pt solid windowtext;
+	border-left:none;}
+.xl37
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;}
+.xl38
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;}
+.xl39
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:1.0pt solid windowtext;}
+.xl40
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl41
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl42
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl43
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl44
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl45
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:top;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl46
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:top;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl47
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:top;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl48
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl49
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl50
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;}
+.xl51
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;}
+.xl52
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl53
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl54
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl55
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl56
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl57
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl58
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl59
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;}
+.xl60
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl61
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl62
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl63
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl64
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl65
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl66
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl67
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl68
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	white-space:normal;}
+.xl69
+	{mso-style-parent:style16;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;_\(* \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl70
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl71
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl72
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt solid windowtext;}
+.xl73
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl74
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl75
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl76
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl77
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl78
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid windowtext;}
+.xl79
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl80
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl81
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl82
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl83
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl84
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl85
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl86
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl87
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid black;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl88
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid black;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl89
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl90
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl91
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl92
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid black;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl93
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl94
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl95
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl96
+	{mso-style-parent:style16;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"\@";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl97
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl98
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:right;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:1.0pt solid windowtext;
+	border-left:none;}
+.xl99
+	{mso-style-parent:style0;
+	font-weight:700;
+	text-decoration:underline;
+	text-underline-style:single;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:right;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:1.0pt solid windowtext;
+	border-left:none;}
+.xl100
+	{mso-style-parent:style0;
+	font-size:15.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:1.0pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl101
+	{mso-style-parent:style0;
+	font-size:14.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl102
+	{mso-style-parent:style0;
+	font-size:14.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl103
+	{mso-style-parent:style0;
+	font-size:14.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl104
+	{mso-style-parent:style0;
+	font-size:14.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl105
+	{mso-style-parent:style0;
+	font-size:14.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;}
+.xl106
+	{mso-style-parent:style0;
+	font-size:14.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl107
+	{mso-style-parent:style0;
+	font-size:14.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:.5pt solid black;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl108
+	{mso-style-parent:style0;
+	font-size:14.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:.5pt solid black;
+	border-left:none;
+	white-space:normal;}
+.xl109
+	{mso-style-parent:style0;
+	font-size:14.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid black;
+	border-left:none;
+	white-space:normal;}
+.xl110
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid windowtext;}
+.xl111
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;}
+.xl112
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl113
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl114
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl115
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl116
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl117
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl118
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+.xl119
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt hairline windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl120
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:none;
+	white-space:normal;}
+.xl121
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	white-space:normal;}
+.xl122
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;}
+.xl123
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl124
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid black;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl125
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl126
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl127
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl128
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;}
+.xl129
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;}
+.xl130
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;}
+.xl131
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;}
+.xl132
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	white-space:normal;}
+.xl133
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl134
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl135
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl136
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0\.00_\)\;\[Red\]_\(\\ \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid black;}
+.xl137
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;}
+.xl138
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl139
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl140
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid black;}
+.xl141
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl142
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid black;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl143
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	white-space:normal;}
+.xl144
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	white-space:normal;}
+.xl145
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt hairline windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl146
+	{mso-style-parent:style0;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt hairline windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl147
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;}
+.xl148
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl149
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl150
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl151
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl152
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Tahoma, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;
+	white-space:normal;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet1</x:Name>
+    <x:WorksheetOptions>
+     <x:DefaultRowHeight>300</x:DefaultRowHeight>
+     <x:Unsynced/>
+     <x:Print>
+      <x:ValidPrinterInfo/>
+      <x:PaperSizeIndex>9</x:PaperSizeIndex>
+      <x:Scale>90</x:Scale>
+      <x:HorizontalResolution>600</x:HorizontalResolution>
+      <x:VerticalResolution>600</x:VerticalResolution>
+     </x:Print>
+     <x:Selected/>
+     <x:Panes>
+      <x:Pane>
+       <x:Number>3</x:Number>
+       <x:ActiveRow>15</x:ActiveRow>
+       <x:ActiveCol>4</x:ActiveCol>
+      </x:Pane>
+     </x:Panes>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:WindowHeight>8445</x:WindowHeight>
+  <x:WindowWidth>15195</x:WindowWidth>
+  <x:WindowTopX>0</x:WindowTopX>
+  <x:WindowTopY>45</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+ <x:ExcelName>
+  <x:Name>Print_Titles</x:Name>
+  <x:SheetIndex>1</x:SheetIndex>
+  <x:Formula>=Sheet1!$13:$14</x:Formula>
+ </x:ExcelName>
+</xml><![endif]-->
+</head>
+
+<body link=blue vlink=purple class=xl30>
+
+<table x:str border=0 cellpadding=0 cellspacing=0 width=1078 style='border-collapse:
+ collapse;table-layout:fixed;width:814pt'>
+  <col class=xl24 width=19 style='mso-width-source:userset;mso-width-alt:694;
+ width:14pt'>
+ <col class=xl24 width=56 style='mso-width-source:userset;mso-width-alt:2048;
+ width:42pt'>
+ <col class=xl24 width=96 style='mso-width-source:userset;mso-width-alt:3510;
+ width:72pt'>
+ <col class=xl24 width=127 style='mso-width-source:userset;mso-width-alt:4644;
+ width:95pt'>
+ <col class=xl30 width=155 style='mso-width-source:userset;mso-width-alt:5668;
+ width:116pt'>
+ <col class=xl30 width=94 style='mso-width-source:userset;mso-width-alt:3437;
+ width:71pt'>
+ <col class=xl30 width=52 style='mso-width-source:userset;mso-width-alt:1901;
+ width:39pt'>
+ <col class=xl30 width=46 style='mso-width-source:userset;mso-width-alt:1682;
+ width:35pt'>
+ <col class=xl30 width=74 style='mso-width-source:userset;mso-width-alt:2706;
+ width:56pt'>
+ <col class=xl30 width=26 span=4 style='mso-width-source:userset;mso-width-alt:
+ 950;width:20pt'>
+ <col class=xl30 width=40 span=6 style='mso-width-source:userset;mso-width-alt:
+ 1462;width:30pt'>
+ <col class=xl30 width=19 style='mso-width-source:userset;mso-width-alt:694;
+ width:14pt'>
+ <tr class=xl24 height=33 style='mso-height-source:userset;height:24.95pt'>
+  <td height=33 class=xl25 width=19 style='height:24.95pt;width:14pt'></td>
+  <td class=xl25 width=56 style='width:42pt'>&nbsp;</td>
+  <td class=xl25 width=96 style='width:72pt'>&nbsp;</td>
+  <td class=xl25 width=127 style='width:95pt'>&nbsp;</td>
+  <td class=xl25 width=155 style='width:116pt'>&nbsp;</td>
+  <td class=xl25 width=94 style='width:71pt'>&nbsp;</td>
+  <td class=xl25 width=52 style='width:39pt'>&nbsp;</td>
+  <td class=xl25 width=46 style='width:35pt'>&nbsp;</td>
+  <td class=xl25 width=74 style='width:56pt'>&nbsp;</td>
+  <td colspan=6 class=xl98 width=184 style='width:140pt'>Voucher Approval No :</td>
+  <td colspan=5 class=xl99 width=179 style='width:134pt'
+  x:str="                                               "><span
+  style='mso-spacerun:yes'>                                               </span></td>
+ </tr>
+ <tr class=xl24 height=33 style='mso-height-source:userset;height:24.95pt'>
+  <td height=33 class=xl26 style='height:24.95pt'>&nbsp;</td>
+  <td colspan=18 class=xl100>ACCOUNTING SLIP/PHI&#7870;U K&#7870; TOÁN</td>
+  <td class=xl27 style='border-top:none'>&nbsp;</td>
+ </tr>
+ <tr height=40 style='mso-height-source:userset;height:30.0pt'>
+  <td height=40 class=xl28 style='height:30.0pt'>&nbsp;</td>
+  <td colspan=4 rowspan=3 class=xl101 width=434 style='border-right:.5pt solid black;
+  border-bottom:.5pt solid black;width:325pt'>Transaction Approval/ <br>
+    Ký duy&#7879;t</td>
+  <td colspan=2 class=xl68 width=146 style='border-left:none;width:110pt'>Date/
+  <br>
+    Ngày</td>
+  <td colspan=2 class=xl68 width=120 style='border-left:none;width:91pt'>Charger/<br>
+    Ng&#432;&#7901;i l&#7853;p</td>
+  <td colspan=3 class=xl68 width=78 style='border-left:none;width:60pt'>Check/<br>
+    Ng&#432;&#7901;i ki&#7875;m</td>
+  <td colspan=3 class=xl68 width=106 style='border-left:none;width:80pt'>Chief
+  Acc./ <br>
+    K&#7871; toán tr&#432;&#7903;ng</td>
+  <td colspan=2 class=xl68 width=80 style='border-left:none;width:60pt'>Manager/
+  <br>
+    Tr&#432;&#7903;ng phòng</td>
+  <td colspan=2 class=xl68 width=80 style='border-left:none;width:60pt'>Director/<br>
+    Giám &#273;&#7889;c</td>
+  <td class=xl29>&nbsp;</td>
+ </tr>
+ <tr height=24 style='mso-height-source:userset;height:18.0pt'>
+  <td height=24 class=xl28 style='height:18.0pt'>&nbsp;</td>
+  <td colspan=2 rowspan=2 class=xl68 width=146 style='width:110pt'>&nbsp;</td>
+  <td colspan=2 rowspan=2 class=xl68 width=120 style='width:91pt'>&nbsp;</td>
+  <td colspan=3 rowspan=2 class=xl68 width=78 style='width:60pt'>&nbsp;</td>
+  <td colspan=3 rowspan=2 class=xl68 width=106 style='width:80pt'>&nbsp;</td>
+  <td colspan=2 rowspan=2 class=xl110>&nbsp;</td>
+  <td colspan=2 rowspan=2 class=xl110>&nbsp;</td>
+  <td class=xl29>&nbsp;</td>
+ </tr>
+ <tr height=24 style='mso-height-source:userset;height:18.0pt'>
+  <td height=24 class=xl28 style='height:18.0pt'>&nbsp;</td>
+  <td class=xl29>&nbsp;</td>
+ </tr>
+ <tr height=10 style='mso-height-source:userset;height:8.1pt'>
+  <td height=10 class=xl28 style='height:8.1pt'>&nbsp;</td>
+  <td colspan=18 class=xl30 style='mso-ignore:colspan'></td>
+  <td class=xl29>&nbsp;</td>
+ </tr>
+ <tr height=22 style='mso-height-source:userset;height:17.1pt'>
+  <td height=22 class=xl28 style='height:17.1pt'>&nbsp;</td>
+  <td colspan=2 class=xl111>Company/ Tên công ty:</td>
+  <td colspan=5 class=xl144 width=443 style='width:333pt'>POSLILAMA</td>
+  <td colspan=5 class=xl143 width=178 style='border-left:none;width:136pt'>Date/
+  ngày:</td>
+  <td colspan=6 class=xl113 style='border-right:.5pt solid black'><%=tr_date%></td>
+  <td class=xl29>&nbsp;</td>
+ </tr>
+ <tr height=9 style='mso-height-source:userset;height:6.95pt'>
+  <td height=9 class=xl28 style='height:6.95pt'>&nbsp;</td>
+  <td colspan=18 class=xl30 style='mso-ignore:colspan'></td>
+  <td class=xl29>&nbsp;</td>
+ </tr>
+ <tr class=xl24 height=22 style='mso-height-source:userset;height:17.1pt'>
+  <td height=22 class=xl31 style='height:17.1pt'>&nbsp;</td>
+  <td colspan=2 class=xl115 width=183 style='width:137pt'>Proposed
+  By/Ng&#432;&#7901;i l&#7853;p</td>
+  <td colspan=2 class=xl145 style='border-right:.5pt solid black;border-left:
+  none'><%=crt_by%></td>
+  <td colspan=3 class=xl72 style='border-right:.5pt solid black;border-left:
+  none'>Exchange Rate/ T&#7927; giá</td>
+  <td colspan=2 class=xl69 width=100 style='border-left:none;width:76pt'
+  x:num=""><span style='mso-spacerun:yes'>        </span><%=exrate%></td>
+  <td colspan=5 class=xl115 width=158 style='border-left:none;width:120pt'>Bank
+  code/Ngân hàng</td>
+  <td colspan=4 class=xl96 style='border-left:none'><%=bank_cd%></td>
+  <td class=xl32>&nbsp;</td>
+ </tr>
+ <tr class=xl24 height=22 style='mso-height-source:userset;height:17.1pt'>
+  <td height=22 class=xl31 style='height:17.1pt'>&nbsp;</td>
+  <td colspan=2 class=xl70 style='mso-text-control:shrinktofit;border-right:.5pt solid black;'>Approved Date/Ngày
+  duy&#7879;t</td>
+  <td colspan=2 class=xl70 style='border-right:.5pt solid black;border-left:
+  none'></td>
+  <td colspan=3 class=xl51 style='border-right:.5pt solid black;border-left:
+  none'>Approved By/Ng&#432;&#7901;i duy&#7879;t</td>
+  <td colspan=2 class=xl70 style='border-right:.5pt solid black;border-left:
+  none'></td>
+  <td colspan=5 class=xl70 style='border-right:.5pt solid black;border-left:
+  none'>Bank Name/Tên ngân hàng</td>
+  <td colspan=4 class=xl97 style='border-left:none'><%=bank_nm%></td>
+  <td class=xl32>&nbsp;</td>
+ </tr>
+ <tr height=10 style='mso-height-source:userset;height:8.1pt'>
+  <td height=10 class=xl28 style='height:8.1pt'>&nbsp;</td>
+  <td colspan=18 class=xl30 style='mso-ignore:colspan'></td>
+  <td class=xl29>&nbsp;</td>
+ </tr>
+ <tr height=19 style='height:14.25pt'>
+  <td height=19 class=xl28 style='height:14.25pt'>&nbsp;</td>
+  <td colspan=18 class=xl147 style='border-right:.5pt solid black'>TRANSACTION
+  DETAILS/ CHI TI&#7870;T</td>
+  <td class=xl29>&nbsp;</td>
+ </tr>
+ <tr height=17 style='mso-height-source:userset;height:12.75pt'>
+  <td height=17 class=xl28 style='height:12.75pt'>&nbsp;</td>
+  <td rowspan=2 class=xl128 style='border-top:none'>Seq</td>
+  <td rowspan=2 class=xl130 style='border-top:none'>Voucher No</td>
+  <td rowspan=2 class=xl141 style='border-bottom:.5pt solid black;border-top:
+  none'>Approval Number</td>
+  <td rowspan=2 class=xl121 width=155 style='border-top:none;width:116pt'>Supplier
+  / Nhà cung c&#7845;p</td>
+  <td colspan=3 rowspan=2 class=xl54 width=192 style='border-right:.5pt solid black;
+  border-bottom:.5pt solid black;width:145pt'>Description / Di&#7877;n
+  gi&#7843;i</td>
+  <td rowspan=2 class=xl66 width=74 style='border-bottom:.5pt solid black;
+  border-top:none;width:56pt'>Project Code</td>
+  <td colspan=4 class=xl144 width=104 style='border-left:none;width:80pt'>Account
+  code / TK</td>
+  <td colspan=6 class=xl150 width=240 style='border-right:.5pt solid black;
+  width:180pt'>Amount / S&#7889; Ti&#7873;n</td>
+  <td class=xl29>&nbsp;</td>
+ </tr>
+ <tr height=35 style='mso-height-source:userset;height:26.25pt'>
+  <td height=35 class=xl28 style='height:26.25pt'>&nbsp;</td>
+  <td colspan=2 class=xl152 width=52 style='border-left:none;width:40pt'>Debit/
+  N&#7907;</td>
+  <td colspan=2 class=xl152 width=52 style='border-left:none;width:40pt'
+  x:str="Credit/ Có ">Credit/ Có<span style='mso-spacerun:yes'> </span></td>
+  <td colspan=3 class=xl55 width=120 style='border-right:.5pt solid black;
+  width:90pt'>Transaction /H&#7841;ch toán</td>
+  <td colspan=3 class=xl121 width=120 style='border-right:.5pt solid black;
+  border-left:none;width:90pt'><span style='mso-spacerun:yes'> </span>Book /
+  Ghi s&#7893;</td>
+  <td class=xl29>&nbsp;</td>
+ </tr>
+
+ <%
+		If total > 0 Then
+		stt = 0
+		For i=1 to total
+		 tmp = ""+trim(result(13,i-1))
+		 tmp1 = ""+result(4,i-1)+" "+result(5,i-1)
+		 tmp2 = ""+result(6,i-1)+"<br>"+result(7,i-1)
+		 h1="30.0"
+		 h2="40"
+		 if (len(tmp1)>47) then
+			h1="37.50"
+			h2="50"
+		 end if
+		 
+		 if (tmp="B") then
+		 stt = stt+1
+		 end if
+		 if (len(tmp2)>60) then
+			h1="36"
+			h2="48"
+		 end if
+		
+		 if (len(tmp2)>90) then
+			h1="47.25"
+			h2="63"
+		 end if
+		 
+		 if (len(tmp2)>125) then
+			h1="67.50"
+			h2="90"
+		 end if
+		 if (len(tmp2)>150) then
+			h1="78.00"
+			h2="104"
+		 end if
+		 if (len(tmp2)>175) then
+			h1="101.25"
+			h2="135"
+		 end if
+		 if (len(tmp2)>190) then
+			h1="112.50"
+			h2="150"
+		 end if
+		 if (len(tmp2)>225) then
+			h1="123.75"
+			h2="165"
+		 end if
+		 if (len(tmp2)>250) then
+			h1="135.00"
+			h2="180"
+		 end if
+		 if (len(tmp2)>275) then
+			h1="146.25"
+			h2="195"
+		 end if
+		 
+	 %>
+		
+		<tr height=<%= h2%> style='mso-height-source:userset;height:<%= h1%>pt'>
+		  <td height=<%= h2%> style='height:<%= h1%>pt;text-align:center;vertical-align:middle;' class=xl39 x:num><% if (tmp ="B") then %> <b><%= stt %></b><% end if %></td>
+		  <td class=xl44 style='border-left:none' x:num><%=result(0,i-1)%></td>
+		  <td class=xl44 style='border-left:none'><%=result(1,i-1)%></td>
+		  <td class=xl44 style='border-top:none;border-left:none'></td>
+		  <td class=xl40 width=155 style='border-left:none;width:116pt'><% if (tmp ="B") then %><b> <%=result(4,i-1)%>&nbsp;<%=result(5,i-1)%></b><% else %><%=result(4,i-1)%>&nbsp;<%=result(5,i-1)%><% end if %></td>
+		  <td colspan=3 class=xl49 width=192 style='border-right:.5pt solid black;
+		  border-left:none;width:145pt'><%=result(6,i-1)%><br>
+			<%=result(7,i-1)%></td>
+		  <td class=xl60 width=74 style='border-top:none;width:56pt'> <%=result(8,i-1)%></td>
+		  <td colspan=2 class=xl116 style='border-right:.5pt solid black;border-left:  none' x:num> <%=result(9,i-1)%></td>
+		  <td colspan=2 class=xl116 style='border-right:.5pt solid black;border-left:  none' x:num> <%=result(10,i-1)%></td>
+		  <td colspan=3 class=xl85 style='border-right:.5pt solid black;border-left:none' x:num > 
+		  <% if (tmp ="B") then %><b><%=result(11,i-1)%></b><% else %><%=result(11,i-1)%><% end if %>
+		  </td>
+		  <td colspan=3 class=xl85 style='border-right:.5pt solid black;border-left:none'  x:num> 
+<% if (tmp ="B") then %><b><%=result(12,i-1)%></b><% else %><%=result(12,i-1)%><% end if %>
+		 </td>
+		  <td class=xl29>&nbsp;</td>
+		 </tr>
+ <% 
+		Next
+		index = i
+	 End If
+	 %>
+ <tr class=xl24 height=26 style='mso-height-source:userset;height:20.1pt'>
+  <td height=26 class=xl33 style='height:20.1pt'></td>
+  <td colspan=8 class=xl122>Total/ T&#7893;ng c&#7897;ng</td>
+  <td colspan=2 class=xl79 style='border-right:.5pt solid black'>&nbsp;</td>
+  <td colspan=2 class=xl79 style='border-right:.5pt solid black;border-left:
+  none'>&nbsp;</td>
+  <td colspan=3 class=xl124 style='border-right:.5pt solid black;border-left:
+  none' x:num=""><span style='mso-spacerun:yes'> </span></td>
+  <td colspan=3 class=xl125 style='border-right:.5pt solid black'
+  x:num=""><span style='mso-spacerun:yes'> </span><%=book_amt%></td>
+  <td class=xl32>&nbsp;</td>
+ </tr>
+ <tr height=18 style='mso-height-source:userset;height:14.1pt'>
+  <td height=18 class=xl34 style='height:14.1pt'>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl35>&nbsp;</td>
+  <td class=xl36>&nbsp;</td>
+ </tr>
+ <tr height=12 style='mso-height-source:userset;height:9.0pt'>
+  <td height=12 colspan=20 class=xl30 style='height:9.0pt;mso-ignore:colspan'></td>
+ </tr>
+ <tr class=xl24 height=20 style='mso-height-source:userset;height:15.0pt'>
+  <td height=20 colspan=7 class=xl24 style='height:15.0pt;mso-ignore:colspan'></td>
+  <td colspan=2 class=xl78>Trans Currency</td>
+  <td colspan=5 class=xl137 style='border-right:.5pt solid black;border-left:
+  none'>Debit</td>
+  <td colspan=3 class=xl140 style='border-right:.5pt solid black;border-left:
+  none'>Credit</td>
+  <td colspan=3 class=xl24 style='mso-ignore:colspan'></td>
+ </tr>
+ <%
+	SQL = " SELECT  D.CCY"
+	SQL = SQL &  " 	, SUM(D.TR_AMT)"
+	SQL = SQL &  " 	, SUM(D.TR_BOOKAMT)"
+	SQL = SQL &  "     FROM (SELECT DISTINCT( A.TR_SEQ) TR_SEQ,A.TCO_DCCUSTM_PK TCO_DCCUSTM_PK FROM TFN_BAPAYTR A WHERE A.DEL_IF = 0"
+	SQL = SQL &  "      AND A.TCO_EOCOMPANY_PK = 1 "
+	SQL = SQL &  "      AND A.PAY_DATE  BETWEEN '" & sdt & "' AND '" & sdt & "' "
+	SQL = SQL &  "      AND  DECODE('" & bankpk & "',0,1,TAC_BFDEPOMT_PK) = DECODE ('" & bankpk & "',0,1,'" & bankpk & "')"
+	SQL = SQL &  "      AND (A.PAY_TYPE ='22' OR  A.PAY_TYPE ='21') ) B, COMM.TCO_DCCUST C, TAC_BGTRH H, TAC_BGTRD D, TAC_BGTRD_REF R"
+	SQL = SQL &  "    WHERE B.TCO_DCCUSTM_PK = C.PK "
+	SQL = SQL &  "      AND H.DEL_IF = 0"
+	SQL = SQL &  "      AND D.DEL_IF = 0"
+	SQL = SQL &  "      AND H.PK = D.TAC_BGTRH_PK "
+	SQL = SQL &  "      AND C.PK = D.TCO_DCCUSTM_PK"
+	SQL = SQL &  "  	 AND H.TR_TABLE_PK = B.TR_SEQ "
+	SQL = SQL &  "  	 AND H.TR_TABLENM = 'TFN_BAPAYTR' "
+	SQL = SQL &  "  	 AND D.PK  = R.TAC_BGTRD_PK"
+	SQL = SQL &  "  	 AND R.DEL_IF = 0"
+	SQL = SQL &  "  	 AND D.DRCR_TYPE = 'D'"
+	SQL = SQL &  " GROUP BY D.CCY"
+
+	TableReadOpen rs, SQL
+	
+	IF NOT rs.EOF THEN
+		result 	= rs.GetRows()
+		total 	= Ubound(result, 2) + 1
+	END IF
+	
+		If total > 0 Then
+		For i=1 to total
+	 %>
+	 <tr class=xl24 height=20 style='mso-height-source:userset;height:15.0pt'>
+	  <td height=20 colspan=7 class=xl24 style='height:15.0pt;mso-ignore:colspan'></td>
+	  <td colspan=2 class=xl78><%=result(0,i-1)%></td>
+	  <td colspan=5 class=xl133 style='border-right:.5pt solid black;border-left:	  none' x:num><%=result(1,i-1)%></td>
+	  <td colspan=3 class=xl136 style='border-right:.5pt solid black;border-left:	  none' x:num><%=result(1,i-1)%></td>
+	  <td colspan=3 class=xl24 style='mso-ignore:colspan'></td>
+	 </tr>
+ <% 
+		Next
+		index = i
+	 End If
+	 %>
+ 
+ <tr class=xl24 height=13 style='mso-height-source:userset;height:9.75pt'>
+  <td height=13 colspan=7 class=xl24 style='height:9.75pt;mso-ignore:colspan'></td>
+  <td colspan=2 class=xl37 style='mso-ignore:colspan'></td>
+  <td colspan=6 class=xl38 style='mso-ignore:colspan'></td>
+  <td colspan=5 class=xl24 style='mso-ignore:colspan'></td>
+ </tr>
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=19 style='width:14pt'></td>
+  <td width=56 style='width:42pt'></td>
+  <td width=96 style='width:72pt'></td>
+  <td width=127 style='width:95pt'></td>
+  <td width=155 style='width:116pt'></td>
+  <td width=94 style='width:71pt'></td>
+  <td width=52 style='width:39pt'></td>
+  <td width=46 style='width:35pt'></td>
+  <td width=74 style='width:56pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=40 style='width:30pt'></td>
+  <td width=19 style='width:14pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</body>
+
+</html>

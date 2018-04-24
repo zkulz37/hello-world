@@ -1,0 +1,461 @@
+﻿<%@ Page Language="C#"%>
+<%@ Import Namespace = "System.Data"%>
+<%  ESysLib.SetUser("hr");
+	Response.ContentType = "application/vnd.ms-excel";
+    Response.Charset = "utf-8"; 
+	Response.Buffer = false;
+%>
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+<%
+    String emp_pk;
+    emp_pk = Request["emp_pk"].ToString();
+    string SQL
+    = "SELECT null,(SELECT code_nm " + 
+        "          FROM vhr_hr_code " +
+        "         WHERE ID = 'HR0008' AND code = e.pos_type) AS position1, " +
+        "       e.emp_id AS emp_id2, e.full_name AS full_nm3, g.group_nm AS group_nm4, e.photo_pk as photo_pk5 " +
+        "  FROM thr_employee e, thr_group g " +
+        " WHERE e.del_if = 0 AND g.del_if = 0 AND e.thr_group_pk = g.pk " +
+        " and e.pk in ("+ emp_pk +")  " ;
+
+
+    DataTable dt_total = ESysLib.TableReadOpen(SQL);
+    int irow;
+    irow = dt_total.Rows.Count;
+    if (irow == 0)
+        Response.Write("There is no data");
+
+  
+ %>
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 11">
+<link rel=File-List href="rpt_timeCard_Back_files/filelist.xml">
+<link rel=Edit-Time-Data href="rpt_timeCard_Back_files/editdata.mso">
+<link rel=OLE-Object-Data href="rpt_timeCard_Back_files/oledata.mso">
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+x\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style>
+<![endif]--><!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>TYML</o:Author>
+  <o:LastAuthor>banana</o:LastAuthor>
+  <o:LastPrinted>2009-04-18T09:33:02Z</o:LastPrinted>
+  <o:Created>2009-04-18T03:46:19Z</o:Created>
+  <o:LastSaved>2009-04-22T04:27:39Z</o:LastSaved>
+  <o:Company>Vina</o:Company>
+  <o:Version>11.5606</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.32in .25in .2in .45in;
+	mso-header-margin:.26in;
+	mso-footer-margin:.16in;}
+.font5
+	{color:black;
+	font-size:12.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:"Times New Roman";
+	mso-generic-font-family:auto;
+	mso-font-charset:0;}
+.font7
+	{color:black;
+	font-size:12.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Symbol;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;}
+.font8
+	{color:black;
+	font-size:12.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;}
+.font9
+	{color:black;
+	font-size:12.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:"Arial \(Vietnamese\)";
+	mso-generic-font-family:auto;
+	mso-font-charset:0;}
+.font10
+	{color:black;
+	font-size:7.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;}
+.font11
+	{color:black;
+	font-size:7.5pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:"Arial \(Vietnamese\)";
+	mso-generic-font-family:auto;
+	mso-font-charset:0;}
+.font12
+	{color:black;
+	font-size:7.5pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet1</x:Name>
+    <x:WorksheetOptions>
+     <x:Print>
+      <x:ValidPrinterInfo/>
+      <x:HorizontalResolution>300</x:HorizontalResolution>
+      <x:VerticalResolution>300</x:VerticalResolution>
+     </x:Print>
+     <x:Selected/>
+     <x:LeftColumnVisible>1</x:LeftColumnVisible>
+     <x:Panes>
+      <x:Pane>
+       <x:Number>3</x:Number>
+       <x:ActiveRow>26</x:ActiveRow>
+       <x:ActiveCol>15</x:ActiveCol>
+      </x:Pane>
+     </x:Panes>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet2</x:Name>
+    <x:WorksheetOptions>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet3</x:Name>
+    <x:WorksheetOptions>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:WindowHeight>9210</x:WindowHeight>
+  <x:WindowWidth>15195</x:WindowWidth>
+  <x:WindowTopX>0</x:WindowTopX>
+  <x:WindowTopY>60</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="2049" fillcolor="white">
+  <v:fill color="white"/>
+ </o:shapedefaults></xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+  <o:regrouptable v:ext="edit">
+   <o:entry new="1" old="0"/>
+   <o:entry new="2" old="0"/>
+  </o:regrouptable>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body link=blue vlink=purple>
+
+<table x:str border=0 cellpadding=0 cellspacing=0 width=702 style='border-collapse:
+ collapse;table-layout:fixed;width:528pt'>
+ <% int i = 0;
+    while (i < irow)
+    {     
+ %>
+ <col width=64 span=5 style='width:48pt'>
+ <col width=22 style='mso-width-source:userset;mso-width-alt:804;width:17pt'>
+ <col width=18 style='mso-width-source:userset;mso-width-alt:658;width:14pt'>
+ <col width=64 span=5 style='width:48pt'>
+ <col width=22 style='mso-width-source:userset;mso-width-alt:804;width:17pt'>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 width=64 style='height:12.75pt;width:48pt' align=left
+  valign=top><!--[if gte vml 1]><v:shapetype id="_x0000_t202" coordsize="21600,21600"
+   o:spt="202" path="m,l,21600r21600,l21600,xe">
+   <v:stroke joinstyle="miter"/>
+   <v:path gradientshapeok="t" o:connecttype="rect"/>
+  </v:shapetype><v:shape id="_x0000_s1027" type="#_x0000_t202" style='position:absolute;
+   margin-left:7.5pt;margin-top:46.5pt;width:1in;height:90pt;z-index:1'
+   o:regroupid="1" filled="f" stroked="f">
+   <v:textbox style='mso-next-textbox:#_x0000_s1027;mso-direction-alt:auto'>
+    <div style='text-align:left'><font class="font5"><br>
+        </font></div>
+   </v:textbox>
+  </v:shape><v:group id="_x0000_s1166" style='position:absolute;margin-left:2.25pt;
+   margin-top:2.25pt;width:251.25pt;height:165.75pt;z-index:6' coordorigin="386,2"
+   coordsize="352,216">
+   <o:lock v:ext="edit" text="t"/>
+   <v:shapetype id="_x0000_t75" coordsize="21600,21600" o:spt="75"
+    o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
+    <v:stroke joinstyle="miter"/>
+    <v:formulas>
+     <v:f eqn="if lineDrawn pixelLineWidth 0"/>
+     <v:f eqn="sum @0 1 0"/>
+     <v:f eqn="sum 0 0 @1"/>
+     <v:f eqn="prod @2 1 2"/>
+     <v:f eqn="prod @3 21600 pixelWidth"/>
+     <v:f eqn="prod @3 21600 pixelHeight"/>
+     <v:f eqn="sum @0 0 1"/>
+     <v:f eqn="prod @6 1 2"/>
+     <v:f eqn="prod @7 21600 pixelWidth"/>
+     <v:f eqn="sum @8 21600 0"/>
+     <v:f eqn="prod @7 21600 pixelHeight"/>
+     <v:f eqn="sum @10 21600 0"/>
+    </v:formulas>
+    <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
+    <o:lock v:ext="edit" aspectratio="t"/>
+   </v:shapetype><v:shape id="_x0000_s1167" type="#_x0000_t75" alt="" style='position:absolute;
+    left:386;top:2;width:352;height:216;mso-wrap-distance-left:2.88pt;
+    mso-wrap-distance-top:2.88pt;mso-wrap-distance-right:2.88pt;
+    mso-wrap-distance-bottom:2.88pt' o:preferrelative="f" fillcolor="#fffffe"
+    stroked="t" strokecolor="#fc0" strokeweight="1.5pt" insetpen="t"
+    o:cliptowrap="t">
+    <v:stroke color2="#fffffe">
+     <o:left v:ext="view" color="#212120" color2="#fffffe" joinstyle="miter"
+      insetpen="t"/>
+     <o:top v:ext="view" color="#212120" color2="#fffffe" joinstyle="miter"
+      insetpen="t"/>
+     <o:right v:ext="view" color="#212120" color2="#fffffe" joinstyle="miter"
+      insetpen="t"/>
+     <o:bottom v:ext="view" color="#212120" color2="#fffffe" joinstyle="miter"
+      insetpen="t"/>
+     <o:column v:ext="view" color="#212120" color2="#fffffe"/>
+    </v:stroke>
+    <v:imagedata src="rpt_timeCard_Back_files/image001.emz" o:href="file:///C:\STOCKLAYOUTS\CURRENT%20PROJECTS\FN99804-PL\FN99804-IMG02.emf"
+     croptop="-25928f" cropbottom="4688f" cropleft="2025f" cropright="6805f"/>
+    <v:shadow color="#dcd6d4"/>
+    <o:lock v:ext="edit" aspectratio="f"/>
+   </v:shape><v:shape id="_x0000_s1168" type="#_x0000_t202" style='position:absolute;
+    left:391;top:10;width:336;height:202;mso-wrap-style:tight' filled="f"
+    stroked="f">
+    <v:textbox style='mso-next-textbox:#_x0000_s1168;mso-direction-alt:auto'>
+     <div style='text-align:left'><font class="font7">·</font><font
+     class="font8">Ph&#7843;i mang th&#7867; trong su&#7889;t quá trình làm
+     vi&#7879;c &#7903; công ty<br>
+          </font><font class="font7">·</font><font class="font8">Ph&#7843;i
+     xu&#7845;t trình th&#7867; khi ra vào c&#7893;ng <br>
+          </font><font class="font7">·</font><font class="font8">Báo ngay cho
+     Phòng Nhân s&#7921; n&#7871;u th&#7867; b&#7883; m&#7845;t/h</font><font
+     class="font9">&#432; h&#7887;ng, rách, b&#7849;n,…<br>
+          </font><font class="font7">·</font><font class="font9">Không
+     &#273;&#432;&#7907;c cho ng&#432;&#7901;i khác m&#432;&#7907;n
+     th&#7867;<span style='mso-spacerun:yes'>  </span><br>
+          </font><font class="font7">·</font><font class="font8">Tr&#7843;
+     l&#7841;i công ty khi ngh&#7881; vi&#7879;c<br>
+          <br>
+          </font><font class="font10"><br>
+          <span style='mso-spacerun:yes'>               </span></font><font
+     class="font11">LUÔN LUÔN B&#7844;M TH&#7866; &#272;ÚNG QUY &#272;&#7882;NH
+     VÀ &#272;ÚNG GI</font><font class="font12">&#7900;!<br>
+          </font></div>
+    </v:textbox>
+   </v:shape></v:group><![endif]--><![if !vml]><span style='mso-ignore:vglayout;
+  position:absolute;z-index:1;margin-left:1px;margin-top:1px;width:339px;
+  height:225px'><img width=339 height=225
+  src="rpt_timeCard_Back_files/image002.gif" v:shapes="_x0000_s1027 _x0000_s1166 _x0000_s1167 _x0000_s1168"></span><![endif]><span
+  style='mso-ignore:vglayout2'>
+  <%
+        //Hình 2
+        i++;
+        if (i < irow)
+        {
+   %>
+  <table cellpadding=0 cellspacing=0>
+   <tr>
+    <td height=17 width=64 style='height:12.75pt;width:48pt'></td>
+   </tr>
+  </table>
+  </span></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=22 style='width:17pt'></td>
+  <td width=18 style='width:14pt'></td>
+  <td width=64 style='width:48pt' align=left valign=top><!--[if gte vml 1]><v:group
+   id="_x0000_s1046" style='position:absolute;margin-left:2.25pt;margin-top:2.25pt;
+   width:251.25pt;height:165.75pt;z-index:2' coordorigin="386,2" coordsize="352,216">
+   <o:lock v:ext="edit" text="t"/>
+   <v:shape id="_x0000_s1044" type="#_x0000_t75" alt="" style='position:absolute;
+    left:386;top:2;width:352;height:216;mso-wrap-distance-left:2.88pt;
+    mso-wrap-distance-top:2.88pt;mso-wrap-distance-right:2.88pt;
+    mso-wrap-distance-bottom:2.88pt' o:preferrelative="f" fillcolor="#fffffe"
+    stroked="t" strokecolor="#fc0" strokeweight="1.5pt" insetpen="t"
+    o:cliptowrap="t">
+    <v:stroke color2="#fffffe">
+     <o:left v:ext="view" color="#212120" color2="#fffffe" joinstyle="miter"
+      insetpen="t"/>
+     <o:top v:ext="view" color="#212120" color2="#fffffe" joinstyle="miter"
+      insetpen="t"/>
+     <o:right v:ext="view" color="#212120" color2="#fffffe" joinstyle="miter"
+      insetpen="t"/>
+     <o:bottom v:ext="view" color="#212120" color2="#fffffe" joinstyle="miter"
+      insetpen="t"/>
+     <o:column v:ext="view" color="#212120" color2="#fffffe"/>
+    </v:stroke>
+    <v:imagedata src="rpt_timeCard_Back_files/image001.emz" o:href="file:///C:\STOCKLAYOUTS\CURRENT%20PROJECTS\FN99804-PL\FN99804-IMG02.emf"
+     croptop="-25928f" cropbottom="4688f" cropleft="2025f" cropright="6805f"/>
+    <v:shadow color="#dcd6d4"/>
+    <o:lock v:ext="edit" aspectratio="f"/>
+   </v:shape><v:shape id="_x0000_s1045" type="#_x0000_t202" style='position:absolute;
+    left:391;top:10;width:336;height:202;mso-wrap-style:tight' filled="f"
+    stroked="f">
+    <v:textbox style='mso-next-textbox:#_x0000_s1045;mso-direction-alt:auto'>
+     <div style='text-align:left'><font class="font7">·</font><font
+     class="font8">Ph&#7843;i mang th&#7867; trong su&#7889;t quá trình làm
+     vi&#7879;c &#7903; công ty<br>
+          </font><font class="font7">·</font><font class="font8">Ph&#7843;i
+     xu&#7845;t trình th&#7867; khi ra vào c&#7893;ng <br>
+          </font><font class="font7">·</font><font class="font8">Báo ngay cho
+     Phòng Nhân s&#7921; n&#7871;u th&#7867; b&#7883; m&#7845;t/h</font><font
+     class="font9">&#432; h&#7887;ng, rách, b&#7849;n,…<br>
+          </font><font class="font7">·</font><font class="font9">Không
+     &#273;&#432;&#7907;c cho ng&#432;&#7901;i khác m&#432;&#7907;n
+     th&#7867;<span style='mso-spacerun:yes'>  </span><br>
+          </font><font class="font7">·</font><font class="font8">Tr&#7843;
+     l&#7841;i công ty khi ngh&#7881; vi&#7879;c<br>
+          <br>
+          </font><font class="font10"><br>
+          <span style='mso-spacerun:yes'>               </span></font><font
+     class="font11">LUÔN LUÔN B&#7844;M TH&#7866; &#272;ÚNG QUY &#272;&#7882;NH
+     VÀ &#272;ÚNG GI</font><font class="font12">&#7900;!<br>
+          </font></div>
+    </v:textbox>
+   </v:shape></v:group><![endif]--><![if !vml]><span style='mso-ignore:vglayout;
+  position:absolute;z-index:2;margin-left:1px;margin-top:1px;width:339px;
+  height:225px'><img width=339 height=225
+  src="rpt_timeCard_Back_files/image002.gif" v:shapes="_x0000_s1046 _x0000_s1044 _x0000_s1045"></span><![endif]><span
+  style='mso-ignore:vglayout2'>
+  <table cellpadding=0 cellspacing=0>
+   <tr>
+    <td height=17 width=64 style='height:12.75pt;width:48pt'></td>
+   </tr>
+  </table>
+  </span></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=22 style='width:17pt'></td>
+ </tr>
+  <tr height=187 style='height:140.25pt;mso-xlrowspan:11'>
+  <td height=187 colspan=13 style='height:140.25pt;mso-ignore:colspan'></td>
+ </tr>
+ <tr height=22 style='mso-height-source:userset;height:16.5pt'>
+  <td height=22 colspan=13 style='height:16.5pt;mso-ignore:colspan'></td>
+ </tr>
+ 
+ <tr height=29 style='mso-height-source:userset;height:21.95pt'>
+  <td height=29 colspan=13 style='height:21.95pt;mso-ignore:colspan'></td>
+ </tr>
+ <%
+        }   //end if
+    i++;
+    }       //end while
+  %>
+ 
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=22 style='width:17pt'></td>
+  <td width=18 style='width:14pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=22 style='width:17pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</body>
+
+</html>

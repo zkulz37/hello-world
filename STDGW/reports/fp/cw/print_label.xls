@@ -1,0 +1,429 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+<% Response.ContentType = "application/x-excel" %>
+<!-- #include file="../db1.inc"  -->
+<%
+	ConnectDBApp
+%>
+<%
+  dim bc_pk,print_times
+  bc_pk =Request.QueryString("poPK")
+  print_times =Request.QueryString("print_times")
+  
+  dim SQL
+  SQL = ""
+  SQL = SQL & " select '*'||a.barcode||'*' barcode , a.buyer, a.lot_no,a.st_item_name, a.color, a.net ,a.sizes, a.rp_embo,a.remark,a.norow from ( "
+  SQL = SQL &  " SELECT a.ITEM_BC barcode,  att04 buyer, a.lot_no, att08 st_item_name, att14 color, bc_qty net"
+  SQL = SQL &  " ,null sizes,  att11 ||' / '|| att12 rp_embo, att01 remark ,rownum  norow"
+  SQL = SQL &  " FROM prod.tpr_itembcm a   WHERE a.PK in (" & bc_pk  & ")"
+  if CLng(print_times &"") > 1 then
+  dim j
+  for  j = 2 to CLng(print_times & "")
+
+  SQL = SQL & "  union all SELECT  a.ITEM_BC barcode,  att04 buyer, a.lot_no, att08 st_item_name, att14 color, bc_qty net"
+  SQL = SQL & " ,null sizes,  att11 ||' / '|| att12 rp_embo, att01 remark ,rownum  norow"
+  SQL = SQL & " FROM prod.tpr_itembcm a   WHERE a.PK in (" & bc_pk & ")"
+  next
+  end if
+
+  SQL = SQL &  " ) a order by a.norow "
+  
+ TableReadOpen rs, SQL
+  
+  If Not rs.EOF Then
+  resultPO 	= rs.GetRows()
+  total	= Ubound(resultPO, 2) + 1
+  else
+  total = 0
+  Response.write "There are no data to print!"
+  Response.end
+  End If
+
+  %>
+  <head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 10">
+<link rel=File-List href="print_label_files/filelist.xml">
+<link rel=Edit-Time-Data href="print_label_files/editdata.mso">
+<link rel=OLE-Object-Data href="print_label_files/oledata.mso">
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>대원화성</o:Author>
+  <o:LastAuthor>Window XP Service Pack 2</o:LastAuthor>
+  <o:LastPrinted>2008-05-30T04:57:49Z</o:LastPrinted>
+  <o:Created>2003-10-27T23:49:24Z</o:Created>
+  <o:LastSaved>2008-05-30T05:02:07Z</o:LastSaved>
+  <o:Company>대원화성(주)</o:Company>
+  <o:Version>10.2625</o:Version>
+ </o:DocumentProperties>
+ <o:OfficeDocumentSettings>
+  <o:DownloadComponents/>
+  <o:LocationOfComponents HRef="file:///D:\Software\Office%20XP\"/>
+ </o:OfficeDocumentSettings>
+</xml><![endif]-->
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:1.0in .16in 1.0in .25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:windowtext;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:돋움, monospace;
+	mso-font-charset:129;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+.style22
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:windowtext;
+	font-size:12.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:굴림체, monospace;
+	mso-font-charset:129;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"표준_수주현황\(2002년진행분\)2";}
+td
+	{mso-style-parent:style0;
+	padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:돋움, monospace;
+	mso-font-charset:129;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl25
+	{mso-style-parent:style0;
+	font-size:20.0pt;}
+.xl26
+	{mso-style-parent:style0;
+	font-size:22.0pt;}
+.xl27
+	{mso-style-parent:style0;
+	font-size:22.0pt;
+	font-weight:700;
+	text-align:center;}
+.xl28
+	{mso-style-parent:style22;
+	color:black;
+	font-size:22.0pt;
+	font-weight:700;
+	font-family:HY견고딕, serif;
+	mso-font-charset:129;
+	text-align:center;}
+.xl29
+	{mso-style-parent:style22;
+	color:black;
+	font-size:18.0pt;
+	font-weight:700;
+	font-family:HY견고딕, serif;
+	mso-font-charset:129;
+	text-align:center;}
+.xl30
+	{mso-style-parent:style22;
+	color:black;
+	font-size:20.0pt;
+	font-weight:700;
+	font-family:HY견고딕, serif;
+	mso-font-charset:129;
+	text-align:center;}
+.xl31
+	{mso-style-parent:style0;
+	font-size:22.0pt;
+	font-weight:700;
+	font-family:HY견고딕, serif;
+	mso-font-charset:129;
+	text-align:center;}
+.xl32
+	{mso-style-parent:style0;
+	font-size:20.0pt;
+	font-weight:700;
+	font-family:HY견고딕, serif;
+	mso-font-charset:129;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;}
+.xl33
+	{mso-style-parent:style22;
+	color:black;
+	font-size:18.0pt;
+	font-weight:700;
+	font-family:HY견고딕, serif;
+	mso-font-charset:129;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;}
+.xl34
+	{mso-style-parent:style22;
+	color:black;
+	font-size:13.0pt;
+	font-weight:700;
+	font-family:HY견고딕, serif;
+	mso-font-charset:129;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;}
+.xl35
+	{mso-style-parent:style22;
+	color:black;
+	font-size:12.0pt;
+	font-family:굴림체, monospace;
+	mso-font-charset:129;}
+.xl36
+	{mso-style-parent:style22;
+	color:black;
+	font-size:12.0pt;
+	font-family:굴림체, monospace;
+	mso-font-charset:129;
+	text-align:left;}
+.xl37
+	{mso-style-parent:style0;
+	font-size:16.0pt;
+	font-weight:700;
+	font-family:HY견고딕, serif;
+	mso-font-charset:129;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;}
+.xl38
+	{mso-style-parent:style0;
+	font-size:20.0pt;
+	font-family:HY견고딕, serif;
+	mso-font-charset:129;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;}
+.xl39
+	{mso-style-parent:style0;
+	font-size:36.0pt;
+	font-weight:700;
+	font-family:HY견고딕, serif;
+	mso-font-charset:129;
+	text-align:center;
+	vertical-align:middle;}
+.xl40
+	{mso-style-parent:style0;
+	font-size:20.0pt;
+	font-family:"Code39\(2\:3\)", sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>출력 (4)</x:Name>
+    <x:WorksheetOptions>
+     <x:DefaultRowHeight>270</x:DefaultRowHeight>
+     <x:Print>
+      <x:ValidPrinterInfo/>
+      <x:PaperSizeIndex>9</x:PaperSizeIndex>
+      <x:Scale>89</x:Scale>
+      <x:HorizontalResolution>600</x:HorizontalResolution>
+      <x:VerticalResolution>600</x:VerticalResolution>
+     </x:Print>
+     <x:TabColorIndex>10</x:TabColorIndex>
+     <x:PageBreakZoom>60</x:PageBreakZoom>
+     <x:Selected/>
+     <x:Panes>
+      <x:Pane>
+       <x:Number>3</x:Number>
+       <x:ActiveRow>6</x:ActiveRow>
+       <x:ActiveCol>3</x:ActiveCol>
+       <x:RangeSelection>$D$7:$E$7</x:RangeSelection>
+      </x:Pane>
+     </x:Panes>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:WindowHeight>9000</x:WindowHeight>
+  <x:WindowWidth>14160</x:WindowWidth>
+  <x:WindowTopX>615</x:WindowTopX>
+  <x:WindowTopY>1770</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]-->
+</head>
+
+<body link=blue vlink=purple>
+
+<table x:str border=0 cellpadding=0 cellspacing=0 width=1139 style='border-collapse:
+ collapse;table-layout:fixed;width:857pt'>
+  <% 
+    dim i
+    for i=0 to total -1  %>
+ <col width=2 style='mso-width-source:userset;mso-width-alt:56;width:2pt'>
+ <col width=22 style='mso-width-source:userset;mso-width-alt:625;width:17pt'>
+ <col width=525 style='mso-width-source:userset;mso-width-alt:14933;width:394pt'>
+ <col width=221 style='mso-width-source:userset;mso-width-alt:6286;width:166pt'>
+ <col width=65 style='mso-width-source:userset;mso-width-alt:1848;width:49pt'>
+ <col width=80 style='width:60pt'>
+ <col width=130 style='mso-width-source:userset;mso-width-alt:3697;width:98pt'>
+ <col width=94 style='mso-width-source:userset;mso-width-alt:2673;width:71pt'>
+ <col width=121 style='mso-width-source:userset;mso-width-alt:3441;width:91pt'>
+ <tr height=18 style='height:13.5pt'>
+  <td height=18 width=2 style='height:13.5pt;width:2pt'></td>
+  <td width=22 style='width:17pt'></td>
+  <td width=525 style='width:394pt'></td>
+  <td width=221 style='width:166pt'></td>
+  <td width=65 style='width:49pt'></td>
+  <td width=80 style='width:60pt'></td>
+  <td width=130 style='width:98pt'></td>
+  <td width=94 style='width:71pt'></td>
+ </tr>
+ <tr height=54 style='height:40.5pt;mso-xlrowspan:3'>
+  <td height=54 colspan=8 style='height:40.5pt;mso-ignore:colspan'></td>
+ </tr>
+ <tr height=31 style='mso-height-source:userset;height:23.25pt'>
+  <td height=31 colspan=3 style='height:23.25pt;mso-ignore:colspan'></td>
+  <td colspan=2 class=xl40><%=resultPO(0,i)%></td>
+  <td colspan=3 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=53 style='mso-height-source:userset;height:39.75pt'>
+  <td height=53 class=xl25 style='height:39.75pt'></td>
+  <td class=xl28></td>
+  <td class=xl32 width=525 style='width:394pt'><%=resultPO(1,i)%></td>
+  <td colspan=2 class=xl38 width=286 style='width:215pt'><%=resultPO(2,i)%></td>
+  <td colspan=3 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=51 style='mso-height-source:userset;height:38.25pt'>
+  <td height=51 class=xl25 style='height:38.25pt'></td>
+  <td class=xl29></td>
+  <td class=xl34 width=525 style='width:394pt'><%=resultPO(3,i)%></td>
+  <td colspan=2 class=xl37 width=286 style='width:215pt'><%=resultPO(4,i)%></td>
+  <td colspan=3 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=45 style='mso-height-source:userset;height:33.75pt'>
+  <td height=45 class=xl26 style='height:33.75pt'></td>
+  <td class=xl31></td>
+  <td class=xl33><%=resultPO(5,i)%></td>
+  <td class=xl32><%=resultPO(6,i)%></td>
+  <td class=xl35></td>
+  <td class=xl36></td>
+  <td colspan=2 class=xl35 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=40 style='mso-height-source:userset;height:30.0pt'>
+  <td height=40 style='height:30.0pt'></td>
+  <td class=xl30></td>
+  <td class=xl33 width=525 style='width:394pt'><%=resultPO(7,i)%></td>
+  <td colspan=2 class=xl37 width=286 style='width:215pt'><%=resultPO(8,i)%></td>
+  <td class=xl27></td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=57 style='mso-height-source:userset;height:42.75pt'>
+  <td height=57 colspan=2 style='height:42.75pt;mso-ignore:colspan'></td>
+  <td colspan=2 class=xl39></td>
+  <td colspan=4 style='mso-ignore:colspan'></td>
+ </tr>
+    <tr  style='height:13.5pt;width:2pt'>
+      <td></td>
+      <td  colspan='3' style='height:13.5pt;width:2pt'></td>
+
+    </tr>
+    <tr  style='height:13.5pt;width:2pt'>
+      <td></td>
+      <td  colspan='3' style='height:13.5pt;width:2pt'></td>
+
+    </tr>
+    <tr  style='height:13.5pt;width:2pt'>
+      <td></td>
+      <td  colspan='3' style='height:13.5pt;width:2pt'></td>
+
+    </tr>
+    <tr  style='height:13.5pt;width:2pt'>
+      <td></td>
+      <td  colspan='3' style='height:13.5pt;width:2pt'></td>
+
+    </tr>
+    <tr  style='height:13.5pt;width:2pt'>
+      <td></td>
+      <td  colspan='3' style='height:13.5pt;width:2pt'></td>
+
+    </tr>
+    <tr  style='height:13.5pt;width:2pt'>
+      <td></td>
+      <td  colspan='3' style='height:13.5pt;width:2pt'></td>
+
+    </tr>
+    <tr  style='height:13.5pt;width:2pt'>
+      <td  colspan='3' style='height:13.5pt;width:2pt'></td>
+
+    </tr>
+    <tr  style='height:13.5pt;width:2pt'>
+      <td></td>
+      <td  colspan='3' style='height:13.5pt;width:2pt'></td>
+
+    </tr>
+    <tr  style='height:13.5pt;width:2pt'>
+      <td></td>
+      <td  colspan='3' style='height:13.5pt;width:2pt'></td>
+
+    </tr>
+  <%next%>
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=2 style='width:2pt'></td>
+  <td width=22 style='width:17pt'></td>
+  <td width=525 style='width:394pt'></td>
+  <td width=221 style='width:166pt'></td>
+  <td width=65 style='width:49pt'></td>
+  <td width=80 style='width:60pt'></td>
+  <td width=130 style='width:98pt'></td>
+  <td width=94 style='width:71pt'></td>
+ </tr>
+ <![endif]>
+</table>
+<%CloseDB%>
+</body>
+
+</html>

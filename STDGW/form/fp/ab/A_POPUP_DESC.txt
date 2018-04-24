@@ -1,0 +1,138 @@
+
+========== ITEM && HS CODE ========== 
+* fpab00040 : Pop Up Get Item : Tree Style
+* fpab00050 : Pop Up Get Item Include Picture
+
+* fpab00080 : Pop Up Get One STItem
+* fpab00110 : POP UP GET ONE ITEM
+* fpab00110_tree : POP UP GET ONE ITEM ( DISPLAY ITEM GROUP ON TREE)
+* fpab00150 : POP UP GET ALTRNATIVE ITEM
+
+* fpab00070 : Pop Up Get Many Item
+* fpab00073 : Pop Up Get Item with Spec
+* fpab00072 : Pop Up Get Many Item Map WOrk Process
+* fpab00071 : Pop Up Get Many Item (With Item SALE Price)
+* fpab00074 : Pop Up Get Many Item (With Item PURCHASE Price)
+
+* fpab00530 : Pop Up Get Many Item (ST Item / Spec / Unit Price)
+* fpab00670 : Pop Up Get Many Item ( Spec from spec pk / plan seq )
+
+* fpab00210 : Pop Up Get Many ST Item
+* fpab00070_tree : POP UP GET many ITEM or stitem ( DISPLAY ITEM GROUP ON TREE)
+* fpab00350 : Pop Up Get Many ST Item or Item
+
+* fpab00140 : POP UP GET SO CONSUMPTION
+
+* fpab00310 : POP UP GET ITEM GROUP
+
+* fpab00390 : POP UP GET HS CODE
+* fpab00450 : Pop Up Get Many Item ( IMEX )
+
+========== ITEM BARCODE / PROD CARD ==========
+* fpab00130 : POP UP GET ITEM BARCODE
+* fpab00320 : POP UP GET PRODUCTION CARD
+
+========== STOCK *** B/C STOCK *** LOT NO ==========
+* fpab00170 : POP UP WAREHOUSE STOCK CHECKING / GET ITEM
+
+* fpab00290 : GET ITEM FROM WAREHOUSE STOCK BOOKING STATUS
+* fpab00300 : GET ITEM FROM P/O STOCK BOOKING STATUS
+* fpab00730 : GET ITEM FROM STOCK STATUS
+
+* fpab00410 : POP UP GET STOCK (ITEM)
+* fpab00411 : POP UP GET STOCK (ITEM/SPEC)
+* fpab00520 : POP UP GET STOCK (ST ITEM/SPEC)
+
+* fpab00280 : POP UP GET LOT NO
+* fpab00690 : POP UP GET LOT NO
+
+* fpab00680 : POP UP GET SCAN DATA (TRANSACTION)
+* fpab00700 : POP UP GET LABEL DATA (MATERIAL & PACKAGES)
+
+* fpab00770 : POP UP GET STOCK LOCATION
+ 
+========== SPEC && UOM ==========
+* fpab00090 : POP UP GET SPEC ( one row )
+* fpab00470 : POP UP GET SPEC ( many row )
+
+* fpab00540 : POP UP GET/INSERT SPEC ( one row )
+
+* fpab00190 : POP UP GET SPEC GROUP
+
+* fpab00230 : POP UP GET UOM
+
+* fpab00440 : POP UP GET SPEC FROM ORDER PLAN
+
+========== PATTERN ========== 
+* fpab00370 : POP UP GET PATTERN GROUP
+* fpab00400 : POP UP GET PATTERN
+
+========== SALE ORDER & ORDER PLAN ==========
+* fpab00100 : POP UP GET SO MASTER INFO
+* fpab00330 : POP UP GET ARRAY SO/PO NO
+* fpab00460 : POP UP GET ONE SO/PO NO
+* fpab00780 : POP UP GET SALE ORDER ITEM DETAILS
+
+* fpab00360 : POP UP GET ORDER PLAN NO
+* fpab00710 : POP UP VIEW SALE ORDER DETAILS
+
+========== PARTNER ==========
+* fpab00120 : POP UP GET ONE PARTNER
+* fpab00480 : POP UP GET MANY PARTNER
+* fpab00570 : POP UP PARTNER INFORMATION
+
+* fpab00180 : POP UP GET PARTNER LOCATION
+
+* fpab00610 : POP UP GET ONE DIVISION
+* fpab00620 : POP UP GET ONE PARTNER GROUP
+
+* fpab00760 : POP UP GET EMPLOYEE LIST
+
+========== PROD ORG *** WAREHOUSE *** LINE ==========
+* fpab00060 : Pop Up Capacity for Line
+* fpab00160 : POP UP GET WAREHOUSE LOCATION
+* fpab00200 : POP UP GET ONE LINE
+* fpab00240 : Pop Up Get Warehouse
+
+========== PROCESS && TASK ==========
+* fpab00010 : Get One Process
+* fpab00011 : Get Process ( many row )
+
+* fpab00250 : Get Work Process from Process ( many row )
+* fpab00430 : Get Work Process from Process ( one row )
+
+========== Get Defect Type *** Defect ===========
+* fpab00260 : Pop Up Defect
+
+========== Change Logistic Code ===========
+* fpab00220 : Pop Up Change Logistic Code
+* fpab00221 : Pop Up Change COMMON Code
+
+* fpab00720 : Pop Up Save FILEs
+
+* fpab00740 : Pop Up update sequence of Slip No
+
+========== Business Center *** P/L *** ACCOUNT CODE *** PURCHASE DEPT ========== 
+* fpab00380 : Pop Up Get Business PL Center ( from LOGISTIC )
+* fpab00630 : Pop Up Get Many Business PL Center ( from LOGISTIC )
+
+* fpab00560 : Pop Up Get Business PL Center ( from ACNT     )
+
+* fpab00420 : Pop Up Add New Country
+* fpab00490 : POP UP GET ACCOUNT CODE
+
+* fpab00550 : POP UP GET PURCHASE DEPARTMENT ( ONE ROW   ) 
+* fpab00580 : POP UP GET PURCHASE DEPARTMENT ( MANY DEPT )
+
+========== PRODUCTION RESULT ========== 
+* fpab00750 : POP UP INPUT NONE WORK TIME
+
+=========================== POP UP GET ASSET ======================================
+* fpab00590 : POP UP GET ASSET ( MANY ROW )
+* fpab00600 : POP UP GET DEPR TYPE
+
+* fpab00650 : Pop Up Get Many Item ( IMEX )
+
+=========================== COMMON POPUP ======================================
+
+* fpab00660 : COLOR BOX

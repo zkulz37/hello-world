@@ -1,0 +1,816 @@
+﻿<!-- #include file="../../../system/lib/form.inc"  -->
+ <%ESysLib.SetUser("hr")%>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head id="Head1" runat="server">
+    <title>Untitled Page</title>
+</head>
+<script>
+var ctlGroup;
+var bChange_All=false;
+var v_language = "<%=Session("SESSION_LANG")%>";
+function BodyInit()
+{ 	
+    if (v_language!="ENG")
+        System.Translate(document);	
+    iduser_pk.text = "<%=session("USER_PK")%>";
+    txtHr_level.text= "<%=session("HR_LEVEL")%>";
+    
+}
+//------------------------------------
+function OnChangeDept(objDept,objGroup)
+{
+    txtDept.text=objDept.value ;
+    ctlGroup=objGroup;
+    datGroupData.Call();
+}
+//------------------------------------
+function OnChangeOption(form,obj)
+{
+    form.optMonthReport[obj-1].checked=true;
+}
+//------------------------------------
+function OnShowPopup()
+{
+    var strcom;
+    var fpath = System.RootURL + "/form/ch/ae/chae00010_dept.aspx?";
+    var obj=window.showModalDialog(fpath,this,'titleb:0;resizable:no;status:no;dialogWidth:20;dialogHeight:20;dialogLeft:200;dialogTop:330;edge:sunken;scroll:yes;unadorned:yes;help:no');
+    if (obj!=null)
+    {
+        txtUpperDept.text=obj;
+        datDeptData.Call();
+    }
+    
+}
+//-------------------------------------------------------------
+function OnDataReceive(obj)
+{
+   if (obj.id=="datDeptData")
+   {
+        if(txtHr_level.text=="6")
+            txtDeptData.text=txtDeptData.text+"|ALL|Select All";
+        bChange_All=true;
+        if (tabMain.GetCurrentPageNo()==0)
+        {
+            lstDept_Code_1.SetDataText(txtDeptData.text);
+            lstDept_Code_2.SetDataText(txtDeptData.text);
+            lstDept_Code_3.SetDataText(txtDeptData.text);
+            lstDept_Code_4.SetDataText(txtDeptData.text);
+            lstDept_Code_5.SetDataText(txtDeptData.text);
+            lstDept_Code_6.SetDataText(txtDeptData.text);
+            lstDept_Code_7.SetDataText(txtDeptData.text);
+            lstDept_Code_8.SetDataText(txtDeptData.text);
+            lstDept_Code_9.SetDataText(txtDeptData.text);
+            txtDept.text=lstDept_Code_9.value;
+        }
+        else
+        {
+            lstDept_Code_BN_1.SetDataText(txtDeptData.text);
+            lstDept_Code_BN_2.SetDataText(txtDeptData.text);
+            lstDept_Code_BN_3.SetDataText(txtDeptData.text);
+            lstDept_Code_BN_4.SetDataText(txtDeptData.text);
+            lstDept_Code_BN_5.SetDataText(txtDeptData.text);
+            lstDept_Code_BN_6.SetDataText(txtDeptData.text);
+            lstDept_Code_BN_7.SetDataText(txtDeptData.text);
+            txtDept.text=lstDept_Code_BN_7.value;
+        }
+
+        
+        datGroupData.Call(); 
+   }
+   else if (obj.id=="datGroupData")
+   {
+        var ivalue=txtGroupData.text;
+        
+        if (bChange_All==true)
+        {
+            if (tabMain.GetCurrentPageNo()==0)
+            {
+                ChoseList_box(lstGrp_Code_1,ivalue);
+                ChoseList_box(lstGrp_Code_2,ivalue);
+                ChoseList_box(lstGrp_Code_3,ivalue);
+                ChoseList_box(lstGrp_Code_4,ivalue);
+                ChoseList_box(lstGrp_Code_5,ivalue);
+                ChoseList_box(lstGrp_Code_6,ivalue);
+                ChoseList_box(lstGrp_Code_7,ivalue);
+                ChoseList_box(lstGrp_Code_8,ivalue);
+                ChoseList_box(lstGrp_Code_9,ivalue);
+            }
+            else
+            {
+                ChoseList_box(lstGrp_Code_BN_1,ivalue);
+                ChoseList_box(lstGrp_Code_BN_2,ivalue);
+                ChoseList_box(lstGrp_Code_BN_3,ivalue);
+                ChoseList_box(lstGrp_Code_BN_4,ivalue);
+                ChoseList_box(lstGrp_Code_BN_5,ivalue);
+                ChoseList_box(lstGrp_Code_BN_6,ivalue);
+                ChoseList_box(lstGrp_Code_BN_7,ivalue);
+            }
+            bChange_All=false;
+        }
+        else
+            ChoseList_box(ctlGroup,ivalue);
+        
+   }
+   else if (obj.id = "datFind_Report")
+   {
+        var url = System.RootURL;
+        switch (rpt_no)
+        {
+            case 1:
+            {
+                url = url + '/reports/ch/cs/' + txtReport_tmp.text + '?l_dept=' + lstDept_Code_1.value  + '&l_group=' + lstGrp_Code_1.value + '&l_status=' + lstStatus_1.value + '&l_emp_id=' + txtEmp_ID_1.text + '&l_work_mon=' + dtMonth.value + '&l_pay_type=' + lstPay_Type_1.value + '&l_type=' + lstType_1.value + '&l_m_type=' + lstMoney_Type_1.value;
+                break;
+            }
+            case 2:
+            {
+                url = url + '/reports/ch/cs/' + txtReport_tmp.text + '?l_dept=' + lstDept_Code_2.value  + '&l_group=' + lstGrp_Code_2.value + '&l_status=' + lstStatus_2.value + '&l_emp_id=' + txtEmp_ID_2.text + '&l_work_mon=' + dtMonth.value + '&l_pay_type=' + lstPay_Type_2.value + '&l_type=' + lstType_2.value + '&l_m_type=' + lstMoney_Type_2.value;
+                break;
+            }
+            case 3:
+            {
+                url = url + '/reports/ch/cs/' + txtReport_tmp.text + '?l_dept=' + lstDept_Code_3.value  + '&l_group=' + lstGrp_Code_3.value + '&l_status=' + lstStatus_3.value + '&l_emp_id=' + txtEmp_ID_3.text + '&l_work_mon=' + dtMonth.value + '&l_pay_type=' + lstPay_Type_3.value + '&l_type=' + lstType_3.value + '&l_m_type=' + lstMoney_Type_3.value;
+                break;
+            }
+            case 4:
+            {
+                url = url + '/reports/ch/cs/' + txtReport_tmp.text + '?l_dept=' + lstDept_Code_4.value  + '&l_group=' + lstGrp_Code_4.value + '&l_status=' + lstStatus_4.value + '&l_emp_id=' + txtEmp_ID_4.text + '&l_work_mon=' + dtMonth.value + '&l_pay_type=' + lstPay_Type_4.value + '&l_type=' + lstType_4.value + '&l_m_type=' + lstMoney_Type_4.value;
+                break;
+            }
+            case 5:
+            {
+                url = url + '/reports/ch/cs/' + txtReport_tmp.text + '?l_dept=' + lstDept_Code_5.value  + '&l_group=' + lstGrp_Code_5.value + '&l_status=' + lstStatus_5.value + '&l_emp_id=' + txtEmp_ID_5.text + '&l_work_mon=' + dtMonth.value + '&l_pay_type=' + lstPay_Type_5.value + '&l_type=' + lstType_5.value + '&l_m_type=' + lstMoney_Type_5.value;
+                break;
+            }
+            case 6:
+            {
+                url = url + '/reports/ch/cs/' + txtReport_tmp.text + '?l_dept=' + lstDept_Code_6.value  + '&l_group=' + lstGrp_Code_6.value + '&l_status=' + lstStatus_6.value + '&l_emp_id=' + txtEmp_ID_6.text + '&l_work_mon=' + dtMonth.value + '&l_pay_type=' + lstBank_6.value + '&l_type=' + lstType_6.value + '&l_m_type=' + lstMoney_Type_6.value;
+                break;
+            }
+            case 7:
+            {
+                url = url + '/reports/ch/cs/' + txtReport_tmp.text + '?l_dept=' + lstDept_Code_7.value  + '&l_group=' + lstGrp_Code_7.value + '&l_status=' + lstStatus_7.value + '&l_emp_id=' + txtEmp_ID_7.text + '&l_work_mon=' + dtMonth.value +  '&l_type=' + lstType_7.value + '&l_m_type=' + lstMoney_Type_7.value;
+                break;
+            }
+            case 8:
+            {
+                url = url + '/reports/ch/cs/' + txtReport_tmp.text + '?l_dept=' + lstDept_Code_8.value  + '&l_group=' + lstGrp_Code_8.value + '&l_status=' + lstStatus_8.value + '&l_emp_id=' + txtEmp_ID_8.text + '&l_work_mon=' + dtMonth.value + '&l_pay_type=' + lstPay_Type_8.value + '&l_type=' + lstType_8.value + '&l_m_type=' + lstMoney_Type_8.value;
+                break;
+            }
+            case 9:
+            {
+                url = url + '/reports/ch/cs/' + txtReport_tmp.text + '?l_dept=' + lstDept_Code_9.value  + '&l_group=' + lstGrp_Code_9.value + '&l_status=' + lstStatus_9.value + '&l_emp_id=' + txtEmp_ID_9.text + '&l_work_mon=' + dtMonth.value + '&l_pay_type=' + lstPay_Type_9.value + '&l_type=' + lstType_9.value + '&l_m_type=' + lstMoney_Type_9.value;
+                break;
+            }
+        }
+        window.open(url);  
+   }
+}
+//-------------------------------------------------------------
+function ChoseList_box(obj_list,value)
+{
+    var obj;
+    obj_list.SetDataText(value)    ;
+    obj=obj_list.GetControl()
+	if (obj.options.length ==2)
+		obj.options.selectedIndex=0;
+	else
+		obj.options.selectedIndex=obj.options.length-1;
+}
+//------------------------------------
+function OnReport(optobj)
+{
+    rpt_no = optobj.value;
+    for(var i=0;i<optobj.length;i++)
+        if (optobj[i].checked)
+            rpt_no = i + 1;
+    
+    switch (rpt_no)
+    {
+        case 1:
+        {
+			if (lstMoney_Type_1.value="02")
+			{
+				txtReport_tmp.text = "rpt_employee_payroll_usd.aspx";
+			}
+			else
+				txtReport_tmp.text = "rpt_employee_payroll.aspx";
+            break;
+        }
+        case 2:
+        {
+            txtReport_tmp.text = "rpt_salary_pay_slip.aspx";
+            break;
+        }
+        case 3:
+        {
+            txtReport_tmp.text = "rpt_payroll_summary.aspx";
+            break;
+        }
+        case 4:
+        {
+            txtReport_tmp.text = "rpt_income_tax.aspx";
+            break;
+        }
+        case 5:
+        {
+            txtReport_tmp.text = "rpt_severance_summary.aspx";
+            break;
+        }
+        case 6:
+        {
+            txtReport_tmp.text = "rpt_atm_transferring.aspx";
+            break;
+        }
+        case 7:
+        {
+            txtReport_tmp.text = "rpt_cash_payment.aspx";
+            break;
+        }
+        case 8:
+        {
+            txtReport_tmp.text = "rpt_classification_detail.aspx";
+            break;
+        }
+        case 9:
+        {
+            txtReport_tmp.text = "rpt_classification_group.aspx";
+            break;
+        }
+    }
+    
+    datFind_Report.Call();
+}
+</script>
+<style type="text/css">
+<!--
+.textColor {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #FFFFFF;
+	font-weight: bold;
+	font-size: 11px;
+}
+-->
+</style>
+
+<style>
+.top { border-top:1px solid #034D72; }
+.topright { border-top :1px solid #034D72;
+			border-right: 1px solid #034D72;;padding-right:10px
+			}
+.topleft {border-left:1px solid #034D72; 
+			border-top :1px solid #034D72;
+			}
+.left { border-left:1px solid #034D72; }
+.right { border-right:1px solid #034D72;padding-right:10px }
+.bottomright { border-bottom:1px solid #034D72; 
+				border-right:1px solid #034D72; padding-right:10px
+				}
+.bottomleft { border-bottom:1px solid #034D72; 
+				border-left:1px solid #034D72;;
+			}
+.bottom { border-bottom:1px solid #034D72; }
+
+.topleftbottom { border-left:1px solid #034D72; 
+			border-top :1px solid #034D72;
+			border-bottom:1px solid #034D72; }
+
+.topbottom {border-top :1px solid #034D72;
+			border-bottom:1px solid #034D72; }
+
+.toprightbottom { border-right:1px solid #034D72; 
+			border-top :1px solid #034D72;
+			border-bottom:1px solid #034D72; }
+	
+#up { background-color:#DFF2FF; }
+#down { background-color:#EAEAEA; }
+
+</style>
+
+<body>
+<!------------main control---------------------->
+<!------------------------------------->
+<gw:data id="datDeptData" onreceive="OnDataReceive(this)"  > 
+        <xml> 
+            <dso  type="list" procedure="comm.sp_pro_dept_data_all" > 
+                <input>
+                    <input bind="txtUpperDept" /> 
+                </input> 
+                <output>
+                    <output bind="txtDeptData" />
+                </output>
+            </dso> 
+        </xml> 
+</gw:data>
+<!------------------------------------->
+<gw:data id="datGroupData" onreceive="OnDataReceive(this)"  > 
+        <xml> 
+            <dso  type="list" procedure="hr.sp_pro_group_data_all" > 
+                <input>
+                    <input bind="txtDept" /> 
+                </input> 
+                <output>
+                    <output bind="txtGroupData" />
+                </output>
+            </dso> 
+        </xml> 
+</gw:data>
+<!------------------------------------------------>
+<gw:data id="datFind_Report" onreceive="OnDataReceive(this)"  > 
+        <xml> 
+            <dso  type="process" procedure="hr.sp_pro_find_report" > 
+                <input>
+                    <input bind="txtReport_tmp" /> 
+                </input> 
+                <output>
+                    <output bind="txtReport_tmp" />
+                </output>
+            </dso> 
+        </xml> 
+</gw:data>
+<!--------------------main table--------------------------------->
+<gw:tab id="tabMain"  border=1 style="width:100%;height:100%;">
+<form name="General Reports" id="Salary" > 
+<table   cellpadding="0" cellspacing="0" style="width:100%;height:80%"   valign="middle" border="0" >
+	<tr height="15%" >
+      <td style="width:100%">
+        <table cellpadding="0" style="line-height:normal; padding:0" cellspacing="0" style="width:100%;height:100%" width="100%"  border="0" >
+            <tr>
+                <td width="50%"  align="right" valign="middle" class="topleftbottom"><font size="5" color="cc0066">SALARY MONTH</font></td>
+                <td width="45%" valign="middle" align="left" class="topbottom" style="border-left:0;border-right:0"><gw:datebox id="dtMonth"  text="" maxlen = "10" type="month" styles='width:60%' lang="<%=Session("Lang")%>" /> </td>
+                <td width="5%" align="left" valign="middle" class="toprightbottom"><gw:imgBtn id="ibtnReport" alt="Excel Report" img="excel" text="Print" onclick="OnReport(Salary.optMonthReport)" /></td>
+            </tr>
+        </table>
+      </td>
+      
+    </tr>
+    <tr height="80%">
+	    <td  style="width:100%;height:100%">
+		    <table style="width:100%;height:100%" border="0" cellpadding="0" cellspacing="0">
+			    <tr style="width:100%;height:7%"  > 
+                    <td width="15%" colspan="2" align="center" class="topleft" style="border-right:0">Report Name</td>
+                    <td width="15%" align="center" class="top" style="border-left:0;border-right:0">
+                        <a  title="Click here to show department" onclick="OnShowPopup()" href="#tips">Department</a>
+                    </td>
+			        <td width="15%" align="center" class="top" style="border-left:0;border-right:0">Group</td>
+			        <td width="10%" align="center" class="top" style="border-left:0;border-right:0">Status</td>
+			        <td width="10%" align="center" class="top" style="border-left:0;border-right:0">Pay Type</td>
+			        <td width="10%" align="center" class="top" style="border-left:0;border-right:0">Money Type</td>
+			        <td width="7%" align="center" class="top" style="border-left:0;border-right:0">Type</td>
+			        <td width="18%" align="center" class="topright" style="border-left:0">Emp ID</td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"  width="2%" valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" checked></td>
+                    <td valign="middle" style="font-size:12" width="23%" style="border-left:0;border-right:0">Salary Payment</td>
+                    
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_1" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,1);OnChangeDept(lstDept_Code_1,lstGrp_Code_1)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_1" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,1)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstStatus_1" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,1)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0022' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_1" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,1)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstMoney_Type_1" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,1)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0040' ORDER BY A.seq")%>|ALL|Select All</data>
+                                        </gw:list></td>                                        
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstType_1" value='>0' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Salary,1)">
+                                        <data>|>0|>0|=0|=0|<0|<0|>=0|>=0</data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" class="right"  style="border-left:0"><gw:textbox id="txtEmp_ID_1" onenterkey   ="OnChangeOption(document.Salary,1);OnReport(Salary.optMonthReport)" styles='width:100%'/></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"   valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Pay-slip</td>
+                    
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_2" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,2);OnChangeDept(lstDept_Code_2,lstGrp_Code_2)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_2" value='ALL' maxlen = "100" styles='width:80%'  onchange="OnChangeOption(document.Salary,2)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstStatus_2" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,2)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0022' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_2" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,2)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstMoney_Type_2" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,2)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0040' ORDER BY A.seq")%>|ALL|Select All</data>
+                                        </gw:list></td>                                        
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstType_2" value='>0' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Salary,2)">
+                                        <data>|>0|>0|=0|=0|<0|<0|>=0|>=0</data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" class="right"  style="border-left:0"><gw:textbox id="txtEmp_ID_2" onenterkey   ="OnChangeOption(document.Salary,2);OnReport(Salary.optMonthReport)" styles='width:100%' /></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"   valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Payroll Group Summary</td>
+                    
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_3" value='ALL' maxlen = "100" styles='width:80%'onchange="OnChangeOption(document.Salary,3);OnChangeDept(lstDept_Code_3,lstGrp_Code_3)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_3" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,3)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstStatus_3" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,3)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0022' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_3" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,3)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstMoney_Type_3" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,3)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0040' ORDER BY A.seq")%>|ALL|Select All</data>
+                                        </gw:list></td>                                        
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstType_3" value='>0' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Salary,3)">
+                                        <data>|>0|>0|=0|=0|<0|<0|>=0|>=0</data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" class="right"  style="border-left:0"><gw:textbox id="txtEmp_ID_3" onenterkey   ="OnChangeOption(document.Salary,3);OnReport(Salary.optMonthReport)" styles='width:100%'/></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"   valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Income Tax</td>
+                    
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_4" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,4);OnChangeDept(lstDept_Code_4,lstGrp_Code_4)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_4" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,4)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstStatus_4" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,4)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0022' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_4" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,4)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstMoney_Type_4" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,4)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0040' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstType_4" value='>0' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Salary,4)">
+                                        <data>|>0|>0|=0|=0|<0|<0|>=0|>=0</data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" class="right"  style="border-left:0"><gw:textbox id="txtEmp_ID_4"  onenterkey="OnChangeOption(document.Salary,4);OnReport(Salary.optMonthReport)" styles='width:100%'/></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"  valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Severance Pay</td>
+                    
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_5" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,5);OnChangeDept(lstDept_Code_5,lstGrp_Code_5)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_5" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,5)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstStatus_5" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,5)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0022' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_5" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,5)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstMoney_Type_5" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,5)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0040' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstType_5" value='>0' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Salary,5)">
+                                        <data>|>0|>0|=0|=0|<0|<0|>=0|>=0</data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" class="right"  style="border-left:0"><gw:textbox id="txtEmp_ID_5" onenterkey   ="OnChangeOption(document.Salary,5);OnReport(Salary.optMonthReport)" styles='width:100%'/></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"   valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Salary Payment by Bank</td>
+                    
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_6" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,6);OnChangeDept(lstDept_Code_6,lstGrp_Code_6)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_6" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,6)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstStatus_6" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,6)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0022' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstBank_6" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,6)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0020' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstMoney_Type_6" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,6)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0040' ORDER BY A.seq")%>|ALL|Select All</data>
+                                        </gw:list></td>                                        
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstType_6" value='>0' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Salary,6)">
+                                        <data>|>0|>0|=0|=0|<0|<0|>=0|>=0</data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" class="right"  style="border-left:0"><gw:textbox id="txtEmp_ID_6" onenterkey   ="OnChangeOption(document.Salary,6);OnReport(Salary.optMonthReport)" styles='width:100%'/></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"   valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Salary Payment by Cash</td>
+                    
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_7" value='ALL' maxlen = "100" styles='width:80%'onchange="OnChangeOption(document.Salary,7);OnChangeDept(lstDept_Code_7,lstGrp_Code_7)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_7" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,7);">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstStatus_7" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,7);">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0022' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+                    <td></td>                                        
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstMoney_Type_7" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,7)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0040' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td  align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstType_7" value='>0' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Salary,7);">
+                                        <data>|>0|>0|=0|=0|<0|<0|>=0|>=0</data>
+                                        </gw:list></td>
+			        <td class="right" align="center" valign="middle" class="right"  style="border-left:0"><gw:textbox id="txtEmp_ID_7" onenterkey   ="OnChangeOption(document.Salary,7);OnReport(Salary.optMonthReport)" styles='width:100%'/></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"   valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td  valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Money's Classification</td>
+                    
+                    <td  align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_8" value='ALL' maxlen = "100" styles='width:80%'onchange="OnChangeOption(document.Salary,8);OnChangeDept(lstDept_Code_8,lstGrp_Code_8)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td  align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_8" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,8)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstStatus_8" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,8)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0022' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_8" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,8)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstMoney_Type_8" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,8)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0040' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>                                        
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstType_8" value='>0' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Salary,8)">
+                                        <data>|>0|>0|=0|=0|<0|<0|>=0|>=0</data>
+                                        </gw:list></td>
+			        <td  class="right" align="center" valign="middle" style="border-left:0"><gw:textbox id="txtEmp_ID_8" onenterkey   ="OnChangeOption(document.Salary,8);OnReport(Salary.optMonthReport)" styles='width:100%'/></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="bottomleft"  valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td class="bottom" valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Money's Classification by Group</td>
+                    
+                    <td class="bottom" align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_9" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,9);OnChangeDept(lstDept_Code_9,lstGrp_Code_9)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td class="bottom" align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_9" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,9)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td class="bottom" align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstStatus_9" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,9)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0022' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td class="bottom" align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_9" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,9)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+                    <td class="bottom" align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstMoney_Type_9" value='ALL' maxlen = "100" styles='width:80%' onchange="OnChangeOption(document.Salary,9)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0040' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>                                        
+			        <td class="bottom" align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstType_9" value='>0' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Salary,9)">
+                                        <data>|>0|>0|=0|=0|<0|<0|>=0|>=0</data>
+                                        </gw:list></td>
+			        <td class="bottomright" align="center" valign="middle"   style="border-left:0"><gw:textbox id="txtEmp_ID_9" onenterkey   ="OnChangeOption(document.Salary,9);OnReport(Salary.optMonthReport)" styles='width:100%'/></td>
+                </tr>
+            </table>
+	    </td>
+	</tr>	
+ </table>
+ </form>
+<form name="Bonus Reports" id="Bonus" > 
+<table   cellpadding="0" cellspacing="0" style="width:100%;height:80%"   valign="middle" border="0" >
+	<tr height="20%" >
+      <td style="width:100%">
+        <table cellpadding="0" style="line-height:normal; padding:0" cellspacing="0" style="width:100%;height:100%" width="100%"  border="0" >
+            <tr>
+                <td width="95%" colspan="8"  align="center" valign="middle" class="topleft"><font size="5" color="cc0066">BONUS YEAR</font></td>
+                <td width="5%" align="left" valign="middle" class="topright"><gw:imgBtn id="ibtnReport_B" alt="Excel Report" img="excel" text="Print" onclick="OnReport()" /></td>
+            </tr>
+            <tr>
+                <td width="25%"  align="right" valign="middle" class="bottomleft">Year</td>
+                <td width="13%"  align="left" valign="middle"  class="bottom"><gw:datebox id="dtYear"  text="" maxlen = "10" type="year" lang="<%=Session("Lang")%>" /> </td>
+                <td width="7%"  align="right" valign="middle"  class="bottom">Time</td>
+                <td width="10%"  align="left" valign="middle"  class="bottom"><gw:list  id="lstTime" styles="width:100%" value='ALL' >
+                                       </gw:list></td>
+                <td width="7%"  align="right" valign="middle"  class="bottom">Date</td>
+                <td width="10%"  align="right" valign="middle"  class="bottom"><gw:datebox id="dtFrom_Date"  text="" maxlen = "10"   lang="<%=Session("Lang")%>" /> </td>
+                <td width="3%"  align="center" valign="middle"  class="bottom"><b style="font-size:13">~</b></td>
+                <td width="20%"  align="left" valign="middle"  class="bottom"><gw:datebox id="dtTo_Date"  text="" maxlen = "10"   lang="<%=Session("Lang")%>" /> </td>
+                <td  align="left" valign="middle"  class="bottomright"></td>
+            </tr>
+        </table>
+      </td>
+      
+    </tr>
+    <tr height="80%">
+	    <td  style="width:100%;height:100%">
+		    <table style="width:100%;height:100%" border="0" cellpadding="0" cellspacing="0">
+			    <tr style="width:100%;height:7%"  > 
+                    <td width="25%" colspan=2 align="center" class="topleft" style="border-right:0">Report Name</td>
+                    <td width="25%" align="center" class="top" style="border-left:0;border-right:0"><a title="Click here to show department" onclick="OnShowPopup()" href="#tips">Department</a></td>
+			        <td width="25%" align="center" class="top" style="border-left:0;border-right:0">Group</td>
+			        <td width="16%" align="center" class="top" style="border-left:0;border-right:0">Pay Type</td>
+			        <td width="10%" align="center" class="topright" style="border-left:0">Emp ID</td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"  width="2%" valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" checked></td>
+                    <td valign="middle" style="font-size:12" width="23%" style="border-left:0;border-right:0">Bonus Payment</td>
+                    
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_BN_1" value='ALL' maxlen = "100" styles='width:60%' onchange="OnChangeOption(document.Bonus,1);OnChangeDept(lstDept_Code_BN_1,lstGrp_Code_BN_1)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_BN_1" value='ALL' maxlen = "100" styles='width:60%' onchange="OnChangeOption(document.Bonus,1)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_BN_1" value='ALL' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Bonus,1)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" class="right"  style="border-left:0"><gw:textbox id="txtEmp_ID_BN_1" onenterkey   ="OnChangeOption(document.Bonus,1)" styles='width:100%'/></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"   valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Bonus slip</td>
+                    
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_BN_2" value='ALL' maxlen = "100" styles='width:60%' onchange="OnChangeOption(document.Bonus,2);OnChangeDept(lstDept_Code_BN_2,lstGrp_Code_BN_2)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_BN_2" value='ALL' maxlen = "100" styles='width:60%'  onchange="OnChangeOption(document.Bonus,2)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_BN_2" value='ALL' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Bonus,2)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" class="right"  style="border-left:0"><gw:textbox id="txtEmp_ID_BN_2" onenterkey   ="OnChangeOption(document.Bonus,2);OnReport(2)" styles='width:100%' /></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"   valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Bonus Group Summary</td>
+                    
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_BN_3" value='ALL' maxlen = "100" styles='width:60%'onchange="OnChangeOption(document.Bonus,3);OnChangeDept(lstDept_Code_BN_3,lstGrp_Code_BN_3)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_BN_3" value='ALL' maxlen = "100" styles='width:60%' onchange="OnChangeOption(document.Bonus,3)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_BN_3" value='ALL' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Bonus,3)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" class="right"  style="border-left:0"><gw:textbox id="txtEmp_ID_BN_3" onenterkey   ="OnChangeOption(document.Bonus,3);OnReport(3)" styles='width:100%'/></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"  valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Bonus Payment by Bank</td>
+                    
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_BN_4" value='ALL' maxlen = "100" styles='width:60%' onchange="OnChangeOption(document.Bonus,4);OnChangeDept(lstDept_Code_BN_4,lstGrp_Code_BN_4)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_BN_4" value='ALL' maxlen = "100" styles='width:60%' onchange="OnChangeOption(document.Bonus,4)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_BN_4" value='ALL' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Bonus,4)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" class="right"  style="border-left:0"><gw:textbox id="txtEmp_ID_BN_4" onenterkey   ="OnChangeOption(document.Bonus,4);OnReport(4)" styles='width:100%'/></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"   valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Bonus Payment by Cash</td>
+                    
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_BN_5" value='ALL' maxlen = "100" styles='width:60%' onchange="OnChangeOption(document.Bonus,5);OnChangeDept(lstDept_Code_BN_5,lstGrp_Code_BN_5)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_BN_5" value='ALL' maxlen = "100" styles='width:60%' onchange="OnChangeOption(document.Bonus,5)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_BN_5" value='ALL' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Bonus,5)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" class="right"  style="border-left:0"><gw:textbox id="txtEmp_ID_BN_5" onenterkey   ="OnChangeOption(document.Bonus,5);OnReport(5)" styles='width:100%'/></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="left"   valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Money's Classification</td>
+                    
+                    <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_BN_6" value='ALL' maxlen = "100" styles='width:60%'onchange="OnChangeOption(document.Bonus,6);OnChangeDept(lstDept_Code_BN_6,lstGrp_Code_BN_6)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_BN_6" value='ALL' maxlen = "100" styles='width:60%' onchange="OnChangeOption(document.Bonus,6);">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td  align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_BN_6" value='ALL' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Bonus,6);">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td class="right" align="center" valign="middle" class="right"  style="border-left:0"><gw:textbox id="txtEmp_ID_BN_6" onenterkey   ="OnChangeOption(document.Bonus,6);OnReport(6)" styles='width:100%'/></td>
+                </tr>
+                <tr height="7%" style="width:100%;"  valign="top"> 
+                    <td class="bottomleft"   valign="middle" style="border-right:0"><input type="radio" name="optMonthReport" value="1" ></td>
+                    <td class="bottom" valign="middle" style="font-size:12"  style="border-left:0;border-right:0">Money's Classification by Group</td>
+                    
+                    <td class="bottom" align="center" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstDept_Code_BN_7" value='ALL' maxlen = "100" styles='width:60%'onchange="OnChangeOption(document.Bonus,7);OnChangeDept(lstDept_Code_BN_7,lstGrp_Code_BN_7)" >
+                                        <data>
+                                        <%=ESysLib.SetListDataSQL("select a.pk,a.dept_nm from comm.tco_dept a where a.del_if=0 connect by prior  a.pk=a.p_pk start with nvl(a.p_pk,0)=0")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td  align="center" class="bottom" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstGrp_Code_BN_7" value='ALL' maxlen = "100" styles='width:60%' onchange="OnChangeOption(document.Bonus,7)">
+                                        <data><%=Esyslib.SetListDataSQL("SELECT pk,Group_NM FROM Thr_Group WHERE DEL_IF = 0 and use_yn='Y'  order by seq, Group_NM" )%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td align="center" class="bottom" valign="middle" style="border-left:0;border-right:0"><gw:list  id="lstPay_Type_BN_7" value='ALL' maxlen = "100" styles='width:70%' onchange="OnChangeOption(document.Bonus,8)">
+                                        <data><%=ESysLib.SetListDataSQL("select a.code,a.code_nm from vhr_hr_code a where a.id='HR0023' ORDER BY A.seq")%>|ALL|Select All
+                                        </data>
+                                        </gw:list></td>
+			        <td   class="bottomright" align="center" valign="middle" style="border-left:0"><gw:textbox id="txtEmp_ID_BN_7" onenterkey   ="OnChangeOption(document.Bonus,7);OnReport(7)" styles='width:100%'/></td>
+                </tr>
+                
+            </table>
+	    </td>
+	</tr>	
+ </table>
+</form>
+ </gw:tab>
+<gw:textbox id="txtDept" styles="display:none"/>	
+<gw:textbox id="txtDeptData" styles="display:none"/>
+<gw:textbox id="txtUpperDept" styles="display:none"/>
+<gw:textbox id="txtGroupData" styles="display:none"/>
+<gw:textbox id="iduser_pk" styles="display:none"/>
+<gw:textbox id="txtHr_level" styles="display:none"/>  
+<gw:textbox id="txtReport_tmp" styles="display:none"/>
+</body>
+</html>
+

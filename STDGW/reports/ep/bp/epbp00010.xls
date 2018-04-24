@@ -1,0 +1,362 @@
+<% 	
+	Response.ContentType = "application/x-excel"
+	Response.Charset = "utf-8"
+	Response.Buffer = "False"
+ %>
+  
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+  <!-- #include file="../db1.inc"  -->
+  
+<%
+  ConnectDBApp
+  
+  p_mr_pk = request.querystring("mr_pk")
+  
+  sql_mst = " select d.partner_name, a.mr_date, b.full_name, a.mr_no, c.pl_nm, "
+  sql_mst = sql_mst & "       decode (a.status, 'WT', 'Waiting', 'CF', 'Confirm', 'DL', 'Delay'), "
+  sql_mst = sql_mst & "       a.takein_dt, a.description "
+  sql_mst = sql_mst & "  from prod.tpr_poreq a, hr.thr_employee b, tac_abpl c, tco_company d "
+  sql_mst = sql_mst & " where a.del_if = 0 "
+  sql_mst = sql_mst & "   and b.del_if(+) = 0 "
+  sql_mst = sql_mst & "   and c.del_if(+) = 0 "
+  sql_mst = sql_mst & "   and d.del_if(+) = 0 "
+  sql_mst = sql_mst & "   and a.tac_abpl_pk = c.pk(+) "
+  sql_mst = sql_mst & "   and a.req_emp_pk = b.pk(+) "
+  sql_mst = sql_mst & "   and a.tco_company_pk = d.pk(+) "
+  sql_mst = sql_mst & "   and a.pk = '"&p_mr_pk&"' "
+
+  TableReadOpen rs1, sql_mst
+  
+  sql_dtl = " select rownum, d.grp_nm, c.item_code, c.item_name, a.req_qty, a.item_unit, "
+  sql_dtl = sql_dtl & "       a.description "
+  sql_dtl = sql_dtl & "  from tpr_poreqd a, tco_item c, tco_itemgrp d "
+  sql_dtl = sql_dtl & " where a.del_if = 0 "
+  sql_dtl = sql_dtl & "   and c.del_if = 0 "
+  sql_dtl = sql_dtl & "   and d.del_if = 0 "
+  sql_dtl = sql_dtl & "   and a.tco_item_pk = c.pk "
+  sql_dtl = sql_dtl & "   and c.tco_itemgrp_pk = d.pk "
+  sql_dtl = sql_dtl & "   and a.tpr_poreq_pk = '"&p_mr_pk&"' "
+
+  TableReadOpen rs2, sql_dtl
+%>
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 11">
+<link rel=File-List href="epbp00010_files/filelist.xml">
+<link rel=Edit-Time-Data href="epbp00010_files/editdata.mso">
+<link rel=OLE-Object-Data href="epbp00010_files/oledata.mso">
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:LastAuthor>Le Huu Tho</o:LastAuthor>
+  <o:LastPrinted>2008-04-04T03:53:20Z</o:LastPrinted>
+  <o:Created>1996-10-14T23:33:28Z</o:Created>
+  <o:LastSaved>2008-04-09T07:14:12Z</o:LastSaved>
+  <o:Version>11.5606</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.25in .25in .25in .25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-horizontal-page-align:center;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl24
+	{mso-style-parent:style0;
+	vertical-align:middle;}
+.xl25
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:middle;}
+.xl26
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:right;
+	vertical-align:middle;}
+.xl27
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid windowtext;}
+.xl28
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl29
+	{mso-style-parent:style0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl30
+	{mso-style-parent:style0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl31
+	{mso-style-parent:style0;
+	mso-number-format:"_\(* \#\,\#\#0_\)\;_\(* \\\(\#\,\#\#0\\\)\;_\(* \0022-\0022_\)\;_\(\@_\)";
+	text-align:left;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl32
+	{mso-style-parent:style0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl33
+	{mso-style-parent:style0;
+	font-size:16.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>MR Entry</x:Name>
+    <x:WorksheetOptions>
+     <x:FitToPage/>
+     <x:FitToPage/>
+     <x:Print>
+      <x:FitHeight>0</x:FitHeight>
+      <x:ValidPrinterInfo/>
+      <x:PaperSizeIndex>9</x:PaperSizeIndex>
+      <x:Scale>89</x:Scale>
+      <x:HorizontalResolution>300</x:HorizontalResolution>
+      <x:VerticalResolution>300</x:VerticalResolution>
+     </x:Print>
+     <x:Selected/>
+     <x:Panes>
+      <x:Pane>
+       <x:Number>3</x:Number>
+       <x:ActiveRow>14</x:ActiveRow>
+       <x:ActiveCol>3</x:ActiveCol>
+      </x:Pane>
+     </x:Panes>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:WindowHeight>9300</x:WindowHeight>
+  <x:WindowWidth>15135</x:WindowWidth>
+  <x:WindowTopX>120</x:WindowTopX>
+  <x:WindowTopY>120</x:WindowTopY>
+  <x:AcceptLabelsInFormulas/>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+ <x:ExcelName>
+  <x:Name>Print_Titles</x:Name>
+  <x:SheetIndex>1</x:SheetIndex>
+  <x:Formula>='MR Entry'!$1:$9</x:Formula>
+ </x:ExcelName>
+</xml><![endif]-->
+</head>
+
+<body link=blue vlink=purple class=xl24>
+
+<table x:str border=0 cellpadding=0 cellspacing=0 width=769 style='border-collapse:
+ collapse;table-layout:fixed;width:578pt'>
+ <col class=xl24 width=86 style='mso-width-source:userset;mso-width-alt:3145;
+ width:65pt'>
+ <col class=xl24 width=98 style='mso-width-source:userset;mso-width-alt:3584;
+ width:74pt'>
+ <col class=xl24 width=145 style='mso-width-source:userset;mso-width-alt:5302;
+ width:109pt'>
+ <col class=xl24 width=180 style='mso-width-source:userset;mso-width-alt:6582;
+ width:135pt'>
+ <col class=xl24 width=75 span=2 style='mso-width-source:userset;mso-width-alt:
+ 2742;width:56pt'>
+ <col class=xl24 width=110 style='mso-width-source:userset;mso-width-alt:4022;
+ width:83pt'>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl24 width=86 style='height:12.75pt;width:65pt'></td>
+  <td class=xl24 width=98 style='width:74pt'></td>
+  <td class=xl24 width=145 style='width:109pt'></td>
+  <td class=xl24 width=180 style='width:135pt'></td>
+  <td class=xl24 width=75 style='width:56pt'></td>
+  <td class=xl24 width=75 style='width:56pt'></td>
+  <td class=xl24 width=110 style='width:83pt'></td>
+ </tr>
+ <tr height=27 style='height:20.25pt'>
+  <td colspan=7 height=27 class=xl33 style='height:20.25pt'>Material Entry</td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 colspan=7 class=xl24 style='height:12.75pt;mso-ignore:colspan'></td>
+ </tr>
+   <%
+    while not rs1.EOF 
+     %>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl25 style='height:12.75pt'>Company</td>
+  <td class=xl24>: <%=rs1(0)%></td>
+  <td class=xl26 x:str="MR Date ">MR Date</td>
+  <td class=xl24>: <%=rs1(1)%></td>
+  <td class=xl26>MR Emp</td>
+  <td class=xl24 colspan=2 style='mso-ignore:colspan'>: <%=rs1(2)%></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl25 style='height:12.75pt'>MR No</td>
+  <td class=xl24>: <%=rs1(3)%></td>
+  <td class=xl26>Project</td>
+  <td class=xl24>: <%=rs1(4)%></td>
+  <td class=xl26>Status</td>
+  <td class=xl24>: <%=rs1(5)%></td>
+  <td class=xl24></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl25 style='height:12.75pt'>Take in date</td>
+  <td class=xl24>: <%=rs1(6)%></td>
+  <td colspan=5 class=xl24 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl25 style='height:12.75pt'>Remark</td>
+  <td class=xl24>: <%=rs1(7)%></td>
+  <td colspan=5 class=xl24 style='mso-ignore:colspan'></td>
+ </tr>
+     <%
+      rs1.movenext
+       wend
+       %>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 colspan=7 class=xl24 style='height:12.75pt;mso-ignore:colspan'></td>
+ </tr>
+       
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl27 style='height:12.75pt'>No</td>
+  <td class=xl28>Group</td>
+  <td class=xl28>Item Code</td>
+  <td class=xl28>Item Name</td>
+  <td class=xl28>MR Qty</td>
+  <td class=xl28>Unit</td>
+  <td class=xl28>Remark</td>
+ </tr>
+       <%
+        while not rs2.EOF 
+         %>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num><%=rs2(0)%></td>
+  <td class=xl30 x:num>'<%=rs2(1)%></td>
+  <td class=xl30><%=rs2(2)%></td>
+  <td class=xl30><%=rs2(3)%></td>
+  <td class=xl31 x:num><%=rs2(4)%></td>
+  <td class=xl32><%=rs2(5)%></td>
+  <td class=xl30><%=rs2(6)%></td>
+ </tr>
+         <%
+          rs2.movenext
+           wend
+           %>
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=86 style='width:65pt'></td>
+  <td width=98 style='width:74pt'></td>
+  <td width=145 style='width:109pt'></td>
+  <td width=180 style='width:135pt'></td>
+  <td width=75 style='width:56pt'></td>
+  <td width=75 style='width:56pt'></td>
+  <td width=110 style='width:83pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</body>
+<%
+CloseDB
+%>
+</html>

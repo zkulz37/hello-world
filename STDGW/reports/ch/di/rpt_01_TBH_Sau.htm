@@ -1,0 +1,636 @@
+<%@ Page Language="C#"%>
+<%@ Import Namespace = "System.Data"%>
+<%  ESysLib.SetUser("hr");
+	Response.ContentType = "application/msword";
+    Response.Charset = "utf-8"; 
+	Response.Buffer = false;
+%>
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<%
+    string emp_pk;
+    
+    emp_pk       = Request["emp_pk"].ToString();
+    string SQL = " select a.pk  " 
+        + ",a.FULL_NAME  "
+        + ",(select PARTNER_LNAME from tco_company p where p.del_if=0 and p.pk=c.tco_company_pk) as tencongty "
+        + ",to_char(to_date(a.BEGIN_CONTRACT,'yyyymmdd'),'dd/mm/yyyy') as tuthang "
+        + "from thr_employee a,thr_group b,tco_dept c "
+        + "where a.del_if=0 and b.del_if=0 and c.del_if=0 and a.thr_group_pk=b.pk and a.tco_dept_pk=c.pk "
+       + "and a.pk in (" + emp_pk + ") " ;
+        
+//Response.Write(SQL);
+//Response.End();
+    DataTable dt_total = ESysLib.TableReadOpen(SQL);
+    int irow;
+    irow = dt_total.Rows.Count;
+    if (irow == 0)
+    {
+        Response.Write("There is no data");
+        Response.End();
+    }
+    
+   
+%>
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 11">
+<meta name=Originator content="Microsoft Word 11">
+<link rel=File-List href="rpt_01_TBH_Sau_files/filelist.xml">
+<title>B</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>huynhtruong</o:Author>
+  <o:LastAuthor>User</o:LastAuthor>
+  <o:Revision>2</o:Revision>
+  <o:TotalTime>16</o:TotalTime>
+  <o:Created>2008-07-27T01:38:00Z</o:Created>
+  <o:LastSaved>2008-07-27T01:38:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>146</o:Words>
+  <o:Characters>835</o:Characters>
+  <o:Lines>6</o:Lines>
+  <o:Paragraphs>1</o:Paragraphs>
+  <o:CharactersWithSpaces>980</o:CharactersWithSpaces>
+  <o:Version>11.5606</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:PunctuationKerning/>
+  <w:ValidateAgainstSchemas/>
+  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+   <w:DontGrowAutofit/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:LatentStyles DefLockedState="false" LatentStyleCount="156">
+ </w:LatentStyles>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:"\.VnTime";
+	mso-font-alt:"Courier New";
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:3 0 0 0 1 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:14.0pt;
+	mso-bidi-font-size:12.0pt;
+	font-family:"\.VnTime";
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";
+	mso-ansi-language:VI;
+	mso-fareast-language:VI;}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:28.35pt 28.35pt 27.0pt 27.25pt;
+	mso-header-margin:35.45pt;
+	mso-footer-margin:35.45pt;
+	mso-page-numbers:17;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-ansi-language:#0400;
+	mso-fareast-language:#0400;
+	mso-bidi-language:#0400;}
+</style>
+<![endif]-->
+</head>
+
+<body lang=EN-US style='tab-interval:.5in'>
+
+<div class=Section1>
+<% 
+     
+     for (int i = 0; i < irow; i++) 
+     {
+        string strEmp_PK=dt_total.Rows[j][0].ToString();
+        //family for detail employee
+        SQL = " select a.FULL_NAME , a.BIRTH_DT, e.code_nm,a.job,a.salary, a.REMARK  ";
+        SQL = SQL + " from THR_FAMILY a vhr_hr_code e  ";
+        SQL = SQL + " where a.del_if=0 and e.id='HR0024' ";
+        SQL = SQL + " and a.relation = e.code";
+        SQL = SQL + " and a.THR_EMPLOYEE_PK=" + strEmp_PK;
+        SQL = SQL + " order by a.pk  ";
+
+        DataTable dt_family = ESysLib.TableReadOpen(SQL);
+        int irow_f;
+        irow_f = dt_family.Rows.Count;
+    
+    %> 
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><b><u><span
+lang=PT-BR style='font-size:12.0pt;font-family:"Times New Roman";mso-ansi-language:
+PT-BR'>B. THÂN NHÂN:<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><b><u><span
+lang=PT-BR style='font-size:6.0pt;font-family:"Times New Roman";mso-ansi-language:
+PT-BR'><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></span></u></b></p>
+
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
+ mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:
+ .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+  <td width=56 style='width:41.85pt;border:solid windowtext 1.0pt;mso-border-alt:
+  solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+  margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><span
+  lang=PT-BR style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:
+  PT-BR'>Số TT<o:p></o:p></span></p>
+  </td>
+  <td width=160 style='width:119.85pt;border:solid windowtext 1.0pt;border-left:
+  none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+  margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><span
+  lang=PT-BR style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:
+  PT-BR'>Họ và tên<o:p></o:p></span></p>
+  </td>
+  <td width=99 style='width:74.45pt;border:solid windowtext 1.0pt;border-left:
+  none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+  margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><span
+  class=SpellE><span style='font-size:10.0pt;font-family:"Times New Roman";
+  mso-ansi-language:EN-US'>Ngày</span></span><span style='font-size:10.0pt;
+  font-family:"Times New Roman";mso-ansi-language:EN-US'>, <span class=SpellE>tháng</span>,
+  <span class=SpellE>năm</span> <span class=SpellE>sinh</span><o:p></o:p></span></p>
+  </td>
+  <td width=69 style='width:51.95pt;border:solid windowtext 1.0pt;border-left:
+  none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+  margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><span
+  lang=PT-BR style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:
+  PT-BR'>Quan hệ<o:p></o:p></span></p>
+  </td>
+  <td width=92 style='width:68.65pt;border:solid windowtext 1.0pt;border-left:
+  none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+  margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><span
+  lang=PT-BR style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:
+  PT-BR'>Nghề nghiệp<o:p></o:p></span></p>
+  </td>
+  <td width=76 style='width:56.9pt;border:solid windowtext 1.0pt;border-left:
+  none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+  margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><span
+  lang=PT-BR style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:
+  PT-BR'>Thu nhập<o:p></o:p></span></p>
+  </td>
+  <td width=169 style='width:127.05pt;border:solid windowtext 1.0pt;border-left:
+  none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+  margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><span
+  lang=PT-BR style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:
+  PT-BR'>Nơi cư trú<o:p></o:p></span></p>
+  </td>
+ </tr>
+ <%
+    for (int j = 0; j < irow_f; j++) 
+    {
+      %>
+ <tr style='mso-yfti-irow:1'>
+  <td width=56 valign=top style='width:41.85pt;border:solid windowtext 1.0pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><%=j+1 %><o:p></o:p></span></p>
+  </td>
+  <td width=160 valign=top style='width:119.85pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><%=dt_family.Rows[j][0].ToString() %><o:p></o:p></span></p>
+  </td>
+  <td width=99 valign=top style='width:74.45pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><%=dt_family.Rows[j][1].ToString() %><o:p></o:p></span></p>
+  </td>
+  <td width=69 valign=top style='width:51.95pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><%=dt_family.Rows[j][2].ToString() %><o:p></o:p></span></p>
+  </td>
+  <td width=92 valign=top style='width:68.65pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><%=dt_family.Rows[j][3].ToString() %><o:p></o:p></span></p>
+  </td>
+  <td width=76 valign=top style='width:56.9pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><%=dt_family.Rows[j][4].ToString() %><o:p></o:p></span></p>
+  </td>
+  <td width=169 valign=top style='width:127.05pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><%=dt_family.Rows[j][5].ToString() %><o:p></o:p></span></p>
+  </td>
+ </tr>
+ <%
+    } %>
+  <% 
+    for (int j = 1; j <= 7-irow_f; j++) 
+    {
+     %>
+ <tr style='mso-yfti-irow:2'>
+  <td width=56 valign=top style='width:41.85pt;border:solid windowtext 1.0pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=160 valign=top style='width:119.85pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=99 valign=top style='width:74.45pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=69 valign=top style='width:51.95pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=92 valign=top style='width:68.65pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=76 valign=top style='width:56.9pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=169 valign=top style='width:127.05pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:3'>
+  <td width=56 valign=top style='width:41.85pt;border:solid windowtext 1.0pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=160 valign=top style='width:119.85pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=99 valign=top style='width:74.45pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=69 valign=top style='width:51.95pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=92 valign=top style='width:68.65pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=76 valign=top style='width:56.9pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=169 valign=top style='width:127.05pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:4'>
+  <td width=56 valign=top style='width:41.85pt;border:solid windowtext 1.0pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=160 valign=top style='width:119.85pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=99 valign=top style='width:74.45pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=69 valign=top style='width:51.95pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=92 valign=top style='width:68.65pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=76 valign=top style='width:56.9pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+  <td width=169 valign=top style='width:127.05pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+  6.0pt;margin-left:10.9pt;text-align:justify'><span lang=PT-BR
+  style='font-size:10.0pt;font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></p>
+  </td>
+ </tr>
+ <% }
+  %>
+ </table>
+
+<p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><i><u><span
+lang=PT-BR style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";
+mso-ansi-language:PT-BR'>Cam kết</span></u></i><span lang=PT-BR
+style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";mso-ansi-language:
+PT-BR'>: Những nội dung kê khai trên là hoàn toàn đúng sự thực, nếu sai tôi xin
+hoàn toàn chịu trách nhiệm trước pháp luật.<o:p></o:p></span></p>
+
+<p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><i><span
+lang=PT-BR style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";
+mso-ansi-language:PT-BR'>HCM, ngày <%=dt_total.Rows[j][3].ToString().Substring(0,2) %><span style='mso-spacerun:yes'> 
+</span>tháng <%=dt_total.Rows[j][3].ToString().Substring(2,2) %> năm <%=dt_total.Rows[j][3].ToString().Substring(4,4) %><o:p></o:p></span></i></p>
+
+<p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><b><span
+lang=PT-BR style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";
+mso-ansi-language:PT-BR'>Người khai<o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><b><span
+lang=PT-BR style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";
+mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></b></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><b><span
+lang=PT-BR style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";
+mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></b></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><b><span
+lang=PT-BR style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";
+mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></b></p>
+
+<p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><b><span
+lang=PT-BR style='font-size:15.0pt;font-family:"Times New Roman";mso-ansi-language:
+PT-BR'><%=dt_total.Rows[j][1].ToString() %><o:p></o:p></span></b></p>
+
+<p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><b><span
+lang=PT-BR style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";
+mso-ansi-language:PT-BR'><o:p>&nbsp;</o:p></span></b></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><b><u><span
+lang=PT-BR style='font-size:12.0pt;font-family:"Times New Roman";mso-ansi-language:
+PT-BR'>C. XÁC NHẬN CỦA NGƯỜI SỬ DỤNG LAO ĐỘNG:<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><span lang=PT-BR
+style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";mso-ansi-language:
+PT-BR'>Cơ quan, đơn vị, tổ chức <%=dt_total.Rows[j][2].ToString() %> sau khi kiểm tra, đối chiếu hồ sơ gốc của
+Ông (Bà) <%=dt_total.Rows[j][1].ToString() %><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><span lang=PT-BR
+style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";mso-ansi-language:
+PT-BR'>Xác nhận các nội dung kê khai trên là hoàn toàn đúng sự thực.<o:p></o:p></span></p>
+
+<p class=MsoNormal align=center style='margin-top:6.0pt;margin-right:5.6pt;
+margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><span
+class=SpellE><span class=GramE><i><span style='mso-bidi-font-size:14.0pt;
+font-family:"Times New Roman";mso-ansi-language:EN-US'>hcm</span></i></span></span><i><span
+style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";mso-ansi-language:
+EN-US'>, <span class=SpellE>ngày</span> 12<span style='mso-spacerun:yes'> 
+</span><span class=SpellE>tháng</span> 12<span style='mso-spacerun:yes'> 
+</span><span class=SpellE>năm</span> 2008<o:p></o:p></span></i></p>
+
+<p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><span
+class=SpellE><b><span style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";
+mso-ansi-language:EN-US'>Người</span></b></span><b><span style='mso-bidi-font-size:
+14.0pt;font-family:"Times New Roman";mso-ansi-language:EN-US'> <span
+class=SpellE>sử</span> <span class=SpellE>dụng</span> <span class=SpellE><span
+class=GramE>lao</span></span> <span class=SpellE>động</span><o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><b><span
+style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";mso-ansi-language:
+EN-US'><o:p>&nbsp;</o:p></span></b></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><b><span
+style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";mso-ansi-language:
+EN-US'><o:p>&nbsp;</o:p></span></b></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><b><span
+style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";mso-ansi-language:
+EN-US'><o:p>&nbsp;</o:p></span></b></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><b><span
+style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";mso-ansi-language:
+EN-US'><o:p>&nbsp;</o:p></span></b></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><b><span
+style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";mso-ansi-language:
+EN-US'><o:p>&nbsp;</o:p></span></b></p>
+
+<p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><b><span
+style='font-size:15.0pt;font-family:"Times New Roman";mso-ansi-language:EN-US'>AAAA<o:p></o:p></span></b></p>
+
+<p class=MsoNormal align=center style='margin-top:0in;margin-right:5.6pt;
+margin-bottom:0in;margin-left:10.9pt;margin-bottom:.0001pt;text-align:center'><b><span
+style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";mso-ansi-language:
+EN-US'><o:p>&nbsp;</o:p></span></b></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><b><u><span
+lang=PT-BR style='font-size:12.0pt;font-family:"Times New Roman";mso-ansi-language:
+PT-BR'>D. XÁC NHẬN CỦA CƠ QUAN BẢO HIỂM XÃ HỘI:<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify;text-indent:27.25pt'><span
+lang=PT-BR style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";
+mso-ansi-language:PT-BR'>Bảo hiểm xã hội tỉnh Đồng Nai sau khi kiểm tra, đối
+chiếu với hồ sơ gốc của cá nhân Ông (Bà)
+................................................... xác nhận các nội dung kê
+khai trên là đúng.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+0in;margin-left:10.9pt;margin-bottom:.0001pt;tab-stops:70.85pt 261.6pt'><b><span
+lang=PT-BR style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";
+mso-ansi-language:PT-BR'><span style='mso-tab-count:1'>                </span>Cán
+bộ thẩm định<span style='mso-tab-count:1'>                      </span></span></b><i><span
+lang=PT-BR style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";
+mso-ansi-language:PT-BR'>............, ngày ....... tháng ....... năm 20.....<o:p></o:p></span></i></p>
+
+<p class=MsoNormal style='margin-top:6.0pt;margin-right:5.6pt;margin-bottom:
+0in;margin-left:10.9pt;margin-bottom:.0001pt;tab-stops:70.85pt 332.45pt'><b><span
+lang=PT-BR style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";
+mso-ansi-language:PT-BR'><span style='mso-tab-count:2'>                                                                                      </span>Giám
+đốc BHXH</span></b><i><span lang=PT-BR style='mso-bidi-font-size:14.0pt;
+font-family:"Times New Roman";mso-ansi-language:PT-BR'><o:p></o:p></span></i></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><span lang=PT-BR
+style='mso-bidi-font-size:14.0pt;font-family:"Times New Roman";mso-ansi-language:
+PT-BR'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:5.6pt;margin-bottom:0in;
+margin-left:10.9pt;margin-bottom:.0001pt;text-align:justify'><i><u><span
+lang=PT-BR style='font-size:9.0pt;font-family:"Times New Roman";mso-ansi-language:
+PT-BR'><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></span></u></i></p>
+
+<p class=MsoNormal><span lang=VI><o:p>&nbsp;</o:p></span></p>
+<%} %>
+</div>
+
+</body>
+
+</html>

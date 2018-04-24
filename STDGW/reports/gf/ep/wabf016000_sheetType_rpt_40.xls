@@ -1,0 +1,651 @@
+<%
+Response.ContentType="application/x-excel"
+Response.Charset="utf-8"
+Response.Buffer = False
+%>
+
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+<!-- #include file="../../../system/lib/form.inc"  -->
+<!-- #include file="../db.inc"  -->
+<%ConnectDBApp%>
+<%
+
+ Function Num2TextUSD(s)
+	Dim l , i, j 
+	Dim dk 
+	Dim A(32)
+	Dim C 
+
+	C = ""
+
+	s = replace(s,",","")
+
+	s = Trim(s)
+	l = Len(s)
+
+	If l > 32 Then
+		Num2TextUSD = "Number Very Large!"
+	End If
+
+	For i = 1 To l
+		A(i) = CInt(Mid(s, i, 1))
+	Next
+
+	For i = 1 To l
+	
+		If (l - i + 1) Mod 3 = 0 And A(i) = 0 And (A(i + 1) <> 0 Or A(i + 2) <> 0) Then C = C & " không"
+	
+		If A(i) = 2 Then C = C & " hai"
+		If A(i) = 3 Then C = C & " ba"
+		If A(i) = 4 Then C = C & " bốn"
+		If A(i) = 6 Then C = C & " sáu"
+		If A(i) = 7 Then C = C & " bảy"
+		If A(i) = 8 Then C = C & " tám"
+		If A(i) = 9 Then C = C & " chín"
+	
+		If A(i) = 5 Then
+			If (i > 0 And (l - i + 1) Mod 3 = 1 And A(i - 1) <> 0) Then
+				C = C & " lăm"
+			Else
+				C = C & " năm"
+			End If
+		End If
+	
+		If (i > 1 And A(i) = 1 And (l - i + 1) Mod 3 = 1 And A(i - 1) > 1) Then
+			C = C & " mốt "
+			ElseIf ((l - i + 1) Mod 3 <> 2 And A(i) = 1) Then
+				C = C & " một"
+		End If
+	
+		If ((l - i + 1) Mod 3 = 2 And A(i) <> 0 And A(i) <> 1) Then
+			C = C & " mươi"
+		ElseIf ((l - i + 1) Mod 3 = 2 And A(i) <> 0) Then
+			C = C & " mười"
+		End If
+	
+		If (i =1) Then
+				If ((l - i + 1) Mod 3 = 2 And A(i) = 0 And A(i + 1) <> 0) Then C = C & " không"
+		Else
+				'If ((l - i + 1) Mod 3 = 2 And A(i) = 0 And A(i + 1) <> 0) Then C = C & " lăm"
+				 If ((l - i + 1) Mod 3 = 2 And A(i) = 0 And A(i + 1) <> 0) Then C = C & " linh"
+		End if		
+				
+		
+	
+		If ((l - i + 1) Mod 3 = 0 And (A(i + 1) <> 0 Or A(i + 2) <> 0)) Then
+			C = C & " trăm"
+		ElseIf (l - i + 1) Mod 3 = 0 And A(i) <> 0 Then
+			C = C & " trăm"
+		End If
+	
+		If ((l - i + 1) = 4) Then C = C & " nghìn"
+		If ((l - i + 1) = 7) Then C = C & " triệu"
+		If ((l - i + 1) = 10) Then C = C & " tỷ"
+		If ((l - i + 1) = 13) Then C = C & " nghìn tỷ"
+		If ((l - i + 1) = 16) Then C = C & " triệu tỷ"
+		If ((l - i + 1) = 19) Then C = C & " tỷ tỷ"
+		If ((l - i + 1) = 22) Then C = C & " triệu tỷ tỷ"
+		If ((l - i + 1) = 25) Then C = C & " triệu tỷ tỷ"
+		If ((l - i + 1) = 28) Then C = C & " tỷ tỷ tỷ"
+	
+		If ((l - i + 1) Mod 3 = 0 And A(i) = 0 And A(i + 1) = 0 And A(i + 2) = 0) Then i = i + 2
+	
+		If ((l - i + 1) Mod 3 = 1) Then
+			dk = True
+			For j = i To l
+				If A(j) <> 0 Then dk = False
+			Next
+		End If
+	
+		If dk Then Exit For
+	Next 
+
+	Num2TextUSD = C 
+End Function
+
+
+iBankPk	= Request.QueryString("bankPK")
+iPKArr	= Request.QueryString("pk")
+
+oBankUsd = ""
+oBankVnd = ""
+oMoneyAmt =""
+oMoneyStr =""
+oTCO_DCCUSTM_PK =""
+oRemark =""
+oCurrType = ""
+oDate = ""
+
+oBankAccount =""
+oBenName = ""
+oBenBank = ""
+oBenBranch = ""
+
+oCompanyName = ""
+oCompanyAddr = ""
+oCompanyTel = ""
+oCompanyBAccount = ""
+Dim oCompanyBAccountArr(12)
+	
+
+SQL = "SELECT ACCOUNT_NO FROM TAC_BFDEPOMT WHERE PK = '" & iBankPk & "'"
+TableReadOpen rs, SQL
+ If Not rs.EOF Then
+		oCompanyBAccount = rs("ACCOUNT_NO")
+End If
+
+SQL = "SELECT COM_LNM , ADDR_LNM1, ADDR_LNM2, ADDR_LNM3,PHONE_NO  FROM TCO_EOCOMPANY WHERE DEL_IF = 0 AND USE_YN = 'Y'  AND PK = "
+SQL= SQL & " (SELECT TCO_EOCOMPANY_PK FROM TAC_BFDEPOMT WHERE PK = '" & iBankPk & "')"
+
+TableReadOpen rs, SQL
+If Not rs.EOF Then
+		oCompanyName = rs("COM_LNM")
+		oCompanyAddr = rs("ADDR_LNM1")
+		oCompanyTel  = rs("PHONE_NO")		
+End If
+
+
+
+SQL = "SELECT  TCO_DCCUSTM_PK, SUM(bank_usd) USD, SUM (bank_vnd) VND "
+SQL = SQL & " FROM "
+SQL = SQL & " (SELECT "
+SQL = SQL & " A.TCO_DCCUSTM_PK "
+SQL = SQL & " , decode(A.PAY_TYPE, '22', DECODE(A.TR_CCY, 'USD', sum(a.TR_FAMT), decode(C.VENDOR_TRAD,'IM', sum(a.TR_AMT),'')), '21', DECODE(A.TR_CCY, 'USD',  sum(a.TR_FAMT), decode(C.VENDOR_TRAD,'IM',  sum(a.TR_AMT),'')), '')  bank_usd "
+SQL = SQL & " , decode(A.PAY_TYPE, '22', DECODE(A.TR_CCY, 'USD', '', decode(C.VENDOR_TRAD,'IM','', sum(a.TR_FAMT) )), '21', DECODE(A.TR_CCY, 'USD','', decode(C.VENDOR_TRAD,'IM','',  sum(a.TR_FAMT))), '')  bank_vnd "
+SQL = SQL & " FROM TFN_BAPAYTR A,COMM.TCO_DCCUST C "
+SQL = SQL & " WHERE A.PK IN (" & iPKArr & ")"
+SQL = SQL & " AND A.TCO_DCCUSTM_PK = C.PK "
+SQL = SQL & " GROUP BY  A.TCO_DCCUSTM_PK,A.TR_CCY,a.TR_FAMT, A.PAY_TYPE, C.VENDOR_TRAD ) "
+SQL = SQL & " GROUP BY TCO_DCCUSTM_PK "
+
+'oDate = Mid(idDate,5,2)  & "/" & Right(idDate,2) &"/" & Left(idDate,4)
+'oDate =  Now()
+oMonth	= Month(Now())
+oDay	= Day(Now())
+oYear	= Year(Now())
+if Len(oMonth) = 1 then
+	oMonth = "0" & oMonth
+end if
+if Len(oDay) = 1 then
+	oDay = "0" & oDay
+end if
+
+oCompanyBAccount = Replace(oCompanyBAccount," ","")
+oCompanyBAccount = Replace(oCompanyBAccount,".","")
+oCompanyBAccount = Replace(oCompanyBAccount,"-","")
+istrBankAccLen = Len(oCompanyBAccount)
+
+If istrBankAccLen < 12 Then
+	For i= istrBankAccLen To 12
+		oCompanyBAccountArr(i-istrBankAccLen +1) = " "
+	Next
+End If
+	
+For i = 1 To istrBankAccLen
+	oCompanyBAccountArr(12-istrBankAccLen + i) = Mid(CStr(oCompanyBAccount), i, 1)
+Next
+
+SQL_COUNT = "SELECT COUNT( DISTINCT TCO_DCCUSTM_PK) NumCust FROM TFN_BAPAYTR WHERE PK IN (" & iPKArr & ")"
+
+TableReadOpen rs_count, SQL_COUNT
+ If Not rs_count.EOF Then
+		oCountCustomer = CInt(rs_count("NumCust"))
+End If
+
+oNumberPrint = oCountCustomer*2 -1
+
+%>
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1258">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 11">
+<link rel=File-List href="WOORI%20DOMESTIC_40_files/filelist.xml">
+<link rel=Edit-Time-Data href="WOORI%20DOMESTIC_40_files/editdata.mso">
+<link rel=OLE-Object-Data href="WOORI%20DOMESTIC_40_files/oledata.mso">
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>kiet</o:Author>
+  <o:LastAuthor>User</o:LastAuthor>
+  <o:Created>2007-08-15T07:32:13Z</o:Created>
+  <o:LastSaved>2007-08-24T08:16:49Z</o:LastSaved>
+  <o:Company>Vinagenuwin</o:Company>
+  <o:Version>11.5606</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:1.0in 0in 1.0in .75in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style16
+	{mso-number-format:"_\(* \#\,\#\#0\.00_\)\;_\(* \\\(\#\,\#\#0\.00\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	mso-style-name:Comma;
+	mso-style-id:3;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl24
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-family:VNI-Times;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;}
+.xl25
+	{mso-style-parent:style0;
+	font-size:12.0pt;
+	font-weight:700;
+	font-family:VNI-Times;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	vertical-align:middle;}
+.xl26
+	{mso-style-parent:style0;
+	font-size:12.0pt;
+	font-weight:700;
+	font-family:VNI-Times;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:top;}
+.xl27
+	{mso-style-parent:style0;
+	color:black;
+	font-size:12.0pt;
+	font-weight:700;
+	font-family:VNI-Times;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:top;}
+.xl28
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-family:VNI-Times;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	text-align:right;
+	vertical-align:top;}
+.xl29
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:VNI-Times;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:top;}
+.xl30
+	{mso-style-parent:style0;
+	color:red;
+	font-size:12.0pt;
+	font-weight:700;
+	font-family:VNI-Times;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	vertical-align:middle;}
+.xl31
+	{mso-style-parent:style0;
+	text-align:center;
+	vertical-align:middle;}
+.xl32
+	{mso-style-parent:style0;
+	font-size:12.0pt;
+	font-weight:700;
+	font-family:VNI-Times;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0_\)\;_\(* \\\(\#\,\#\#0\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	vertical-align:middle;}
+.xl33
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:163;
+	text-align:center;
+	vertical-align:top;}
+.xl34
+	{mso-style-parent:style0;
+	text-align:left;}
+.xl35
+	{mso-style-parent:style0;
+	mso-number-format:"Short Date";}
+.xl36
+	{mso-style-parent:style0;
+	mso-number-format:"\[ENG\]\[$-409\]d\\-mmm\;\@";}
+.xl37
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:VNI-Times;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:"\[ENG\]\[$-409\]d\\-mmm\;\@";}
+.xl38
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-family:VNI-Times;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;}
+.xl39
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;}
+.xl40
+	{mso-style-parent:style0;
+	font-size:12.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:"_\(* \#\,\#\#0_\)\;_\(* \\\(\#\,\#\#0\\\)\;_\(* \0022-\0022??_\)\;_\(\@_\)";
+	text-align:center;
+	vertical-align:top;}
+.xl41
+	{mso-style-parent:style0;
+	font-style:italic;
+	font-family:Arial, sans-serif;
+	mso-font-charset:163;
+	text-align:left;}
+.xl42
+	{mso-style-parent:style0;
+	mso-number-format:"\[ENG\]\[$-409\]d\\-mmm\\-yyyy\;\@";
+	text-align:right;}
+.xl43
+	{mso-style-parent:style16;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"\#\,\#\#0";
+	text-align:center;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet1</x:Name>
+    <x:WorksheetOptions>
+     <x:Print>
+      <x:ValidPrinterInfo/>
+      <x:PaperSizeIndex>9</x:PaperSizeIndex>
+      <x:HorizontalResolution>300</x:HorizontalResolution>
+      <x:VerticalResolution>300</x:VerticalResolution>
+     </x:Print>
+     <x:Selected/>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+	 <x:PageBreaks>
+     <x:RowBreaks>
+<% For i = 1 to oNumberPrint %><x:RowBreak>
+       <x:Row><%= i*12 %></x:Row>
+      </x:RowBreak><% Next %>
+       </x:RowBreaks>
+    </x:PageBreaks>
+	
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:WindowHeight>8985</x:WindowHeight>
+  <x:WindowWidth>15360</x:WindowWidth>
+  <x:WindowTopX>0</x:WindowTopX>
+  <x:WindowTopY>1530</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]-->
+</head>
+
+<body link=blue vlink=purple>
+
+<table x:str border=0 cellpadding=0 cellspacing=0 width=772 style='border-collapse:
+ collapse;table-layout:fixed;width:586pt'>
+ <col width=53 style='mso-width-source:userset;mso-width-alt:1938;width:40pt'>
+ <col width=26 span=8 style='mso-width-source:userset;mso-width-alt:950;
+ width:20pt'>
+ <col width=21 style='mso-width-source:userset;mso-width-alt:768;width:16pt'>
+ <col width=24 style='mso-width-source:userset;mso-width-alt:877;width:18pt'>
+ <col width=26 style='mso-width-source:userset;mso-width-alt:950;width:20pt'>
+ <col width=31 style='mso-width-source:userset;mso-width-alt:1133;width:23pt'>
+ <col width=41 span=2 style='mso-width-source:userset;mso-width-alt:1499;
+ width:31pt'>
+ <col width=79 style='mso-width-source:userset;mso-width-alt:2889;width:59pt'>
+ <col width=16 style='mso-width-source:userset;mso-width-alt:585;width:12pt'>
+ <col width=26 span=4 style='mso-width-source:userset;mso-width-alt:950;
+ width:20pt'>
+ <col width=64 span=2 style='width:48pt'>
+ <%
+ TableReadOpen rs, SQL
+ While Not rs.EOF 
+		oBankUsd = rs("USD")
+		oBankVnd = rs("VND")
+		oTCO_DCCUSTM_PK = rs("TCO_DCCUSTM_PK")
+		
+		SQL_BEN = "SELECT BEDEFI_NM, BEDEFI_BANK_NM, BRANCH, ACCOUNT_NO  FROM TAC_BFBENEFICIARY WHERE DEL_IF = 0 AND  TCO_DCCUST_PK = '" & oTCO_DCCUSTM_PK & "'"
+
+		TableReadOpen rs_ben, SQL_BEN
+		If Not rs_ben.EOF Then
+				oBenName		= rs_ben("BEDEFI_NM")
+				oBenBank		= rs_ben("BEDEFI_BANK_NM")
+				oBenBranch		= rs_ben("BRANCH")	
+				oBankAccount	= rs_ben("ACCOUNT_NO")		
+		End If
+
+		If (oBankUsd <>"") then
+				oCurrType="USD"
+				oMoneyAmt = oBankUsd
+				d = instr(oBankUsd,".")
+						if  d=0 then
+									oMoneyStr = Num2TextUSD(oBankUsd) & " đô la"
+						else
+									nguyen = left(oBankUsd,d-1)
+									phan = mid(oBankUsd,d+1,len(oBankUsd))
+									oMoneyStr = Num2TextUSD(nguyen) & " đô la lẻ " & Num2TextUSD(phan)
+						end if
+		else 
+			oCurrType="VND"
+			oMoneyAmt = oBankVnd
+			oMoneyStr = Num2TextUSD(oBankVnd) &" đồng"
+		end if
+ 
+ %>
+ <tr height=22 style='mso-height-source:userset;height:16.5pt'>
+  <td height=22 width=53 style='height:16.5pt;width:40pt'>&nbsp;</td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=21 style='width:16pt'></td>
+  <td width=24 style='width:18pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=31 style='width:23pt'></td>
+  <td width=41 style='width:31pt'></td>
+  <td width=41 style='width:31pt'></td>
+  <td width=79 style='width:59pt'></td>
+  <td width=16 style='width:12pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+ </tr>
+ <tr class=xl24 height=26 style='mso-height-source:userset;height:20.1pt'>
+  <td height=26 class=xl24 style='height:20.1pt'></td>
+  
+  <td class=xl26 colspan=3 style='mso-ignore:colspan;></td>
+  <td class=xl26 style='mso-ignore:colspan;>D     D   A     9    1   2</td>
+  <td class=xl26 style='mso-ignore:colspan;></td>
+  <td class=xl26 style='mso-ignore:colspan;></td>
+  <td class=xl26 x:num><%= oCompanyBAccountArr(7) %></td>
+  <td class=xl26 x:num><%= oCompanyBAccountArr(8) %></td>
+  <td class=xl27 x:num><%= oCompanyBAccountArr(9) %></td>
+  <td class=xl26 x:num><%= oCompanyBAccountArr(10) %></td>
+  <td class=xl26 x:num><%= oCompanyBAccountArr(11) %></td>
+  <td class=xl26 x:num><%= oCompanyBAccountArr(12) %></td>
+  <td colspan=2 class=xl24 style='mso-ignore:colspan'></td>
+  <td></td>
+  <td class=xl28></td>
+  <td class=xl29 x:num>1</td>
+  <td class=xl29 x:num>2</td>
+  <td class=xl29 x:num>3</td>
+  <td class=xl29 x:num>4</td>
+  <td colspan=2 class=xl24 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr class=xl24 height=14 style='mso-height-source:userset;height:10.5pt'>
+  <td height=14 class=xl24 style='height:10.5pt'></td>
+  <td colspan=8 class=xl25 style='mso-ignore:colspan'></td>
+  <td class=xl30></td>
+  <td colspan=2 class=xl25 style='mso-ignore:colspan'></td>
+  <td colspan=3 class=xl24 style='mso-ignore:colspan'></td>
+  <td colspan=5 class=xl28 style='mso-ignore:colspan'></td>
+  <td colspan=3 class=xl24 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr class=xl31 height=19 style='mso-height-source:userset;height:14.25pt'>
+  <td height=19 colspan=4 class=xl31 style='height:14.25pt;mso-ignore:colspan'></td>
+  <td class=xl32></td>
+  <td class=xl25></td>
+  <td colspan=6 class=xl40 <% if oCurrType="USD" then %> style='mso-number-format:"\#\,\#\#0\.00";text-align:center;' <%else %>  style='text-align:center;' <% end if %> x:num><%= oMoneyAmt %></td>
+  <td class=xl25></td>
+  <td class=xl33><%= oCurrType %></td>
+  <td colspan=9 class=xl31 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=22 style='mso-height-source:userset;height:16.5pt'>
+  <td height=22 colspan=3 style='height:16.5pt;mso-ignore:colspan'></td>
+  <td colspan=18 class=xl41><%= oMoneyStr %></td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 colspan=3 style='height:12.75pt;mso-ignore:colspan'></td>
+  <td colspan=13 class=xl34 style='mso-ignore:colspan'></td>
+  <td colspan=7 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=31 style='mso-height-source:userset;height:23.25pt'>
+  <td height=31 colspan=23 style='height:23.25pt;mso-ignore:colspan'></td>
+ </tr>
+ <tr height=0 style='display:none'>
+  <td height=0 colspan=23 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=49 style='mso-height-source:userset;height:36.75pt'>
+  <td height=49 colspan=2 style='height:36.75pt;mso-ignore:colspan'></td>
+  <td colspan=4 style='mso-ignore:colspan'><%= oBenBank %></td>
+  <td colspan=17 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=35 style='mso-height-source:userset;height:26.25pt'>
+  <td height=35 colspan=2 style='height:26.25pt;mso-ignore:colspan'></td>
+  <td colspan=5 style='mso-ignore:colspan'><%= oBenName %></td>
+  <td colspan=8 style='mso-ignore:colspan'></td>
+  <td class=xl35></td>
+  <td colspan=4 class=xl42><%= oDay %>/<%= oMonth %>/<%= oYear %></td>
+  <td class=xl36></td>
+  <td colspan=2 class=xl37 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=26 style='mso-height-source:userset;height:20.1pt'>
+  <td height=26 style='height:20.1pt'></td>
+  <td class=xl38></td>
+  <td class=xl39 colspan=2 style='mso-ignore:colspan'><%= oBankAccount%></td>
+  <td colspan=3 class=xl39 style='mso-ignore:colspan'></td>
+  <td colspan=5 class=xl38 style='mso-ignore:colspan'></td>
+  <td colspan=11 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=26 style='mso-height-source:userset;height:20.1pt'>
+  <td height=26 style='height:20.1pt'></td>
+  <td colspan=8 class=xl43 <% if oCurrType="USD" then %> style='mso-number-format:"\#\,\#\#0\.00";' <% end if %> x:num><%= oMoneyAmt %></td>
+  <td colspan=2 style='mso-ignore:colspan'><%= oCurrType %></td>
+  <td colspan=12 style='mso-ignore:colspan'></td>
+ </tr>
+
+ <%
+ rs.MoveNext	
+ WEND
+ %>
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=53 style='width:40pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=21 style='width:16pt'></td>
+  <td width=24 style='width:18pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=31 style='width:23pt'></td>
+  <td width=41 style='width:31pt'></td>
+  <td width=41 style='width:31pt'></td>
+  <td width=79 style='width:59pt'></td>
+  <td width=16 style='width:12pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</body>
+
+</html>

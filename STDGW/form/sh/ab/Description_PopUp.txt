@@ -1,0 +1,17 @@
+
+========== ITEM ========== 
+* shab00010 : Pop Up Get Many Item
+* shab00020 : Employee List
+* shab00030 : Get Color
+* shab00050 : Get Test No
+* shab00060 : Get HS Code
+* shab00070 : Get Type No
+* shab00080 : Get Unit
+* shab00150 : Get Dept
+* shab00160 : Get 1 item
+* shab00170 : Get PL center
+* shab00180 : Get 1 Product
+* shab00190 : Get Many SO
+* shab00210 : Get Account Code (co gioi han)
+* shab00220 : Get Data from Stock
+=================================================================

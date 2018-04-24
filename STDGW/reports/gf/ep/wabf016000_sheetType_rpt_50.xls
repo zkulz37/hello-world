@@ -1,0 +1,760 @@
+<%
+Response.ContentType="application/x-excel"
+Response.Charset="utf-8"
+Response.Buffer = False
+%>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+<!-- #include file="../../../system/lib/form.inc"  -->
+<!-- #include file="../db.inc"  -->
+<%ConnectDBApp%>
+<%
+
+ Function Num2TextUSD(s)
+	Dim l , i, j 
+	Dim dk 
+	Dim A(32)
+	Dim C 
+
+	C = ""
+
+	s = replace(s,",","")
+
+	s = Trim(s)
+	l = Len(s)
+
+	If l > 32 Then
+		Num2TextUSD = "Number Very Large!"
+	End If
+
+	For i = 1 To l
+		A(i) = CInt(Mid(s, i, 1))
+	Next
+
+	For i = 1 To l
+	
+		If (l - i + 1) Mod 3 = 0 And A(i) = 0 And (A(i + 1) <> 0 Or A(i + 2) <> 0) Then C = C & " không"
+	
+		If A(i) = 2 Then C = C & " hai"
+		If A(i) = 3 Then C = C & " ba"
+		If A(i) = 4 Then C = C & " bốn"
+		If A(i) = 6 Then C = C & " sáu"
+		If A(i) = 7 Then C = C & " bảy"
+		If A(i) = 8 Then C = C & " tám"
+		If A(i) = 9 Then C = C & " chín"
+	
+		If A(i) = 5 Then
+			If (i > 0 And (l - i + 1) Mod 3 = 1 And A(i - 1) <> 0) Then
+				C = C & " lăm"
+			Else
+				C = C & " năm"
+			End If
+		End If
+	
+		If (i > 1 And A(i) = 1 And (l - i + 1) Mod 3 = 1 And A(i - 1) > 1) Then
+			C = C & " mốt "
+			ElseIf ((l - i + 1) Mod 3 <> 2 And A(i) = 1) Then
+				C = C & " một"
+		End If
+	
+		If ((l - i + 1) Mod 3 = 2 And A(i) <> 0 And A(i) <> 1) Then
+			C = C & " mươi"
+		ElseIf ((l - i + 1) Mod 3 = 2 And A(i) <> 0) Then
+			C = C & " mười"
+		End If
+	
+		If (i =1) Then
+				If ((l - i + 1) Mod 3 = 2 And A(i) = 0 And A(i + 1) <> 0) Then C = C & " không"
+		Else
+				'If ((l - i + 1) Mod 3 = 2 And A(i) = 0 And A(i + 1) <> 0) Then C = C & " lăm"
+				 If ((l - i + 1) Mod 3 = 2 And A(i) = 0 And A(i + 1) <> 0) Then C = C & " linh"
+		End if		
+				
+		
+	
+		If ((l - i + 1) Mod 3 = 0 And (A(i + 1) <> 0 Or A(i + 2) <> 0)) Then
+			C = C & " trăm"
+		ElseIf (l - i + 1) Mod 3 = 0 And A(i) <> 0 Then
+			C = C & " trăm"
+		End If
+	
+		If ((l - i + 1) = 4) Then C = C & " nghìn"
+		If ((l - i + 1) = 7) Then C = C & " triệu"
+		If ((l - i + 1) = 10) Then C = C & " tỷ"
+		If ((l - i + 1) = 13) Then C = C & " nghìn tỷ"
+		If ((l - i + 1) = 16) Then C = C & " triệu tỷ"
+		If ((l - i + 1) = 19) Then C = C & " tỷ tỷ"
+		If ((l - i + 1) = 22) Then C = C & " triệu tỷ tỷ"
+		If ((l - i + 1) = 25) Then C = C & " triệu tỷ tỷ"
+		If ((l - i + 1) = 28) Then C = C & " tỷ tỷ tỷ"
+	
+		If ((l - i + 1) Mod 3 = 0 And A(i) = 0 And A(i + 1) = 0 And A(i + 2) = 0) Then i = i + 2
+	
+		If ((l - i + 1) Mod 3 = 1) Then
+			dk = True
+			For j = i To l
+				If A(j) <> 0 Then dk = False
+			Next
+		End If
+	
+		If dk Then Exit For
+	Next 
+
+	Num2TextUSD = C 
+End Function
+
+
+iBankPk	= Request.QueryString("bankPK")
+iPKArr	= Request.QueryString("pk")
+
+oBankUsd = ""
+oBankVnd = ""
+oMoneyAmt =""
+oMoneyStr =""
+oTCO_DCCUSTM_PK =""
+oRemark =""
+oCurrType = ""
+oDate = ""
+
+oBankAccount =""
+oBenName = ""
+oBenBank = ""
+oBenBranch = ""
+
+oCompanyName = ""
+oCompanyAddr = ""
+oCompanyTel = ""
+oCompanyBAccount = ""
+
+oCountCustomer = 0
+
+SQL = "SELECT ACCOUNT_NO FROM TAC_BFDEPOMT WHERE PK = '" & iBankPk & "'"
+TableReadOpen rs, SQL
+ If Not rs.EOF Then
+		oCompanyBAccount = rs("ACCOUNT_NO")
+End If
+
+SQL = "SELECT COM_LNM , ADDR_LNM1, ADDR_LNM2, ADDR_LNM3,PHONE_NO  FROM TCO_EOCOMPANY WHERE DEL_IF = 0 AND USE_YN = 'Y'  AND PK = "
+SQL= SQL & " (SELECT TCO_EOCOMPANY_PK FROM TAC_BFDEPOMT WHERE PK = '" & iBankPk & "')"
+
+TableReadOpen rs, SQL
+If Not rs.EOF Then
+		oCompanyName = rs("COM_LNM")
+		oCompanyAddr = rs("ADDR_LNM1")
+		oCompanyTel  = rs("PHONE_NO")		
+End If
+
+
+
+SQL = "SELECT  TCO_DCCUSTM_PK, SUM(bank_usd) USD, SUM (bank_vnd) VND "
+SQL = SQL & " FROM "
+SQL = SQL & " (SELECT "
+SQL = SQL & " A.TCO_DCCUSTM_PK "
+SQL = SQL & " , decode(A.PAY_TYPE, '22', DECODE(A.TR_CCY, 'USD', sum(a.TR_FAMT), decode(C.VENDOR_TRAD,'IM', sum(a.TR_AMT),'')), '21', DECODE(A.TR_CCY, 'USD',  sum(a.TR_FAMT), decode(C.VENDOR_TRAD,'IM',  sum(a.TR_AMT),'')), '')  bank_usd "
+SQL = SQL & " , decode(A.PAY_TYPE, '22', DECODE(A.TR_CCY, 'USD', '', decode(C.VENDOR_TRAD,'IM','', sum(a.TR_FAMT) )), '21', DECODE(A.TR_CCY, 'USD','', decode(C.VENDOR_TRAD,'IM','',  sum(a.TR_FAMT))), '')  bank_vnd "
+SQL = SQL & " FROM TFN_BAPAYTR A,COMM.TCO_DCCUST C "
+SQL = SQL & " WHERE A.PK IN (" & iPKArr & ")"
+SQL = SQL & " AND A.TCO_DCCUSTM_PK = C.PK "
+SQL = SQL & " GROUP BY  A.TCO_DCCUSTM_PK,A.TR_CCY,a.TR_FAMT, A.PAY_TYPE, C.VENDOR_TRAD ) "
+SQL = SQL & " GROUP BY TCO_DCCUSTM_PK "
+
+'oDate = Mid(idDate,5,2)  & "/" & Right(idDate,2) &"/" & Left(idDate,4)
+'oDate =  Now()
+oMonth	= Month(Now())
+oDay	= Day(Now())
+oYear	= Year(Now())
+if Len(oMonth) = 1 then
+	oMonth = "0" & oMonth
+end if
+if Len(oDay) = 1 then
+	oDay = "0" & oDay
+end if
+
+SQL_COUNT = "SELECT COUNT( DISTINCT TCO_DCCUSTM_PK) NumCust FROM TFN_BAPAYTR WHERE PK IN (" & iPKArr & ")"
+
+TableReadOpen rs_count, SQL_COUNT
+ If Not rs_count.EOF Then
+		oCountCustomer = CInt(rs_count("NumCust"))
+End If
+
+oNumberPrint = oCountCustomer -1
+%>
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1258">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 11">
+<link rel=File-List href="SHB_Oversea_50_files/filelist.xml">
+<link rel=Edit-Time-Data href="SHB_Oversea_50_files/editdata.mso">
+<link rel=OLE-Object-Data href="SHB_Oversea_50_files/oledata.mso">
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Administrator</o:Author>
+  <o:LastAuthor>dt</o:LastAuthor>
+  <o:LastPrinted>2007-08-25T07:43:18Z</o:LastPrinted>
+  <o:Created>2007-06-25T02:56:20Z</o:Created>
+  <o:LastSaved>2007-08-25T07:44:21Z</o:LastSaved>
+  <o:Company>VinaGenuWin</o:Company>
+  <o:Version>11.6360</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:0in 0in 0in .2in;
+	mso-header-margin:0in;
+	mso-footer-margin:0in;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl24
+	{mso-style-parent:style0;
+	font-size:8.0pt;}
+.xl25
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	vertical-align:middle;}
+.xl26
+	{mso-style-parent:style0;
+	text-align:left;}
+.xl27
+	{mso-style-parent:style0;
+	font-size:14.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;}
+.xl28
+	{mso-style-parent:style0;
+	font-size:12.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;}
+.xl29
+	{mso-style-parent:style0;
+	font-style:italic;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;}
+.xl30
+	{mso-style-parent:style0;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;}
+.xl31
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;}
+.xl32
+	{mso-style-parent:style0;
+	mso-number-format:Standard;}
+.xl33
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:163;
+	mso-number-format:Standard;}
+.xl34
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-style:italic;
+	font-family:"Times New Roman", serif;
+	mso-font-charset:0;}
+.xl35
+	{mso-style-parent:style0;
+	font-size:8.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:163;}
+.xl36
+	{mso-style-parent:style0;
+	text-align:left;
+	vertical-align:top;
+	white-space:normal;}
+.xl37
+	{mso-style-parent:style0;
+	font-size:12.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:163;
+	mso-number-format:Standard;
+	text-align:left;}
+.xl38
+	{mso-style-parent:style0;
+	text-align:right;}
+.xl39
+	{mso-style-parent:style0;
+	font-size:9.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;}
+.xl40
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"dd\/mm\/yyyy";
+	text-align:center;}
+.xl41
+	{mso-style-parent:style0;
+	font-size:11.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:163;
+	text-align:left;}
+.xl42
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:right;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet1</x:Name>
+    <x:WorksheetOptions>
+     <x:Print>
+      <x:ValidPrinterInfo/>
+      <x:PaperSizeIndex>9</x:PaperSizeIndex>
+      <x:HorizontalResolution>300</x:HorizontalResolution>
+      <x:VerticalResolution>300</x:VerticalResolution>
+     </x:Print>
+     <x:Selected/>
+<x:TopRowVisible>12</x:TopRowVisible>
+     <x:LeftColumnVisible>1</x:LeftColumnVisible>
+     <x:Panes>
+      <x:Pane>
+       <x:Number>3</x:Number>
+       <x:ActiveRow>13</x:ActiveRow>
+       <x:ActiveCol>17</x:ActiveCol>
+       <x:RangeSelection>$R$14:$T$14</x:RangeSelection>
+      </x:Pane>
+     </x:Panes>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+    <x:PageBreaks>
+     <x:RowBreaks>
+<% For i = 1 to oNumberPrint %><x:RowBreak>
+       <x:Row><%= i*37 %></x:Row>
+      </x:RowBreak><% Next %>
+       </x:RowBreaks>
+    </x:PageBreaks>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:WindowHeight>7935</x:WindowHeight>
+  <x:WindowWidth>15195</x:WindowWidth>
+  <x:WindowTopX>0</x:WindowTopX>
+  <x:WindowTopY>75</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]-->
+</head>
+<body link=blue vlink=purple>
+<table x:str border=0 cellpadding=0 cellspacing=0 width=709 style='border-collapse:
+ collapse;table-layout:fixed;width:534pt'>
+ <col width=0 style='display:none;mso-width-source:userset;mso-width-alt:438'>
+ <col width=131 style='mso-width-source:userset;mso-width-alt:4790;width:98pt'>
+ <col width=12 style='mso-width-source:userset;mso-width-alt:438;width:9pt'>
+ <col width=25 style='mso-width-source:userset;mso-width-alt:914;width:19pt'>
+ <col width=18 style='mso-width-source:userset;mso-width-alt:658;width:14pt'>
+ <col width=25 style='mso-width-source:userset;mso-width-alt:914;width:19pt'>
+ <col width=55 style='mso-width-source:userset;mso-width-alt:2011;width:41pt'>
+ <col width=19 style='mso-width-source:userset;mso-width-alt:694;width:14pt'>
+ <col width=22 style='mso-width-source:userset;mso-width-alt:804;width:17pt'>
+ <col width=37 style='mso-width-source:userset;mso-width-alt:1353;width:28pt'>
+ <col width=25 style='mso-width-source:userset;mso-width-alt:914;width:19pt'>
+ <col width=58 style='mso-width-source:userset;mso-width-alt:2121;width:44pt'>
+ <col width=12 style='mso-width-source:userset;mso-width-alt:438;width:9pt'>
+ <col width=20 style='mso-width-source:userset;mso-width-alt:731;width:15pt'>
+ <col width=27 style='mso-width-source:userset;mso-width-alt:987;width:20pt'>
+ <col width=19 style='mso-width-source:userset;mso-width-alt:694;width:14pt'>
+ <col width=65 style='mso-width-source:userset;mso-width-alt:2377;width:49pt'>
+ <col width=25 style='mso-width-source:userset;mso-width-alt:914;width:19pt'>
+ <col width=33 style='mso-width-source:userset;mso-width-alt:1206;width:25pt'>
+ <col width=56 style='mso-width-source:userset;mso-width-alt:2048;width:42pt'>
+ <col width=25 style='mso-width-source:userset;mso-width-alt:914;width:19pt'>
+ <col width=24 style='mso-width-source:userset;mso-width-alt:877;width:18pt'>
+ <col width=25 span=5 style='mso-width-source:userset;mso-width-alt:914;
+ width:19pt'>
+ <col width=23 style='mso-width-source:userset;mso-width-alt:841;width:17pt'>
+ 
+ <%
+ TableReadOpen rs, SQL
+ While Not rs.EOF 
+		oBankUsd = rs("USD")
+		oBankVnd = rs("VND")
+		oTCO_DCCUSTM_PK = rs("TCO_DCCUSTM_PK")
+		
+		SQL_BEN = "SELECT BEDEFI_NM, BEDEFI_BANK_NM, BRANCH, ACCOUNT_NO  FROM TAC_BFBENEFICIARY WHERE DEL_IF = 0 AND  TCO_DCCUST_PK = '" & oTCO_DCCUSTM_PK & "'"
+
+		TableReadOpen rs_ben, SQL_BEN
+		If Not rs_ben.EOF Then
+				oBenName		= rs_ben("BEDEFI_NM")
+				oBenBank		= rs_ben("BEDEFI_BANK_NM")
+				oBenBranch		= rs_ben("BRANCH")	
+				oBankAccount	= rs_ben("ACCOUNT_NO")		
+		End If
+
+		If (oBankUsd <>"") then
+				oCurrType="USD"
+				oMoneyAmt = oBankUsd
+				d = instr(oBankUsd,".")
+						if  d=0 then
+									oMoneyStr = Num2TextUSD(oBankUsd) & " đô la"
+						else
+									nguyen = left(oBankUsd,d-1)
+									phan = mid(oBankUsd,d+1,len(oBankUsd))
+									oMoneyStr = Num2TextUSD(nguyen) & " đô la lẻ " & Num2TextUSD(phan)
+						end if
+		else 
+			oCurrType="VND"
+			oMoneyAmt = oBankVnd
+			oMoneyStr = Num2TextUSD(oBankVnd) &" đồng"
+		end if
+ 
+ 
+ %>
+ <tr height=13 style='mso-height-source:userset;height:9.95pt'>
+  <td height=13 width=0 style='height:9.95pt'></td>
+  <td width=131 style='width:98pt'></td>
+  <td width=12 style='width:9pt'></td>
+  <td width=25 style='width:19pt'></td>
+  <td width=18 style='width:14pt'></td>
+  <td width=25 style='width:19pt'></td>
+  <td width=55 style='width:41pt'></td>
+  <td width=19 style='width:14pt'></td>
+  <td width=22 style='width:17pt'></td>
+  <td width=37 style='width:28pt'></td>
+  <td width=25 style='width:19pt'></td>
+  <td width=58 style='width:44pt'></td>
+  <td width=12 style='width:9pt'></td>
+  <td width=20 style='width:15pt'></td>
+  <td width=27 style='width:20pt'></td>
+  <td width=19 style='width:14pt'></td>
+  <td class=xl25 width=65 style='width:49pt'></td>
+  <td class=xl25 width=25 style='width:19pt'></td>
+  <td width=33 style='width:25pt'></td>
+  <td width=56 style='width:42pt'></td>
+  <td width=25 style='width:19pt'></td>
+ </tr>
+ <tr height=13 style='mso-height-source:userset;height:9.95pt'>
+  <td height=13 style='height:9.95pt'></td>
+  <td colspan=3 rowspan=2 class=xl26></td>
+  <td colspan=8 style='mso-ignore:colspan'></td>
+  <td class=xl27></td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+  <td colspan=3 class=xl25 style='mso-ignore:colspan'></td>
+  <td colspan=3 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=20 style='mso-height-source:userset;height:15.0pt'>
+  <td height=20 style='height:15.0pt'></td>
+  <td colspan=9 style='mso-ignore:colspan'></td>
+  <td colspan=7 class=xl24 style='mso-ignore:colspan'></td>
+  <td></td>
+ </tr>
+ <tr height=11 style='mso-height-source:userset;height:8.25pt'>
+  <td height=11 style='height:8.25pt'></td>
+  <td colspan=20 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 style='height:12.75pt'></td>
+  <td colspan=20 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 style='height:12.75pt'></td>
+  <td colspan=11 rowspan=2 class=xl27 x:str=""></td>
+  <td colspan=9 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 style='height:12.75pt'></td>
+  <td colspan=9 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=30 style='mso-height-source:userset;height:22.5pt'>
+  <td height=30 style='height:22.5pt'></td>
+  <td></td>
+  <td class=xl28></td>
+  <td colspan=18 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=4 style='mso-height-source:userset;height:3.0pt'>
+  <td height=4 style='height:3.0pt'></td>
+  <td></td>
+  <td colspan=8 class=xl28 style='mso-ignore:colspan'></td>
+  <td colspan=11 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 style='height:12.75pt'></td>
+  <td colspan=20 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 style='height:12.75pt'></td>
+  <td colspan=20 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='mso-height-source:userset;height:12.75pt'>
+  <td height=17 style='height:12.75pt'></td>
+  <td colspan=20 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=10 style='mso-height-source:userset;height:7.5pt'>
+  <td height=10 style='height:7.5pt'></td>
+  <td colspan=20 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=27 style='mso-height-source:userset;height:20.25pt'>
+  <td height=27 style='height:20.25pt'></td>
+  <td colspan=5 style='mso-ignore:colspan'></td>
+  <td colspan=2 class=xl29 style='mso-ignore:colspan'></td>
+  <td colspan=3 style='mso-ignore:colspan'></td>
+  <td colspan=3 class=xl29 style='mso-ignore:colspan'></td>
+  <td colspan=3 style='mso-ignore:colspan'></td>
+  <td colspan=3 class=xl40 x:num><%= oDay%>/<%= oMonth %>/<%= oYear %></td>
+  <td></td>
+ </tr>
+ <tr height=17 style='mso-height-source:userset;height:12.75pt'>
+  <td height=17 style='height:12.75pt'></td>
+  <td colspan=20 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=61 style='mso-height-source:userset;height:45.75pt'>
+  <td height=61 style='height:45.75pt'></td>
+  <td colspan=18 class=xl36 width=628 style='width:473pt'></td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=24 style='mso-height-source:userset;height:18pt'>
+  <td height=24 style='height:18pt'></td>
+  <td class=xl30></td>
+  <td colspan=19 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=39 style='mso-height-source:userset;height:29.25pt'>
+  <td height=39 style='height:29.25pt'></td>
+  <td class=xl31></td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+  <td class=xl32></td>
+  <td colspan=7 class=xl37 <% if oCurrType="VND" then %> style='mso-number-format:"\#\,\#\#0";' <% end if %> x:num><%= oMoneyAmt%></td>
+  <td class=xl33 colspan=2 style='mso-ignore:colspan'><%= oCurrType %></td>
+  <td class=xl33></td>
+  <td colspan=5 class=xl32 style='mso-ignore:colspan'></td>
+  <td></td>
+ </tr>
+ <tr height=13 style='mso-height-source:userset;height:9.75pt'>
+  <td height=13 style='height:9.75pt'></td>
+  <td class=xl34></td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+  <td colspan=16 class=xl30 style='mso-ignore:colspan'></td>
+  <td></td>
+ </tr>
+ <tr height=20 style='mso-height-source:userset;height:15.0pt'>
+  <td height=20 style='height:15.0pt'></td>
+  <td class=xl30></td>
+  <td colspan=19 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=20 style='mso-height-source:userset;height:15.0pt'>
+  <td height=20 style='height:15.0pt'></td>
+  <td class=xl31></td>
+  <td colspan=4 style='mso-ignore:colspan'></td>
+  <td class=xl39 colspan=8 style='mso-ignore:colspan'><span
+  style='mso-spacerun:yes'>      </span>C.TY CƠ KHÍ VÀ XÂY DỰNG POSLILAMA</td>
+  <td class=xl35></td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+  <td colspan=3 class=xl26></td>
+  <td></td>
+ </tr>
+ <tr height=16 style='mso-height-source:userset;height:12.0pt'>
+  <td height=16 style='height:12.0pt'></td>
+  <td class=xl34></td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+  <td colspan=2 class=xl29 style='mso-ignore:colspan'></td>
+  <td colspan=7 style='mso-ignore:colspan'></td>
+  <td colspan=4 class=xl29 style='mso-ignore:colspan'></td>
+  <td colspan=3 class=xl26></td>
+  <td></td>
+ </tr>
+ <tr height=21 style='mso-height-source:userset;height:15.75pt'>
+  <td height=21 style='height:15.75pt'></td>
+  <td class=xl30></td>
+  <td colspan=7 style='mso-ignore:colspan'></td>
+  
+   <td colspan=11 class=xl26 style='font-weight:700;'><%= oCompanyTel %></td>
+   <td></td>
+ </tr>
+ <tr height=30 style='mso-height-source:userset;height:22.5pt'>
+  <td height=30 style='height:22.5pt'></td>
+  <td class=xl30></td>
+  <td colspan=7 style='mso-ignore:colspan'></td>
+  <td colspan=11 class=xl26 style='font-weight:700;'>KHU CÔNG NGHIỆP NHƠN TRẠCH</td>
+  <td></td>
+ </tr>
+ <tr height=33 style='mso-height-source:userset;height:24.75pt'>
+  <td height=33 style='height:24.75pt'></td>
+  <td class=xl30></td>
+  <td colspan=7 style='mso-ignore:colspan'></td>
+  <td colspan=5 class=xl41><%= oCompanyBAccount%></td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+  <td colspan=3 class=xl42 x:num>1213</td>
+  <td class=xl26></td>
+  <td></td>
+ </tr>
+ <tr height=15 style='mso-height-source:userset;height:11.25pt'>
+  <td height=15 style='height:11.25pt'></td>
+  <td class=xl30></td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+  <td colspan=5 class=xl29 style='mso-ignore:colspan'></td>
+  <td colspan=3 style='mso-ignore:colspan'></td>
+  <td colspan=4 class=xl29 style='mso-ignore:colspan'></td>
+  <td colspan=5 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=24 style='mso-height-source:userset;height:18pt'>
+  <td height=24 style='height:18pt'></td>
+  <td class=xl31></td>
+  <td colspan=7 style='mso-ignore:colspan'></td>
+  <td colspan=11 class=xl26 style='font-weight:700;'><%= oBenName %></td>
+  <td></td>
+ </tr>
+ <tr height=30 style='mso-height-source:userset;height:23.1pt'>
+  <td height=30 style='height:23.1pt'></td>
+  <td class=xl34></td>
+  <td colspan=7 style='mso-ignore:colspan'></td>
+  <td colspan=11 class=xl26></td>
+  <td></td>
+ </tr>
+ <tr height=30 style='mso-height-source:userset;height:22.5pt'>
+  <td height=30 style='height:22.5pt'></td>
+  <td class=xl30></td>
+  <td colspan=7 style='mso-ignore:colspan'></td>
+  <td colspan=11 class=xl26></td>
+  <td></td>
+ </tr>
+ <tr height=28 style='mso-height-source:userset;height:21pt'>
+  <td height=28 style='height:21pt'></td>
+  <td colspan=2 class=xl31 style='mso-ignore:colspan'></td>
+  <td colspan=7 style='mso-ignore:colspan'></td>
+  <td colspan=10 class=xl26 style='font-weight:700;'><%= oBenBank%></td>
+  <td></td>
+ </tr>
+ <tr height=28 style='mso-height-source:userset;height:21pt'>
+  <td height=28 style='height:21pt'></td>
+  <td class=xl34></td>
+  <td colspan=8 style='mso-ignore:colspan'></td>
+  <td colspan=10 class=xl26 style='font-weight:700;'><%= oBenBranch %></td>
+  <td></td>
+ </tr>
+ <tr height=27 style='mso-height-source:userset;height:20.25pt'>
+  <td height=27 style='height:20.25pt'></td>
+  <td class=xl30></td>
+  <td colspan=8 style='mso-ignore:colspan'></td>
+  <td colspan=10 class=xl26></td>
+  <td></td>
+ </tr>
+ <tr height=29 style='mso-height-source:userset;height:21.75pt'>
+  <td height=29 style='height:21.75pt'></td>
+  <td class=xl30></td>
+  <td colspan=10 style='mso-ignore:colspan'></td>
+  <td colspan=8 class=xl41 ><%= oBankAccount %></td>
+  <td></td>
+ </tr>
+ <tr height=18 style='mso-height-source:userset;height:13.5pt'>
+  <td height=18 style='height:13.5pt'></td>
+  <td colspan=4 class=xl31 style='mso-ignore:colspan'></td>
+  <td colspan=16 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=18 style='mso-height-source:userset;height:13.5pt'>
+  <td height=18 style='height:13.5pt'></td>
+  <td colspan=2 class=xl30 style='mso-ignore:colspan'></td>
+  <td colspan=18 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=27 style='mso-height-source:userset;height:20.25pt'>
+  <td height=27 style='height:20.25pt'></td>
+  <td class=xl31></td>
+  <td colspan=6 style='mso-ignore:colspan'></td>
+  <td colspan=13 style='mso-ignore:colspan'><% 
+  'PAYMENT FOR BUYING BARCODE SYSTEM(FOR WAREHOUSE)
+  %></td>
+ </tr>
+ <tr height=20 style='mso-height-source:userset;height:15.0pt'>
+  <td height=20 style='height:15.0pt'></td>
+  <td class=xl30></td>
+  <td colspan=19 style='mso-ignore:colspan'></td>
+ </tr>
+ <%
+  rs.MoveNext	
+  WEND
+ %>
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=0></td>
+  <td width=131 style='width:98pt'></td>
+  <td width=12 style='width:9pt'></td>
+  <td width=25 style='width:19pt'></td>
+  <td width=18 style='width:14pt'></td>
+  <td width=25 style='width:19pt'></td>
+  <td width=55 style='width:41pt'></td>
+  <td width=19 style='width:14pt'></td>
+  <td width=22 style='width:17pt'></td>
+  <td width=37 style='width:28pt'></td>
+  <td width=25 style='width:19pt'></td>
+  <td width=58 style='width:44pt'></td>
+  <td width=12 style='width:9pt'></td>
+  <td width=20 style='width:15pt'></td>
+  <td width=27 style='width:20pt'></td>
+  <td width=19 style='width:14pt'></td>
+  <td width=65 style='width:49pt'></td>
+  <td width=25 style='width:19pt'></td>
+  <td width=33 style='width:25pt'></td>
+  <td width=56 style='width:42pt'></td>
+  <td width=25 style='width:19pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</body>
+
+</html>

@@ -1,0 +1,490 @@
+<% 	
+	Response.ContentType = "application/x-excel"
+	Response.Charset = "utf-8"
+	Response.Buffer = "False"
+	
+ %>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+<!-- #include file="../db1.inc"  -->
+<%
+ConnectDBApp
+
+	p_from_date			= request.querystring("from_date")
+	p_to_date			= request.querystring("to_date")
+	p_tin_warehouse_pk  = request.querystring("wh_pk")
+	p_warehouse			= request.querystring("warehouse")
+	p_tco_itemgrp_pk	= request.querystring("item_pk")
+	p_item				= request.querystring("item_code")
+	p_trs_type			= request.querystring("trans_type")
+	
+	SQL = " select   item_code,a.item_name, sum(beginning) beginning, sum (inspec_waiting) inspec_waiting, sum (input) input, sum (output) output, "
+	SQL = SQL & " sum (end_qty) end_qty, wh_name "
+	SQL = SQL & " from (select s.tco_item_pk,item_name, s.tin_warehouse_pk, s.end_bal beginning, 0 inspec_waiting, 0 input, 0 output, "
+	SQL = SQL & " 0 end_qty "
+	SQL = SQL & " from tin_stock s, tin_stocktr t, tco_item i "
+	SQL = SQL & " where t.del_if = 0 "
+	SQL = SQL & " and i.del_if =0  "
+	SQL = SQL & " and s.pk = t.tin_stock_pk "
+	SQL = SQL & " and s.tco_item_pk = i.pk "
+	SQL = SQL & " and (s.tco_item_pk, s.tin_warehouse_pk, s.stock_date, s.del_if) in ( "
+	SQL = SQL & " select   d.tco_item_pk, d.tin_warehouse_pk, max (d.stock_date), 0 "
+	SQL = SQL & " from tin_stock d, tco_item i "
+	SQL = SQL & " where d.del_if = 0 "
+	SQL = SQL & " and i.del_if = 0 "
+	SQL = SQL & " and d.tco_item_pk = i.pk "
+	SQL = SQL & " and d.stock_date < '"&p_from_date&"' "
+	SQL = SQL & " and i.item_code like upper (trim ('"&p_item&"')) || '%' "
+	SQL = SQL & " and d.tin_warehouse_pk like "
+	SQL = SQL & " decode ('"&p_tin_warehouse_pk&"', "
+	SQL = SQL & " '0', '%', "
+	SQL = SQL & " '"&p_tin_warehouse_pk&"' "
+	SQL = SQL & " ) "
+	SQL = SQL & "                               and i.tco_itemgrp_pk like decode ('"&p_tco_itemgrp_pk&"', '', '%', '"&p_tco_itemgrp_pk&"') "
+	SQL = SQL & "                          group by d.tco_item_pk, d.tin_warehouse_pk) "
+	SQL = SQL & "                   and (   trin_type like "
+	SQL = SQL & "                                  '%' || decode (substr ('"&p_trs_type&"', 1, 2), "
+	SQL = SQL & "                                                 'IN', substr ('"&p_trs_type&"', 4, 2), "
+	SQL = SQL & "                                                 '%' "
+	SQL = SQL & "                                                ) "
+	SQL = SQL & "                        or trout_type like "
+	SQL = SQL & "                                  '%' || decode (substr ('"&p_trs_type&"', 1, 3), "
+	SQL = SQL & "                                                 'OUT', substr ('"&p_trs_type&"', 5, 2), "
+	SQL = SQL & "                                                 '%' "
+	SQL = SQL & "                                                ) "
+	SQL = SQL & "                       ) "
+	SQL = SQL & "                union all "
+	SQL = SQL & "                select   s.tco_item_pk,i.item_name, s.tin_warehouse_pk, 0 begin_qty, 0 inspec_waiting, "
+	SQL = SQL & "                         decode (nvl (t.trin_type, ''), '', 0, sum (t.input_qty)) input, "
+	SQL = SQL & "                         decode (nvl (t.trout_type, ''), '', 0, sum (t.output_qty)) output, 0 end_qty "
+	SQL = SQL & "                    from tin_stocktr t, tin_stock s, tco_item i "
+	SQL = SQL & "                   where t.tin_stock_pk = s.pk "
+	SQL = SQL & "                     and s.tco_item_pk = i.pk "
+	SQL = SQL & "                     and t.del_if = 0 "
+	SQL = SQL & "                     and s.del_if = 0 "
+	SQL = SQL & "                     and i.del_if = 0 "
+	SQL = SQL & "                     and s.stock_date between '"&p_from_date&"' and '"&p_to_date&"' "
+	SQL = SQL & "                     and i.item_code like upper (trim ('"&p_item&"')) || '%' "
+	SQL = SQL & "                     and s.tin_warehouse_pk like decode ('"&p_tin_warehouse_pk&"', '0', '%', '"&p_tin_warehouse_pk&"') "
+	SQL = SQL & "                     and i.tco_itemgrp_pk like decode ('"&p_tco_itemgrp_pk&"', '', '%', '"&p_tco_itemgrp_pk&"') "
+	SQL = SQL & "                     and (   trin_type like "
+	SQL = SQL & "                                  '%' || decode (substr ('"&p_trs_type&"', 1, 2), "
+	SQL = SQL & "                                                 'IN', substr ('"&p_trs_type&"', 4, 2), "
+	SQL = SQL & "                                                 '%' "
+	SQL = SQL & "                                                ) "
+	SQL = SQL & "                          or trout_type like "
+	SQL = SQL & "                                  '%' || decode (substr ('"&p_trs_type&"', 1, 3), "
+	SQL = SQL & "                                                 'OUT', substr ('"&p_trs_type&"', 5, 2), "
+	SQL = SQL & "                                                 '%' "
+	SQL = SQL & "                                                ) "
+	SQL = SQL & "                         ) "
+	SQL = SQL & "                group by s.tco_item_pk,i.item_name, s.tin_warehouse_pk,t.trin_type,t.trout_type "
+	SQL = SQL & "                union all "
+	SQL = SQL & "                select s.tco_item_pk,i.item_name, s.tin_warehouse_pk, 0 begin_qty, 0 inspec_waiting, 0 input, 0 output, "
+	SQL = SQL & "                       s.end_bal end_qty "
+	SQL = SQL & "                  from tin_stock s, tin_stocktr t,tco_item i "
+	SQL = SQL & "                 where t.del_if = 0 "
+	SQL = SQL & "                    and i.del_if =0 "
+	SQL = SQL & "                     "
+	SQL = SQL & "                   and s.pk = t.tin_stock_pk "
+	SQL = SQL & "                   AND s.tco_item_pk = i.pk "
+	SQL = SQL & "                   and (s.tco_item_pk, s.tin_warehouse_pk, s.stock_date, s.del_if) in ( "
+	SQL = SQL & "                          select   d.tco_item_pk, d.tin_warehouse_pk, max (d.stock_date), 0 "
+	SQL = SQL & "                              from tin_stock d, tco_item i "
+	SQL = SQL & "                             where d.stock_date <= '"&p_to_date&"' "
+	SQL = SQL & "                               and d.tco_item_pk = i.pk "
+	SQL = SQL & "                               and i.item_code like upper (trim ('"&p_item&"')) || '%' "
+	SQL = SQL & "                               and d.tin_warehouse_pk like "
+	SQL = SQL & "                                                        decode ('"&p_tin_warehouse_pk&"', "
+	SQL = SQL & "                                                                '0', '%', "
+	SQL = SQL & "                                                                '"&p_tin_warehouse_pk&"' "
+	SQL = SQL & "                                                               ) "
+	SQL = SQL & "                               and d.del_if = 0 "
+	SQL = SQL & "                               and i.del_if = 0 "
+	SQL = SQL & "                               and i.tco_itemgrp_pk like decode ('"&p_tco_itemgrp_pk&"', '', '%', '"&p_tco_itemgrp_pk&"') "
+	SQL = SQL & "                          group by d.tco_item_pk, d.tin_warehouse_pk) "
+	SQL = SQL & "                   and (   trin_type like "
+	SQL = SQL & "                                  '%' || decode (substr ('"&p_trs_type&"', 1, 2), "
+	SQL = SQL & "                                                 'IN', substr ('"&p_trs_type&"', 4, 2), "
+	SQL = SQL & "                                                 '%' "
+	SQL = SQL & "                                                ) "
+	SQL = SQL & "                        or trout_type like "
+	SQL = SQL & "                                  '%' || decode (substr ('"&p_trs_type&"', 1, 3), "
+	SQL = SQL & "                                                 'OUT', substr ('"&p_trs_type&"', 5, 2), "
+	SQL = SQL & "                                                 '%' "
+	SQL = SQL & "                                                ) "
+	SQL = SQL & "                       ) "
+	SQL = SQL & "                union all "
+	SQL = SQL & "                select   a.tco_item_pk,c.item_name, tin_warehouse_pk, 0, sum (a.req_qty), 0, 0, 0 "
+	SQL = SQL & "                    from tpr_reqiqcd a, tpr_reqiqc b, tco_item c "
+	SQL = SQL & "                   where a.del_if = 0 "
+	SQL = SQL & "                     and b.del_if = 0 "
+	SQL = SQL & "                     and c.del_if = 0 "
+	SQL = SQL & "                     and a.tpr_reqiqc_pk = b.pk "
+	SQL = SQL & "                     and a.tco_item_pk = c.pk "
+	SQL = SQL & "                     and b.req_date between '"&p_from_date&"' and '"&p_to_date&"' "
+	SQL = SQL & "                     and c.item_code like upper (trim ('"&p_item&"')) || '%' "
+	SQL = SQL & "                     and c.tco_itemgrp_pk like decode ('"&p_tco_itemgrp_pk&"', '', '%', '"&p_tco_itemgrp_pk&"') "
+	SQL = SQL & "                group by a.tco_item_pk,c.item_name, tin_warehouse_pk) a, "
+	SQL = SQL & "               tco_item b, "
+	SQL = SQL & "               tin_warehouse c "
+	SQL = SQL & "         where b.del_if = 0 and c.del_if = 0 and a.tco_item_pk = b.pk and a.tin_warehouse_pk = c.pk "
+	SQL = SQL & "      group by item_code,a.item_name, wh_name"
+	
+	TableReadOpen rs, SQL
+%>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 11">
+<link rel=File-List href="epgm00030_2_files/filelist.xml">
+<link rel=Edit-Time-Data href="epgm00030_2_files/editdata.mso">
+<link rel=OLE-Object-Data href="epgm00030_2_files/oledata.mso">
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:LastAuthor>Le Huu Tho</o:LastAuthor>
+  <o:LastPrinted>2008-04-08T07:00:38Z</o:LastPrinted>
+  <o:Created>1996-10-14T23:33:28Z</o:Created>
+  <o:LastSaved>2008-05-26T06:15:37Z</o:LastSaved>
+  <o:Version>11.5606</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.25in .25in .25in .25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-horizontal-page-align:center;}
+.font0
+	{color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;}
+.font6
+	{color:windowtext;
+	font-size:10.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Arial;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl24
+	{mso-style-parent:style0;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl25
+	{mso-style-parent:style0;
+	font-size:16.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	vertical-align:middle;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl26
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:right;
+	vertical-align:middle;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl27
+	{mso-style-parent:style0;
+	text-align:left;
+	vertical-align:middle;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl28
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl29
+	{mso-style-parent:style0;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl30
+	{mso-style-parent:style0;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl31
+	{mso-style-parent:style0;
+	text-align:left;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl32
+	{mso-style-parent:style0;
+	mso-number-format:"_\(* \#\,\#\#0_\)\;_\(* \\\(\#\,\#\#0\\\)\;_\(* \0022-\0022_\)\;_\(\@_\)";
+	text-align:right;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl33
+	{mso-style-parent:style0;
+	font-size:16.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	mso-text-control:shrinktofit;}
+.xl34
+	{mso-style-parent:style0;
+	text-align:left;
+	vertical-align:middle;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>In_Out Monthly</x:Name>
+    <x:WorksheetOptions>
+     <x:FitToPage/>
+     <x:FitToPage/>
+     <x:Print>
+      <x:FitHeight>0</x:FitHeight>
+      <x:ValidPrinterInfo/>
+      <x:PaperSizeIndex>9</x:PaperSizeIndex>
+      <x:Scale>67</x:Scale>
+      <x:HorizontalResolution>300</x:HorizontalResolution>
+      <x:VerticalResolution>300</x:VerticalResolution>
+     </x:Print>
+     <x:Selected/>
+     <x:Panes>
+      <x:Pane>
+       <x:Number>3</x:Number>
+       <x:ActiveRow>18</x:ActiveRow>
+       <x:ActiveCol>2</x:ActiveCol>
+      </x:Pane>
+     </x:Panes>
+     <x:ProtectContents>False</x:ProtectContents>
+     <x:ProtectObjects>False</x:ProtectObjects>
+     <x:ProtectScenarios>False</x:ProtectScenarios>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:WindowHeight>9300</x:WindowHeight>
+  <x:WindowWidth>15135</x:WindowWidth>
+  <x:WindowTopX>120</x:WindowTopX>
+  <x:WindowTopY>120</x:WindowTopY>
+  <x:AcceptLabelsInFormulas/>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+ <x:ExcelName>
+  <x:Name>Print_Titles</x:Name>
+  <x:SheetIndex>1</x:SheetIndex>
+  <x:Formula>='In_Out Monthly'!$1:$6</x:Formula>
+ </x:ExcelName>
+</xml><![endif]-->
+</head>
+
+<body link=blue vlink=purple class=xl24>
+
+<table x:str border=0 cellpadding=0 cellspacing=0 width=1939 style='border-collapse:
+ collapse;table-layout:fixed;width:1457pt'>
+ <col class=xl24 width=64 style='width:48pt'>
+ <col class=xl24 width=110 style='mso-width-source:userset;mso-width-alt:4022;
+ width:83pt'>
+ <col class=xl24 width=180 style='mso-width-source:userset;mso-width-alt:6582;
+ width:135pt'>
+ <col class=xl24 width=110 span=6 style='mso-width-source:userset;mso-width-alt:
+ 4022;width:83pt'>
+ <col class=xl24 width=89 span=2 style='mso-width-source:userset;mso-width-alt:
+ 3254;width:67pt'>
+ <col class=xl24 width=108 style='mso-width-source:userset;mso-width-alt:3949;
+ width:81pt'>
+ <col class=xl24 width=114 style='mso-width-source:userset;mso-width-alt:4169;
+ width:86pt'>
+ <col class=xl24 width=75 span=7 style='mso-width-source:userset;mso-width-alt:
+ 2742;width:56pt'>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl24 width=64 style='height:12.75pt;width:48pt'></td>
+  <td class=xl24 width=110 style='width:83pt'></td>
+  <td class=xl24 width=180 style='width:135pt'></td>
+  <td class=xl24 width=110 style='width:83pt'></td>
+  <td class=xl24 width=110 style='width:83pt'></td>
+  <td class=xl24 width=110 style='width:83pt'></td>
+  <td class=xl24 width=110 style='width:83pt'></td>
+  <td class=xl24 width=110 style='width:83pt'></td>
+  <td class=xl24 width=110 style='width:83pt'></td>
+  <td class=xl24 width=89 style='width:67pt'></td>
+  <td class=xl24 width=89 style='width:67pt'></td>
+  <td class=xl24 width=108 style='width:81pt'></td>
+  <td class=xl24 width=114 style='width:86pt'></td>
+  <td class=xl24 width=75 style='width:56pt'></td>
+  <td class=xl24 width=75 style='width:56pt'></td>
+  <td class=xl24 width=75 style='width:56pt'></td>
+  <td class=xl24 width=75 style='width:56pt'></td>
+  <td class=xl24 width=75 style='width:56pt'></td>
+  <td class=xl24 width=75 style='width:56pt'></td>
+  <td class=xl24 width=75 style='width:56pt'></td>
+ </tr>
+ <tr height=27 style='height:20.25pt'>
+  <td colspan=9 height=27 class=xl33 style='height:20.25pt'>Item In/Out Monthly</td>
+  <td colspan=11 class=xl25 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 colspan=20 class=xl24 style='height:12.75pt;mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl26 style='height:12.75pt'>Date</td>
+  <td class=xl34 colspan=2 style='mso-ignore:colspan'>: <%=p_from_date%> <font
+  class="font6">~</font><font class="font0"> <%=p_to_date%></font></td>
+  <td class=xl26>Item :</td>
+  <td class=xl24><%=p_item%></td>
+  <td class=xl26>Warehouse</td>
+  <td class=xl24><%=p_warehouse%></td>
+  <td class=xl26>Group</td>
+  <td colspan=12 class=xl24 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 colspan=20 class=xl24 style='height:12.75pt;mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl28 style='height:12.75pt'>No</td>
+  <td class=xl29>Item Code</td>
+  <td class=xl29>Item Name</td>
+  <td class=xl29>Begin</td>
+  <td class=xl29>INS Waiting</td>
+  <td class=xl29>Input</td>
+  <td class=xl29>Output</td>
+  <td class=xl29>End</td>
+  <td class=xl29>Warehouse</td>
+  <td colspan=11 class=xl24 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl30 style='height:12.75pt' x:num>1</td>
+  <td class=xl31>AAAAAA</td>
+  <td class=xl31>AAAAAAAAAAA</td>
+  <td class=xl32 x:num="1000"><span style='mso-spacerun:yes'> </span>1,000 </td>
+  <td class=xl32 x:num="1000"><span style='mso-spacerun:yes'> </span>1,000 </td>
+  <td class=xl32 x:num="1000"><span style='mso-spacerun:yes'> </span>1,000 </td>
+  <td class=xl32 x:num="1000"><span style='mso-spacerun:yes'> </span>1,000 </td>
+  <td class=xl32 x:num="1000"><span style='mso-spacerun:yes'> </span>1,000 </td>
+  <td class=xl31>AAAAAA</td>
+  <td colspan=11 class=xl24 style='mso-ignore:colspan'></td>
+ </tr>
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=64 style='width:48pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=180 style='width:135pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=110 style='width:83pt'></td>
+  <td width=89 style='width:67pt'></td>
+  <td width=89 style='width:67pt'></td>
+  <td width=108 style='width:81pt'></td>
+  <td width=114 style='width:86pt'></td>
+  <td width=75 style='width:56pt'></td>
+  <td width=75 style='width:56pt'></td>
+  <td width=75 style='width:56pt'></td>
+  <td width=75 style='width:56pt'></td>
+  <td width=75 style='width:56pt'></td>
+  <td width=75 style='width:56pt'></td>
+  <td width=75 style='width:56pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</body>
+
+<%CloseDB%>
+</html>

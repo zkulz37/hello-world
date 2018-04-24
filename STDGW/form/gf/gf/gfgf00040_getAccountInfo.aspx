@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="gfgf00040_getAccountInfo.cs" Inherits="gfgf00040_getAccountInfo" %>

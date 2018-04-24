@@ -1,0 +1,182 @@
+<!-- #include file="../../../system/lib/form.inc" -->
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head >
+    <title>Entry Budget Detail</title>
+</head>
+<%  ESysLib.SetUser("acnt")%>
+<script>
+var flag = true;
+function BodyInit()
+{
+      System.Translate(document);
+      MergeHeader();  
+      
+}
+function MergeHeader()
+{
+        var fg=Grid_Detail.GetGridControl(); 	
+       if (flag == true)
+	{
+	    fg.Rows =3;
+	    flag = false;
+	}
+        fg.FixedRows = 3
+        fg.MergeCells = 5	
+        
+		fg.MergeRow(0) = true
+		fg.MergeRow(1) = true
+		
+		fg.Cell(0, 0, 5, 0, 10)  = "Main Contract"   //fg.Cell(0,row, from_col, row, to_col)	
+		fg.MergeCol(5) = true
+	    fg.Cell(0, 1, 5, 2, 5) = "Qty"
+	    fg.Cell(0, 1, 6, 1, 8) = "Unit  Price"  
+	    fg.Cell(0, 2, 6, 2, 6) = "Material" 
+	    fg.Cell(0, 2, 7, 2, 7) = "Labor" 
+	    fg.Cell(0, 2, 8, 2, 8) = "Equipment" 
+	    fg.MergeCol(9) = true 
+	    fg.Cell(0, 1, 9, 2, 9) = "Unit Price"    
+	    fg.MergeCol(10) = true 
+	    fg.Cell(0, 1, 10, 2, 10) = "Amount"    
+	    
+	    fg.Cell(0, 0, 11, 0, 19)  = "Working budget (Changed)"   //fg.Cell(0,row, from_col, row, to_col)	
+	    fg.MergeCol(11) = true 
+	    fg.Cell(0, 1, 11, 2, 11) = "Qty"
+	    fg.Cell(0, 1, 12, 1, 13) = "Material" 
+	    fg.Cell(0, 2, 12, 2, 12) = "Unit Price"  
+	    fg.Cell(0, 2, 13, 2, 13) = "Material Cost"  
+	    fg.Cell(0, 1, 14, 1, 15) = "Labor" 
+	    fg.Cell(0, 2, 14, 2, 14) = "Unit Price"  
+	    fg.Cell(0, 2, 15, 2, 15) = "Labor Cost"   
+	   
+	    fg.Cell(0, 1, 16, 1, 17) = "Equipment" 
+	    fg.Cell(0, 2, 16, 2, 16) = "Unit Price"  
+	    fg.Cell(0, 2, 17, 2, 17) = "Equipment Cost"  
+	    fg.MergeCol(18) = true 
+	    fg.Cell(0, 1, 18, 2, 18) = "Unit Price"  
+	    fg.MergeCol(19) = true 
+	    fg.Cell(0, 1, 19, 2, 19) = "Amount"   
+        Grid_Detail.SetCellBold(1, 5, 1, 22, true); 
+       
+        fg.Cell(0, 0, 21, 0, 22) = "Subcontract Work Division"  
+        fg.MergeCol(21) = true 
+	    fg.Cell(0, 1, 21, 2, 21) = "Code"   
+	    fg.MergeCol(22) = true 
+	    fg.Cell(0, 1, 22, 2, 22) = "Name"    
+	    
+	    fg.MergeCol(0) = true
+		fg.Cell(0, 0, 0, 2, 0) = "Level"	
+		fg.MergeCol(1) = true
+		fg.Cell(0, 0, 1, 2, 1) = "Contract Detail No"	
+		fg.MergeCol(2) = true
+		fg.Cell(0, 0, 2, 2, 2) = "Work Breakdown Name"	
+		fg.MergeCol(3) = true
+		fg.Cell(0, 0, 3, 2, 3) = "Specification"	
+        fg.MergeCol(4) = true
+		fg.Cell(0, 0, 4, 2, 4) = "UOM"	
+		fg.MergeCol(20) = true
+		fg.Cell(0, 0, 20, 2, 20) = "Direct Y/N"	
+		fg.MergeCol(23) = true
+		fg.Cell(0, 0, 23, 2, 23) = "Budget Code"	
+		fg.MergeCol(24) = true
+		fg.Cell(0, 0, 24, 2, 24) = "Execution Description"	
+		fg.MergeCol(25) = true
+		fg.Cell(0, 0, 25, 2, 25) = "Remark"	
+}
+</script>
+<body>
+  <table style="width:100%;height:100%" cellpadding="0" cellspacing="0">
+                        <tr style="height:5%">
+                                    <td width="100%">
+                                                    <fieldset style="padding:0">
+                                                                    <table cellpadding="1" cellspacing="1" width="100%">
+                                                                                <tr>
+                                                                                                <td align="right" width="15%"><a title="Click here to show Project" href="#" style="text-decoration : none" onclick="OnPopUp('Project')">Project</a></td>
+                                                                                                <td width="38%">
+                                                                                                        <table cellpadding="0" cellspacing="0" width="100%">
+                                                                                                                <tr>
+                                                                                                                            <td width="40%"><gw:textbox id="txtProject_Cd" readonly="true" styles='width:100%' /></td>
+                                                                                                                            <td width="60%"><gw:textbox id="txtProject_Nm" readonly="true" styles='width:100%' /></td> 
+                                                                                                                            <td width=""><gw:textbox id="txtProject_Pk" styles='width:100%;display:none' /></td>  
+                                                                                                                            <td ><gw:imgbtn id="btve2" img="reset" alt="Reset"  onclick="txtProject_Cd.text='';txtProject_Nm.text='';txtProject_Pk.text='';" /></td> 
+                                                                                                                </tr>
+                                                                                                        </table>
+                                                                                                </td>  
+                                                                                                <td align="right" width="15%">Contract Y/N</td>
+                                                                                                <td width="32%">
+                                                                                                        <table cellpadding="0" cellspacing="0" width="100%">
+                                                                                                                <tr>
+                                                                                                                            <td width="100%"><gw:list id="lstContract_YN"  styles='width:100%' /></td> 
+                                                                                                                            <td ><gw:imgBtn id="ibtnUpdte" img="search" alt="Search" 	onclick="OnSearch()" 	 /></td>  
+                                                                                                                            <td ><gw:imgBtn id="ibtUpdte" img="new" alt="New" 	onclick="OnNew()" 	 /></td>   
+                                                                                                                            <td ><gw:imgBtn id="ibtnUpdate" img="save" alt="save" 	onclick="OnSave()" 	 /></td> 
+                                                                                                                            <td ><gw:imgBtn id="ibUpdte" img="udelete" alt="UnDelete" 	onclick="OnUnDelete()" 	 /></td>   
+                                                                                                                            <td ><gw:imgBtn id="ibUpde" img="delete" alt="Delete" 	onclick="OnDelete()" 	 /></td>    
+                                                                                                                            <td ><gw:imgBtn id="ibUrpde" img="excel" alt="Print" 	onclick="OnPrint()" 	 /></td>     
+                                                                                                                </tr>
+                                                                                                        </table>
+                                                                                                </td>   
+                                                                                </tr>
+                                                                                <tr>
+                                                                                            <td align="right" width=""><a title="Click here to show Subcontract Work Division" href="#" style="text-decoration : none" onclick="OnPopUp('SubcontractWorkDivision')">Sub Work Division</a></td>
+                                                                                            <td width="">
+                                                                                                    <table cellpadding="0" cellspacing="0" width="100%">
+                                                                                                            <tr>
+                                                                                                                        <td width="40%"><gw:textbox id="txtSubcontract_Cd" readonly="true" styles='width:100%' /></td>
+                                                                                                                        <td width="60%"><gw:textbox id="txtSubcontract_Nm" readonly="true" styles='width:100%' /></td> 
+                                                                                                                        <td width=""><gw:textbox id="txtSubcontract_Pk" styles='width:100%;display:none' /></td>  
+                                                                                                                        <td ><gw:imgbtn id="btrtve2" img="reset" alt="Reset"  onclick="txtSubcontract_Cd.text='';txtSubcontract_Nm.text='';txtSubcontract_Pk.text='';" /></td> 
+                                                                                                            </tr>
+                                                                                                    </table>
+                                                                                            </td>  
+                                                                                            <td align="right" width="">Budget Item</td>
+                                                                                            <td width="">
+                                                                                                    <table cellpadding="0" cellspacing="0" width="100%">
+                                                                                                            <tr>
+                                                                                                                        <td width=""><gw:list id="lstBudget_Item"  styles='width:100%' /></td>
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                            </tr>
+                                                                                                    </table>
+                                                                                            </td>   
+                                                                                </tr> 
+                                                                                <tr>
+                                                                                            <td align="right" width=""><a title="Click here to show  Work Division" href="#" style="text-decoration : none" onclick="OnPopUp('WorkDivision')">Work Division</a></td> 
+                                                                                             <td width="">
+                                                                                                        <table cellpadding="0" cellspacing="0" width="100%">
+                                                                                                                <tr>
+                                                                                                                            
+                                                                                                                            <td width="40%"><gw:textbox id="txtDivision_Cd" readonly="true" styles='width:100%' /></td>
+                                                                                                                            <td width="60%"><gw:textbox id="txtDivision_Nm" readonly="true" styles='width:100%' /></td>  
+                                                                                                                            <td width=""><gw:textbox id="txtDivision_Pk" styles='width:100%;display:none' /></td>  
+                                                                                                                            <td ><gw:imgbtn id="bteve2" img="reset" alt="Reset"  onclick="txtDivision_Cd.text='';txtDivision_Nm.text='';txtDivision_Pk.text='';" /></td>  
+                                                                                                                </tr>
+                                                                                                            </table>
+                                                                                            </td>  
+                                                                                            <td align="right"><gw:checkbox id="chk" value="Y" defaultvalue="Y|N"/></td>
+                                                                                            <td>Excluding detail of which quantity is "0"</td> 
+                                                                                </tr> 
+                                                                            </table>
+                                                    </fieldset>
+                                            </td>
+                                </tr>
+                                <tr style="height:95%">
+                                            <td colspan="4">
+                                            <!-- header=" 0.Level | 1.Contract Detail No | 2.Work Breakdown Name | 3.Specification | 4.UOM | 5.Qty | 6.Material | 7.Labor | 8.Equipment | 9.Unit Price | 10.Amount | 11.Qty | 12.Unit Price | 13.Material Cost | 14.Unit Price | 15.Labor Cost | 16.Unit Price | 17.Equipment Cost | 18.Unit Price | 19.Amount | 20.Direct Y/N | 21.Code | 22.Name | 23.Budget Code | 24.Execution Description | 25.Remark"  -->
+                                                    <gw:grid   
+                                                                    id="Grid_Detail"  
+                                                                    header="Level|Contract Detail No|Work Breakdown Name|Specification|UOM|Qty|Material|Labor|Equipment|Unit Price|Amount|Qty|Unit Price|Material Cost|Unit Price|Labor Cost|Unit Price|Equipment Cost|Unit Price|Amount|Direct Y/N|Code|Name|Budget Code|Execution Description|Remark"   
+                                                                    format  ="0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0"  
+                                                                     aligns  ="1|1|0|0|1|1|1|1|1|1|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0"  
+                                                                    defaults="|||||||||||||||||||||||||"  
+                                                                    editcol ="1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1"  
+                                                                    widths  ="1500|1700|2500|2500|1500|2000|2000|2000|2000|2000|2000|2000|2000|2000|2000|2000|2000|2000|2000|2000|1000|1500|2000|1500|3000|3000"  
+                                                                    styles="width:100%; height:100%"   
+                                                                    sorting="T"
+                                                                     /> 
+                                            </td>
+                                </tr>
+</table>                                   
+
+</body>
+</html>

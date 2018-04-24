@@ -1,0 +1,23 @@
+//---------------------------------
+Merge Cell
+
+exSheet.Cells[pos + l_row, col + 5, pos + l_row, col + 9].Merge();
+
+//--------------------------------
+SUm
+
+exSheet.Cells["F" + (dtDetail.Rows.Count + 12)].Value = "=SUM(G12:G" + (dtDetail.Rows.Count + 11) + ")";
+
+exSheet.Cells[l_row+pos, 5].Value = "=SUM(E3:E" + (l_row+pos-1) + ")";
+exSheet.Cells[l_row+pos, 6].Value = "=SUM(F3:F" + (l_row+pos-1) + ")";
+exSheet.Cells[l_row+pos, 7].Value = "=SUM(G3:G" + (l_row+pos-1) + ")";
+exSheet.Cells[l_row+pos, 8].Value = "=SUM(H3:H" + (l_row+pos-1) + ")";
+
+total_sub += Convert.ToDouble(dt1.Rows[0]["po_amt"]);
+
+//--------------------------------
+Copy
+
+exSheet.Cells["A10:H13"].Copy(exSheet.Cells["A" + (6 + (count * 5)) + ":H" + (9 + (count * 5))]);
+
+
