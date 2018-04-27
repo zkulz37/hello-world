@@ -1,0 +1,79 @@
+CREATE OR REPLACE procedure 
+                              STDGW.send_mail
+( 
+   from_name varchar2,
+   to_name varchar2,
+   l_subject varchar2,
+   message varchar2
+) 
+is
+
+  
+  l_mailhost    VARCHAR2(64) := 'mail.vinagenuwin.com';
+  l_from        VARCHAR2(64) := 'yen.le@vinagenuwin.com';
+  l_to          VARCHAR2(64) := 'yen.le@vinagenuwin.com';
+ 
+  l_mail_conn   UTL_SMTP.connection;
+  /*
+  
+
+ l_mailhost    VARCHAR2(64) := 'smtp.gmail.com';
+  l_from        VARCHAR2(64) := 'kiemtoank14@gmail.com';
+  l_to          VARCHAR2(64) := 'nhut.truong@vinagenuwin.com';
+  l_mail_conn   UTL_SMTP.connection;
+/* */
+
+/*
+ -- l_mailhost    VARCHAR2(64) := 'mail.vinagenuwin.com';
+  l_mailhost VARCHAR2(64)  :='antispam.posco.net';
+  l_from        VARCHAR2(64) := 'tamdh.encvn@posco.net';
+ -- l_from        VARCHAR2(64) := 'kiemtoank14@gmail.com';
+  l_to          VARCHAR2(64) := 'nhut.truong@vinagenuwin.com';
+  l_mail_conn   UTL_SMTP.connection;/**/
+
+  /*
+ l_mailhost    VARCHAR2(64) := 'smtp.mail.yahoo.com';
+  l_from        VARCHAR2(64) := 'quang_nhut8x@yahoo.com.vn';
+  l_to          VARCHAR2(64) := 'nhut.truong@vinagenuwin.com';
+  l_mail_conn   UTL_SMTP.connection;/**/
+ 
+
+BEGIN
+   -- UTL_SMTP.close_data(l_mail_conn);
+
+  l_mail_conn := UTL_SMTP.open_connection(l_mailhost, 25);
+  
+  
+  ---l_mail_conn:= utl_smtp.open_connection(l_mailhost,25,l_mail_conn  ,null,'tamdh.encvn@posco.net','tamdh2832',true);
+   -- l_mail_conn := UTL_SMTP.open_connection(l_mailhost, 465);
+   /* 
+    UTL_SMTP.command( l_mail_conn, 'AUTH LOGIN');
+    UTL_SMTP.command( l_mail_conn, utl_raw.cast_to_varchar2( utl_encode.base64_encode( utl_raw.cast_to_raw(l_from))) );
+    UTL_SMTP.command( l_mail_conn, utl_raw.cast_to_varchar2( utl_encode.base64_encode( utl_raw.cast_to_raw('tamdh2832'))) ); /**/
+    
+--  l_mail_conn := UTL_SMTP.open_connection(l_mailhost, 587);
+--  UTL_SMTP.helo(l_mail_conn, l_mailhost);
+  UTL_SMTP.helo(l_mail_conn, l_mailhost);
+  UTL_SMTP.mail(l_mail_conn, l_from);
+  UTL_SMTP.rcpt(l_mail_conn, l_to);
+ -- UTL_SMTP.rcpt(l_mail_conn, 'nhut.truong@vinagenuwin.com');
+ 
+  UTL_SMTP.open_data(l_mail_conn);
+  
+  UTL_SMTP.write_data(l_mail_conn, 'Date: '    || TO_CHAR(SYSDATE, 'DD-MON-YYYY HH24:MI:SS') || utl_tcp.crlf);
+  UTL_SMTP.write_data(l_mail_conn, 'From: '    || l_from|| utl_tcp.crlf );
+  UTL_SMTP.write_data(l_mail_conn, 'Subject: ' || l_subject || utl_tcp.crlf);
+  utl_smtp.write_data(l_mail_conn, 'Content-Type: text/plain; charset=utf-8' || utl_tcp.crlf );
+  UTL_SMTP.write_data(l_mail_conn, 'To: '      || l_to || CHR(13) || CHR(10));
+  UTL_SMTP.write_data(l_mail_conn, 'cc: aaaa'          || CHR(13) || CHR(10));
+  
+  FOR cur IN (select full_name from thr_employee where del_if=0 and join_dt like '2010%')
+  LOOP
+    utl_smtp.write_raw_data(l_mail_conn, utl_raw.cast_to_raw(convert(  utl_tcp.crlf || cur.full_name || utl_tcp.crlf, 'utf8')));
+  END LOOP;
+  
+  UTL_SMTP.close_data(l_mail_conn);
+ 
+  UTL_SMTP.quit(l_mail_conn);
+END;
+/
