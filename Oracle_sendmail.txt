@@ -1,0 +1,44 @@
+/*oracle 11 plase excute this code
+BEGIN
+ 
+
+    EXEC DBMS_NETWORK_ACL_ADMIN.create_acl (acl          => 'gmail_act.xml',description  => 'To send mail',principal    => 'HR',is_grant     => TRUE,privilege    => 'connect',start_date   => SYSTIMESTAMP,end_date     => NULL);
+
+
+EXEC DBMS_NETWORK_ACL_ADMIN.assign_acl (acl         => 'gmail_act.xml',host        => '127.0.0.1',lower_port  => 25,upper_port  => NULL);
+
+EXEC DBMS_NETWORK_ACL_ADMIN.assign_acl (acl         => 'gmail_act.xml',host        => '127.0.0.1',lower_port  => 80,upper_port  => NULL);
+
+
+EXEC DBMS_NETWORK_ACL_ADMIN.assign_acl (acl         => 'gmail_act.xml',host        => 'smtp.gmail.com',lower_port  => 80,upper_port  => NULL); 
+   
+
+COMMIT;
+
+END;
+
+
+--- gan quyen cho scote
+ begin
+
+DBMS_NETWORK_ACL_ADMIN.ADD_PRIVILEGE(acl => 'noblandmail_acl.xml',
+
+principal => 'SCOTT',
+
+is_grant => true,
+
+privilege => 'connect');
+
+end;
+
+/
+
+commit;
+
+
+-- check 
+
+SELECT *
+FROM   dba_network_acl_privileges;
+
+SELECT * FROM dba_network_acls ;
