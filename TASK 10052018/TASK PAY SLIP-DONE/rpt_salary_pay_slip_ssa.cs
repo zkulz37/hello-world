@@ -191,7 +191,10 @@ public partial class rpt_salary_pay_slip_ssa : System.Web.UI.Page
         {
             //exSheet.Range[1, 1, loop_height, loop_width].Copy(exSheet.Range[i, loop_width, (i + 1) * loop_height, loop_width * 2], XlPasteType.xlPasteAll);
             exSheet.Range[1, 1, loop_height, loop_width].Copy(exSheet.Range[(i) * loop_height, 1, (i + 1) * loop_height, loop_width], XlPasteType.xlPasteAll);
-            pbs.Add(usedrange.Rows[(loop_height*2) * (i)]); //code phân trang 
+            int phantrang = (loop_height * 2) * i;
+            pbs.Add(usedrange.Rows[phantrang]); //code phân trang 
+
+            
         }   
    
        // exSheet.Cells["K1"].Value = "TEST " + dt_emp.Rows.Count;
@@ -335,7 +338,11 @@ public partial class rpt_salary_pay_slip_ssa : System.Web.UI.Page
                 exSheet.Cells["A" + (44 + (loop_height * (i / 2)))].Value = "Ghi chú:số phút vào trễ hoặc ra sớm:" + dt_emp.Rows[i]["C51"].ToString();
                 exSheet.Cells["A" + (45 + (loop_height * (i / 2)))].Value = "Cảm ơn anh/chị đã làm việc tích cực";
                 exSheet.Cells["A" + (46 + (loop_height * (i / 2)))].Value = "Ghi chú: Trong thời gian thử việc không có phụ cấp sinh hoạt (400000đ)";
-                exSheet.Cells["A" + (47 + (loop_height * (i / 2)))].Value = "Hạn cuối cùng nhận thắc mắc là ngày " + dt_emp.Rows[i]["C49"].ToString();             
+                exSheet.Cells["A" + (47 + (loop_height * (i / 2)))].Value = "Hạn cuối cùng nhận thắc mắc là ngày " + dt_emp.Rows[i]["C49"].ToString();
+
+
+               
+                
             }
             else
             {
@@ -465,8 +472,11 @@ public partial class rpt_salary_pay_slip_ssa : System.Web.UI.Page
             }
 
             
+
+            
         }
             
+        
         exBook.SaveAs(TempFile);
 
         //write out to client broswer
