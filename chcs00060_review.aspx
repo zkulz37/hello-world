@@ -127,6 +127,7 @@ function ChangeSalaryKind()
 }
 function OnDataReceive(obj)
 {
+	
     switch (obj.id)
     {
         case "datCheck_View":
@@ -890,6 +891,11 @@ function on_Process()
    
   
 }
+function checkValue(){
+	alert('txtProcessSalary = '+txtProcessSalary);
+	
+}
+
 function on_Delete()
 {
 if(txtProcessSalary.text=='1')
@@ -1020,18 +1026,6 @@ function ChangeSalaryType()
         </xml> 
 </gw:data>
 
-<!------------------------------------------>
-<gw:data id="datGet_allowance" onreceive="OnDataReceive(this)" > 
-        <xml> 
-            <dso  type="grid"  parameter="0" function="hr_sel_10030006_allowance" procedure=""> 
-                <input bind="grdAllowance" >
-                   <input bind="lstLocation_pk" /> 
-                </input>
-                <output  bind="grdAllowance" />
-            </dso> 
-        </xml> 
-</gw:data>
-
 <gw:data id="datGet_from_to" onreceive="OnDataReceive(this)"  > 
         <xml> 
                     <dso  type="process" procedure="hr_sp_pro_get_from_to_by_org" > 
@@ -1054,6 +1048,37 @@ function ChangeSalaryType()
             </dso> 
         </xml> 
 </gw:data>
+
+<!--grid check -------------->
+<gw:data id="datShowDeatail_error" onreceive="OnDataReceive(this)" > 
+        <xml> 
+            <dso  type="grid" function="hr_sel_00060_error" > 
+                <input bind="grdChk" >
+                   <input bind="idWorkMon" />
+                    <input bind="idFrom" />
+                    <input bind="idTo" />
+                    <input bind="lstLocation_pk" />
+                    <input bind="lstSalaryKind" />
+                    <input bind="txtProcessSalary" />
+                </input>
+                <output  bind="grdChk" />
+            </dso> 
+        </xml> 
+</gw:data>
+
+<!------------------------------------------>
+<gw:data id="datGet_allowance" onreceive="OnDataReceive(this)" > 
+        <xml> 
+            <dso  type="grid"  parameter="0" function="hr_sel_10030006_allowance" procedure=""> 
+                <input bind="grdAllowance" >
+                   <input bind="lstLocation_pk" /> 
+                </input>
+                <output  bind="grdAllowance" />
+            </dso> 
+        </xml> 
+</gw:data>
+
+
 <gw:data id="datCheck_Month_Salary" onreceive="OnDataReceive(this)"  > 
         <xml> 
             <dso  type="process" procedure="hr_sp_pro_get_from_to_by_org" > 
@@ -1437,22 +1462,7 @@ function ChangeSalaryType()
         </xml> 
 </gw:data>
 
-<!--grid check -------------->
-<gw:data id="datShowDeatail_error" onreceive="OnDataReceive(this)" > 
-        <xml> 
-            <dso  type="grid" function="hr_sel_00060_error" > 
-                <input bind="grdChk" >
-                   <input bind="idWorkMon" />
-                    <input bind="idFrom" />
-                    <input bind="idTo" />
-                    <input bind="lstLocation_pk" />
-                    <input bind="lstSalaryKind" />
-                    <input bind="txtProcessSalary" />
-                </input>
-                <output  bind="grdChk" />
-            </dso> 
-        </xml> 
-</gw:data>
+
 
 
 
@@ -1514,6 +1524,7 @@ function ChangeSalaryType()
 					<td align="center"><gw:icon id="idBtnDelete" img="in" text="Delete" onclick="on_Delete()" /></td>
 					<td colspan=2 align="center"><b style="color=#FF3300"><gw:label id="idInterval" text="" styles="width:100%" ></gw:label></b></td>
                     <td colspan=2 class="right" width="26%" align="right">&nbsp;</td>
+					<td align="center"><gw:icon id="idBtnCheckValue" img="in" text="CheckValue" onclick="checkValue()" /></td>
 				</tr>
                 <tr style="height:12%">
 					<td class="bottomleft" align="right" >&nbsp;</td>
