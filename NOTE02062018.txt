@@ -1,0 +1,78 @@
+- GENU SITE : http://192.168.60.254/esys/system/system.aspx
+vng-188/abc123
+Task Adjust-Evaluation : giao task
+
+- SUNGSHINA_F2 :http://192.168.60.251/ssa2/system/system.aspx
+truong/1344
+Oracle DB : HR/HR2
+TNSNamesEditor :
+SSA-F2-251=
+  (DESCRIPTION=
+    (ADDRESS=
+      (PROTOCOL=TCP)
+      (HOST=192.168.60.251)
+      (PORT=1521)
+    )
+    (CONNECT_DATA=
+      (SERVER=dedicated)
+      (SERVICE_NAME=SSA2)
+    )
+  )
+
+- server 246 (test) :192.168.60.246 
+administrator/gw@2013
+- server 251 (test) :192.168.60.251
+administrator/gw@2013
+
+
+----------------------------------------------------------------------------
+Task 10.05.2018 : make new report pay_slip
+company : Sung shin A
+old report : ch/cs/rpt_salary_pay_slip.aspx
+hr.sp_pro_find_report
+
+
+
+
+-----------------------------------------------------------------------------------------------
+deploy task java  shinhanjv: 
+1 . forms/st/ch/ea/steafrstchea0068.jsp
+2. reports/st/ch/ea/stearpstchea0068_pay_slip.jsp
+2.1 reports/st/ch/ea/stearpstchea0068_pay_slip.xlsx
+3.reports/st/ch/ea/stearpstchea0068_working_detail.jsp
+3.1 reports/st/ch/ea/stearpstchea0068_working_detail.xlsx
+4. reports/st/ch/ea/stearpstchea0068_2.xlsx
+procedure : stearpstchea0068_pay_slip
+stearpstchea0068_wk_detail
+
+-------------------------------
+deploy task sung shin a ss2
+reports/ch/om/rpt_salary_pay_slip_ur_ssa.cs
+reports/ch/om/rpt_salary_pay_slip_ur_ssa.xlsx
+reports/ch/cs/rpt_salary_pay_slip_ssa.xlsx
+reports/ch/cs/rpt_salary_pay_slip_ssa.cs
+
+--------------------------------------------------------------------
+deploy task namyang delta 24052018
+annual leave : form/ch/ba/chba00070.aspx
+resigned employee : form/ch/ae/chae00120.aspx
+employee history  : form/ch/ae/chae00130.aspx
+WT Allowance tab history : form/ch/ae/chae00110.aspx
+Appointment Management : form/ch/ae/chae00600.aspx
+form/ch/ae/chae00600_add_emp.aspx
+
+
+
+------------------------------------ 28052018
+task hyosung  : form need fix : 
+\\192.168.60.246\d$\Tomcat 8.0_Tomcat8_e_approval\webapps\hyosung\WEB-INF\jsp\gwframework\forms\st\ch\ea\steapustchea0007.jsp
+
+-----------------------------------30052018 
+task hyosung : 
+form : 
+st\ch\ea\steapustchea0010.jsp
+procedure : STEAPUSTCHEA0010_S_01_v2
+sql : insert into THR_EDOC_MESSAGE (select thr_edoc_message_seq.nextval,'STEAFRSTCHEA0020','E3','D? li?u th?c không có gi?.  Vui lòng ki?m tra l?i process công dã th?c hi?n hay chua','Real data have no time. Please check if processing data has been completed or not yet','','dungnt','','','',0 from dual)
+
+--------------------------------------
+
