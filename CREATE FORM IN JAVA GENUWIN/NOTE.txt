@@ -1,0 +1,64 @@
+
+1_2 :______________________________________________________________________________________________________________________________________________________
+Ki?m tra site localhost dang tr? vào database nào 
+D:\GITHUB\GENUWIN\gsf\gsf\src\main\resources\datasource
+
+và tìm ki?m site asp tuong ?ng 
+
+ví d? : 
+<bean id="appDataSource" class="gwframework.core.common.access.BasicDataSource.GWBasicDataSource" >
+         <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+         <property name="url" value="jdbc:oracle:thin:@192.168.60.247:1521:stdgw" />
+         <property name="username" value="shinhanjv"/>
+         <property name="password" value="shinhanjv2"/>         
+	</bean>
+
+Localhost dang s? d?ng database c?a shinhanjv -> tìm site asp c?a shinhanjv : http://192.168.60.246/shinhanjv/system/system.aspx
+
+
+
+1_3 :______________________________________________________________________________________________________________________________________________________
+
+Add Menu Form trên site asp ( xem hình ) 
+
+1_4 :______________________________________________________________________________________________________________________________________________________
+Note : xong vào database, table tes_obj , b?t c? GSF_YN = Y, r?i nh?p cái c?t ob_url l?i cho dúng index.gw?openType=F&objId=steafrstchhs0068
+update(
+select a.pk,A.MENU_ID,A.MENU_CD,A.FORM_URL,A.FORM_NM,A.OBJ_URL,A.GSF_YN
+,'Y' as NEW_YN
+from tes_obj a  where A.FORM_URL like '%72'
+) set OBJ_URL = FORM_URL, GSF_YN = NEW_YN;
+
+commit;
+
+
+1_5 :______________________________________________________________________________________________________________________________________________________
+
+truy c?p localhost d? check : http://localhost:8080/gsf/system/index.gw (ko c?n restart tomcat)
+Hi?n t?i dã có form trên cây ERP System nhung khi click vào thì b? l?i :
+HTTP Status 404 - /gsf/WEB-INF/jsp/gwframework/forms/st/ch/ea/steafrstchea0072.jsp
+description The requested resource is not available.
+
+B?i vì chua có source jsp c?a form này
+
+1_6 :______________________________________________________________________________________________________________________________________________________
+
+Ti?n hành t?o source jsp 
+Vào Eclipse t?o file jsp :steafrstchea0072
+Source test  : 
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1> Form Name : JAVA USE MVC</h1>
+</body>
+</html>
+
+
+F5 local và check  . Done 
+
